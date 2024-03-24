@@ -7,15 +7,6 @@ assignees: ''
 
 ---
 
----
-name: Simple issue template
-about: Template for creating issue
-title: ''
-labels: ''
-assignees: ''
-
----
-
 ## Description
 
 [Provide a brief description of the feature, including why it is needed and what it will accomplish. You can skip any of Goals, Expected Outcome, Implementation Details, Mockups / Wireframes if they are irrelevant. Please note that this section of the ticket is suggestive & you can structure it as per your prerogative.]
