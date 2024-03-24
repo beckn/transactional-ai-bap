@@ -1,0 +1,65 @@
+{
+    "name": "beckn-action-bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "engines": {
+        "node": ">=10.0.0"
+    },
+    "scripts": {
+        "test": "NODE_ENV=test mocha tests --recursive --timeout 900000 --exit",
+        "test:unit": "NODE_ENV=test mocha tests/unit --recursive --timeout 0 --exit",
+        "test:performance": "NODE_ENV=test mocha tests/performance --recursive --timeout 0 --exit",
+        "test:apis": "NODE_ENV=test mocha tests/apis --recursive --timeout 0 --exit",
+        "start": "nodemon server.js",
+        "dev": "NODE_ENV=dev && npm start",
+        "prod": "NODE_ENV=prod && npm start",
+        "prettify": "prettier --write .",
+        "lint": "eslint -c .eslintrc.json .",
+        "docker:dev": "docker-compose down && docker-compose run --rm beckn-action-bot sh -c 'npm run dev'",
+        "docker:lint": "docker-compose down && docker-compose run --rm beckn-action-bot sh -c 'npm run lint'",
+        "docker:test": "docker-compose down && docker-compose run --rm beckn-action-bot sh -c 'npm run test'",
+        "docker:test:unit": "docker-compose down && docker-compose run --rm beckn-action-bot sh -c 'npm run test:unit'",
+        "docker:test:apis": "docker-compose down && docker-compose run --rm beckn-action-bot sh -c 'npm run test:apis'"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^1.6.7",
+        "body-parser": "^1.20.2",
+        "chai": "^5.0.0",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "js-yaml": "^4.1.0",
+        "mocha": "^10.2.0",
+        "natural": "^6.10.4",
+        "nodemon": "^3.0.3",
+        "openai": "^4.24.1",
+        "pdf-parse": "^1.1.1",
+        "redis": "^4.6.13",
+        "supertest": "^6.3.4",
+        "uuid": "^9.0.1",
+        "winston": "^3.11.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.57.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-node": "^11.1.0",
+        "husky": "^9.0.11",
+        "prettier": "^3.2.5"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint — fix",
+            "prettier — write",
+            "git add"
+        ]
+    }
+}

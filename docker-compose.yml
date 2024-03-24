@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+    redis:
+        image: redis:latest
+        restart: always
+        container_name: redis
+        ports:
+            - '6379:6379'
+        volumes:
+            - redis_data:/data
+        networks:
+            - beckn_network
+
+    beckn-action-bot:
+        image: mayurvirendra/beckn-action-bot:latest
+        restart: always
+        container_name: beckn-action-bot
+        build: .
+        env_file: ./.env
+        environment:
+            - REDIS_URL=redis://redis:6379
+        ports:
+            - '${PORT}:${PORT}'
+            - ${SERVER_PORT}:${SERVER_PORT}
+        depends_on:
+            - ${DB_HOST}
+            - redis
+        networks:
+            - beckn_network
+        # volumes:
+        #     - ./:/app
+
+volumes:
+    index_data:
+        driver: local
+    backups:
+        driver: local
+    redis_data:
+        driver: local
+
+networks:
+    beckn_network:
