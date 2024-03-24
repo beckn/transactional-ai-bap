@@ -10,7 +10,6 @@
     "scripts": {
         "test": "NODE_ENV=test mocha tests --recursive --timeout 900000 -r dotenv/config --exit",
         "test:unit": "NODE_ENV=test mocha tests/unit --recursive --timeout 0 -r dotenv/config --exit",
-        "test:performance": "NODE_ENV=test mocha tests/performance --recursive --timeout 0 -r dotenv/config --exit",
         "test:apis": "NODE_ENV=test mocha tests/apis --recursive --timeout 0 -r dotenv/config --exit",
         "start": "nodemon server.js",
         "dev": "NODE_ENV=dev && npm start",
