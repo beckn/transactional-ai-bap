@@ -1,0 +1,35 @@
+name: Run linting and tests
+
+on:
+    push:
+        branches-ignore:
+            - main
+jobs:
+    test-lint:
+        name: Test
+        runs-on: ubuntu-20.04
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up environment variables
+              run: |
+                  echo "OPENAI_AI_KEY=${{secrets.OPENAI_AI_KEY}}" >> .env
+                  echo "OPENAI_MODEL_ID=${{secrets.OPENAI_MODEL_ID}}" >> .env
+                  echo "OPEN_AI_EMBEDDINGS_MODEL=${{secrets.OPEN_AI_EMBEDDINGS_MODEL}}" >> .env
+                  echo "PORT=${{secrets.PORT}}" >> .env
+                  echo "SERVER_PORT=${{secrets.SERVER_PORT}}" >> .env              
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '20'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run linting
+              run: npm run docker:lint
+
+            - name: Run tests
+              run: npm run docker:test

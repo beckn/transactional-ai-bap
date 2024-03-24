@@ -1,0 +1,14 @@
+{
+    "SUPPORTED_ACTIONS": [
+        { "key": "search", "description": "Perform a search" },
+        { "key": "select", "description": "the instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. This is equivalent of adding items to cart (or equivalent) by selecting them." },
+        { "key": "init", "description": "Initialize a process" },
+        { "key": "confirm", "description": "Confirm an action" },
+        { "key": "status", "description": "Get the status of an action" },
+        { "key": "track", "description": "Track an action" },
+        { "key": "cancel", "description": "Cancel an action" },
+        { "key": "update", "description": "Update an action" },
+        { "key": "rating", "description": "Provide a rating" },
+        { "key": "support", "description": "Get support" }
+    ]
+}
