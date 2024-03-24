@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: Beckn API middleware
+  version: 1.0.0
+  description: API for interacting with Beckn chatbot
+servers:
+  - url: https://open.network.becknprotocol.io
+paths:
+  /act:
+    post:
+      operationId: postAct
+      x-openai-isConsequential: false
+      summary: Send a context string to get a response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - context
+                - action
+                - recipient
+              properties:
+                recipient :
+                  type: string
+                  description: Who is using the api bap or bpp.
+                  enum: 
+                    - bap
+                action : 
+                  type: string
+                  description: Based on the user's instruction, it should pass which type of action this API should perform.
+                  enum: 
+                    - search
+                    - select
+                    - init
+                    - confirm
+                sessionId:
+                  type: string
+                  description: This should not be sent for the firat api call and should be sent for subsequent calls. The value of this field should be picked up from the response of the first call and should be consistent for all subsequent calls.
+                context:
+                  type: string
+                  description: User message should be sent here. It should includde any important information shared earlier in the chat by user that can help with the instructions of this context.
+                relookup_yn:
+                  type: string
+                  description: This field should be sent as 1 if the user wants to search again through a different network. The default value should be 0.
+                  enum:
+                    - 0
+                    - 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The response from the server.
+        '400':
+          description: Bad request
+        '500':
+          description: Server error

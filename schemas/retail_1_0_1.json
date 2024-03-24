@@ -1,0 +1,492 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Retail",
+        "version": "1.0.1"
+    },
+    "servers": [
+        {
+            "url": "{{bap_ps_protocol}}"
+        }
+    ],
+    "tags": [
+        {
+            "name": "ProtocolServer_Retail"
+        },
+        {
+            "name": "BecknProviderPlatform"
+        },
+        {
+            "name": "BecknGateway"
+        }
+    ],
+    "paths": {
+        "/search": {
+            "post": {
+                "operationId": "searchItems",
+                "tags": ["BecknProviderPlatform", "BecknGateway"],
+                "description": "Search for services by intent.",
+                "requestBody": {
+                    "description": "BAP searches for services",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["context", "message"],
+                                "properties": {
+                                    "context": {
+                                        "$ref": "#/components/schemas/Context"
+                                    },
+                                    "message": {
+                                        "type": "object",
+                                        "properties": {
+                                            "intent": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "item": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "descriptor": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "description": "Name of the item"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "location": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "gps": {
+                                                                "type": "string",
+                                                                "enum": ["12.423423,77.325647"]
+                                                            },
+                                                            "radius": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "value": {
+                                                                        "type": "integer",
+                                                                        "description": "Radius value in given units",
+                                                                        "enum": [50]
+                                                                    },
+                                                                    "unit": {
+                                                                        "type": "string",
+                                                                        "description": "Unit of the radius",
+                                                                        "enum": ["km"]
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "description": "Type of the radius",
+                                                                        "enum": ["CONSTANT"]
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/select": {
+            "post": {
+                "operationId": "selectOrder",
+                "tags": ["BecknProviderPlatform"],
+                "description": "Api to select the given items and add them to the cart.",
+                "requestBody": {
+                    "description": "Api to select the given items and add them to the cart.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "object",
+                                        "properties": {
+                                            "order": {
+                                                "type": "object",
+                                                "required": [
+                                                    "provider",
+                                                    "items"
+                                                ],
+                                                "properties": {
+                                                    "provider": {
+                                                        "$ref": "#/components/schemas/Provider"
+                                                    },
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Items"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/init": {
+            "post": {
+                "operationId": "initializeOrder",
+                "tags": ["BecknProviderPlatform"],
+                "description": "Initialize an order by providing billing and/or shipping details.",
+                "requestBody": {
+                    "description": "Initialize an order by providing billing and/or shipping details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "object",
+                                        "properties": {
+                                            "order": {
+                                                "type": "object",
+                                                "required": [
+                                                    "billing",
+                                                    "fulfillment"
+                                                ],
+                                                "properties": {
+                                                    "billing": {
+                                                        "$ref": "#/components/schemas/Billing"
+                                                    },
+                                                    "fulfillment": {
+                                                        "$ref": "#/components/schemas/Fulfillment"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/confirm": {
+            "post": {
+                "operationId": "confirmOrder",
+                "tags": ["BecknProviderPlatform"],
+                "description": "Confirm an order! This API should be used when the user confirms to place an order. The response of this API should show the order id.",
+                "requestBody": {
+                    "description": "Confirm the order by providing billing and/or shipping details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["message"],
+                                "properties": {
+                                    "message": {
+                                        "type": "object",
+                                        "properties": {
+                                            "order": {
+                                                "type": "object",
+                                                "required": ["payment"],
+                                                "properties": {
+                                                    "payment": {
+                                                        "$ref": "#/components/schemas/Payment"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Context": {
+                "type": "object",
+                "required": [
+                    "domain",
+                    "country",
+                    "city",
+                    "action",
+                    "core_version",
+                    "bap_id",
+                    "bap_uri",
+                    "bpp_id",
+                    "bpp_uri",
+                    "message_id",
+                    "timestamp"
+                ],
+                "properties": {
+                    "domain": {
+                        "type": "string",
+                        "description": "Domain of the transaction. Must be one of the enumerated domains and should be picked up based on context. `nic2004:52110` is for retail.",
+                        "enum": ["nic2004:52110", "uei:charging"]
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Country code as per ISO 3166-1 and ISO 3166-2 format",
+                        "enum": ["IND"]
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "City code as per ISO 3166-1 and ISO 3166-2 format",
+                        "enum": ["std:080"]
+                    },
+                    "action": {
+                        "type": "string",
+                        "description": "Defines the Beckn API call. Any actions other than the enumerated actions are not supported by Beckn Protocol",
+                        "enum": ["search", "select", "init", "confirm"]
+                    },
+                    "core_version": {
+                        "type": "string",
+                        "description": "Version of Beckn core API specification being used",
+                        "enum": ["0.9.4"]
+                    },
+                    "bap_id": {
+                        "type": "string",
+                        "description": "Unique id of the BAP. By default it is the fully qualified domain name of the BAP. It should be resolved from the given context."
+                    },
+                    "bap_uri": {
+                        "type": "string",
+                        "description": "URI of the BAP for accepting callbacks. Must have the same domain name as the bap_id. It should be resolved from the given context."                        
+                    },
+                    "bpp_id": {
+                        "type": "string",
+                        "description": "Unique id of the BPP. By default it is the fully qualified domain name of the BPP. Its a required field for all API calls except 'search'. It should be resolved from the given context. Use `onix-bpp.becknprotocol.io` for `uei:charging` domain",
+                        "enum": ["retail-bpp-infra1.becknprotocol.io", "onix-bpp.becknprotocol.io"]
+                    },
+                    "bpp_uri": {
+                        "type": "string",
+                        "description": "URI of the BPP. Must have the same domain name as the bap_id. Its a required field for all API calls except 'search'. It should be resolved from the given context. Use `http://onix-bpp.becknprotocol.io` for `uei:charging` domain.",
+                        "enum": ["https://retail-bpp-infra1.becknprotocol.io/boc/bpp","http://onix-bpp.becknprotocol.io"]
+                    },
+                    "message_id": {
+                        "type": "string",
+                        "description": "This is a unique value which persists during a request / callback cycle. It should be an auto-generated before making the call. It should be a uuid."
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Time of request generation in RFC3339 format",
+                        "enum": ["2022-01-01T12:00:00Z"]
+                    },
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "This is a unique value which persists across all API calls from search through confirm. Its mandatory for ann api calls except 'search'. It should be picked up from the response of `search` API."
+                    }
+                }
+            },
+            "Provider": {
+                "type": "object",
+                "required": ["id", "locations"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of the provider as received in the search response for the selected item"
+                    },
+                    "locations": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Id of the location as received in the search response for the selected item"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Items": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "Id of the item as received in the search response for the selected item"
+                        },
+                        "quantity": {
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer",
+                                    "description": "Count of the item"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "GPS": {
+                "type": "string",
+                "description": "GPS coordinates of the location.",
+                "example": "12.9715987,77.5945627"
+            },
+            "Address": {
+                "type": "object",
+                "properties": {
+                    "door": {
+                        "type": "string",
+                        "description": "Door / Shop number of the address"
+                    },
+                    "building": {
+                        "type": "string",
+                        "description": "Name of the building or block"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "City name"
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "State name"
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Country name",
+                        "enum": ["IND"]
+                    },
+                    "area_code": {
+                        "type": "string",
+                        "description": "Area code. This can be Pincode, ZIP code or any equivalent"
+                    }
+                }
+            },
+            "Billing": {
+                "type": "object",
+                "required": ["name", "address", "email", "phone"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the customer"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "description": "Phone number of the contact person",
+                        "example": "+91 9999999999"
+                    }
+                }
+            },
+            "Fulfillment": {
+                "type": "object",
+                "required": ["type", "end", "customer"],
+                "properties": {
+                    "customer": {
+                        "type": "object",
+                        "description": "Customer details, should be simliar to billing details",
+                        "required": ["person"],
+                        "properties": {
+                            "person": {
+                                "type": "object",
+                                "description": "Person details, should be similar to billing details",
+                                "required": ["name"],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name of the customer, should be same as billing name. ",
+                                        "example": "John Doe"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Type of fulfillment",
+                        "enum": ["HOME-DELIVERY"]
+                    },
+                    "end": {
+                        "type": "object",
+                        "required": ["location", "contact"],
+                        "properties": {
+                            "location": {
+                                "type": "object",
+                                "required": ["gps", "address"],
+                                "properties": {
+                                    "gps": {
+                                        "$ref": "#/components/schemas/GPS"
+                                    },
+                                    "address": {
+                                        "$ref": "#/components/schemas/Address"
+                                    }
+                                }
+                            },
+                            "contact": {
+                                "type": "object",
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "description": "Phone number of the customer",
+                                        "example": "+91 9999999999"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "test@example.com",
+                                        "description": "Email of the customer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Payment": {
+                "type": "object",
+                "required": ["params", "type", "status"],
+                "properties": {
+                    "params": {
+                        "type": "object",
+                        "required": ["transaction_id", "amount", "currency"],
+                        "properties": {
+                            "transaction_id": {
+                                "type": "string",
+                                "description": "Payment transaction id that is returned as part of the init call response."
+                            },
+                            "amount": {
+                                "type": "string",
+                                "description": "Amount to be paid as per the response of init call."
+                            },
+                            "currency": {
+                                "type": "string",
+                                "description": "Currency of the amount",
+                                "enum": ["INR"]
+                            }
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Type of payment",
+                        "enum": ["POST-FULFILLMENT"]
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status of the payment",
+                        "enum": ["NOT-PAID"]
+                    }
+                }
+            }
+        }
+    }
+}
