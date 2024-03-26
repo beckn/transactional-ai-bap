@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs';
 import OpenAI from 'openai'
 import logger from '../utils/logger.js'
+import yaml from 'js-yaml'
+import { v4 as uuidv4 } from 'uuid'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
@@ -8,26 +10,27 @@ const openai = new OpenAI({
 const config = JSON.parse(readFileSync('./config/openai.json'))
 
 class AI {
-
+    
     constructor() {
         this.context = [];
     }
-
+    
     /**
-     * Function to retuen a beckn action from given text. 
-     * It should return a chat completion response if no action is found.
-     * @param {*} text 
-     * @returns 
-     */
+    * Function to retuen a beckn action from given text. 
+    * It should return a chat completion response if no action is found.
+    * @param {*} text 
+    * @returns 
+    */
     async get_beckn_action_from_text(text){
         const openai_messages = [
             { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions. The supported actions with their descriptions are : ${JSON.stringify(config.SUPPORTED_ACTIONS)}.` }, 
             { role: 'system', content: `You must return a json in the following format {'action':'SOME_ACTION_OR_NULL', 'response': 'Should be reponse based on the query.'}` },
             { role: 'system', content: `If the instruction is an action, the action key should be set under 'action' otehrwise action should be null and response should contain completion for the given text.` }, 
+            { role: 'system', content: `A typical order flow should be search > select > init > confirm.`},
             { role: 'system', content: `If you are asked to prepare an itinery or plan a trip, always ask for user preferences such as accommodation types, journey details, dietary preferences, things of interest, journey dates, journey destination, number of members, special requests.` }, 
             { role: 'user', content: text}
         ]
-
+        
         let response = {
             action: null,
             response: null
@@ -40,12 +43,101 @@ class AI {
                 response_format: { type: 'json_object' }
             })
             response = JSON.parse(completion.choices[0].message.content);
-            
         }
         catch(e){
             logger.error(e);
         }
         return response;
+    }
+    
+    async get_beckn_request_from_text(instruction, context=[]){
+        
+        // Preparse presets
+        let presets = {
+            ...config.PRESETS,
+            domain : "Any of these : uei:charging",
+            message_id : uuidv4(),
+            transaction_id: uuidv4(),
+            action :`Any of these : ${JSON.stringify(config.SUPPORTED_DOMAINS.map(item => item.key))}`
+        }
+        
+        // get the right/compressed schema
+        let schema = await this._get_schema_by_instruction(instruction)
+        
+        let openai_messages = [
+            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
+            ...config.SCHEMA_TRANSLATION_CONTEXT,
+            {"role": "system", "content": `Use the following presets to fill the context : ${JSON.stringify(presets)}`},
+            ...context,
+            { "role": "user", "content": instruction }
+        ]
+        
+        try{
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID,
+                response_format: { type: 'json_object' },
+                temperature: 0,
+            })
+            const jsonString = completion.choices[0].message.content.trim()
+            logger.info(jsonString)
+            logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
+            
+            const response = JSON.parse(jsonString)
+            response.url = `${config.PRESETS.base_url}/${response.body.context.action}`
+            return response
+        }
+        catch(e){
+            logger.error(e);
+            return null;
+        }
+        
+    }
+    
+    async compress_search_results(search_res){
+        let openai_messages = [
+            { "role" : "system", "content": "Your job is to complress the search results received from user into a json array of `providers` with the following structure : {id: 'some_provider_id', name: 'some_provider_name', items: [array of items with their ids and names]}" },
+            { "role" : "system", "content": "you should not send providers that do not have items." },
+            { "role": "user", "content": JSON.stringify(search_res)}
+        ]
+        const completion = await openai.chat.completions.create({
+            messages: openai_messages,
+            model: process.env.OPENAI_MODEL_ID,
+            response_format: { type: 'json_object' },
+            temperature: 0,
+        })
+        const jsonString = completion.choices[0].message.content.trim()
+        logger.info(jsonString)
+        logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
+        
+        const compressed = JSON.parse(jsonString)
+        return {...search_res, responses: compressed};
+    }
+    
+    async _get_schema_by_instruction(instruction) {
+
+        const action = await this.get_beckn_action_from_text(instruction);
+        
+        try {
+            const filePath = `./schemas/core_1.1.0/${action?.action}.yml`;
+            const schema = yaml.load(readFileSync(filePath, 'utf8'));
+            return schema;
+        } catch (error) {
+            const defaultFilePath = './schemas/core_1.1.0.yml';
+            const defaultSchema = yaml.load(readFileSync(defaultFilePath, 'utf8'));
+            
+            // Reduce schema
+            if (action?.action) {
+                const specificSchema = JSON.stringify(defaultSchema.paths[`/${action.action}`])
+                if (specificSchema) {
+                    defaultSchema.paths = {
+                        [`/${action.action}`]: specificSchema,
+                    }
+                }
+            }
+            
+            return defaultSchema;
+        }
     }
 }
 
