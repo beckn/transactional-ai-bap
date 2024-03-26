@@ -1,9 +1,9 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import express from 'express'
 import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
-dotenv.config()
 
 const app = express()
 
