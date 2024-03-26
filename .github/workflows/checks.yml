@@ -18,7 +18,11 @@ jobs:
                   echo "OPENAI_MODEL_ID=${{secrets.OPENAI_MODEL_ID}}" >> .env
                   echo "OPEN_AI_EMBEDDINGS_MODEL=${{secrets.OPEN_AI_EMBEDDINGS_MODEL}}" >> .env
                   echo "PORT=${{secrets.PORT}}" >> .env
-                  echo "SERVER_PORT=${{secrets.SERVER_PORT}}" >> .env              
+                  echo "SERVER_PORT=${{secrets.SERVER_PORT}}" >> .env
+                  echo "TWILIO_ACCOUNT_SID=${{secrets.TWILIO_ACCOUNT_SID}}" >> .env
+                  echo "TWILIO_AUTH_TOKEN=${{secrets.TWILIO_AUTH_TOKEN}}" >> .env
+                  echo "TWILIO_NUMBER=${{secrets.TWILIO_NUMBER}}" >> .env
+                  echo "TEST_RECEPIENT_NUMBER=${{secrets.TEST_RECEPIENT_NUMBER}}" >> .env
 
             - name: Set up Node.js
               uses: actions/setup-node@v2
