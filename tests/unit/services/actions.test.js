@@ -15,7 +15,7 @@ describe('Test cases for services/actions.js', () => {
 
       describe('should test send_message()', () => {
         it('should test send a message via Twilio', async () => {
-          const recipient = process.env.TEST_MOBILE_NUMBER;
+          const recipient = process.env.TEST_RECEPIENT_NUMBER;
           const message = "hi, this is a test message";
     
           try {
@@ -40,7 +40,7 @@ describe('Test cases for services/actions.js', () => {
         });
     
         it('should throw an error for empty message', async () => {
-          const recipient = process.env.TEST_MOBILE_NUMBER;
+          const recipient = process.env.TEST_RECEPIENT_NUMBER;
           const message = '';
     
           try {
