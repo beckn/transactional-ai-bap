@@ -21,7 +21,7 @@ async function process_wa_webhook(req, res) {
         res.type('text/xml').send(twiml.toString())
     } catch (error) {
         logger.error(`Error processing message: ${error.message}`)
-        res.status(500).send('Failed to process message')
+        res.status(400).send('Failed to process message')
     }
 }
 
