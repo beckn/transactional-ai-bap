@@ -1,0 +1,1090 @@
+{
+    "context": {
+        "ttl": "PT10M",
+        "action": "search",
+        "timestamp": "2024-03-25T14:36:07.512Z",
+        "message_id": "89d85dea-5d71-4e63-8e6d-f812c25997da",
+        "transaction_id": "99847583-fd40-4c0f-b682-f53ea3061a74",
+        "domain": "uei:charging",
+        "version": "1.1.0",
+        "bap_id": "mit-ps-bap.becknprotocol.io",
+        "bap_uri": "https://mit-ps-bap.becknprotocol.io",
+        "bpp_id": "mit-ps-energy.becknprotocol.io",
+        "bpp_uri": "http://mit-ps-energy.becknprotocol.io"
+    },
+    "responses": [
+        {
+            "context": {
+                "domain": "uei:charging",
+                "action": "on_search",
+                "version": "1.1.0",
+                "bpp_id": "mit-ps-energy.becknprotocol.io",
+                "bpp_uri": "http://mit-ps-energy.becknprotocol.io",
+                "country": "IND",
+                "city": "std:080",
+                "bap_id": "mit-ps-bap.becknprotocol.io",
+                "bap_uri": "https://mit-ps-bap.becknprotocol.io",
+                "transaction_id": "99847583-fd40-4c0f-b682-f53ea3061a74",
+                "message_id": "89d85dea-5d71-4e63-8e6d-f812c25997da",
+                "ttl": "PT10M",
+                "timestamp": "2024-03-25T14:36:12.698Z"
+            },
+            "message": {
+                "catalog": {
+                    "descriptor": {
+                        "name": "BPP",
+                        "code": "bpp",
+                        "short_desc": "Unified Strapi BPP"
+                    },
+                    "providers": [
+                        {
+                            "id": "1",
+                            "descriptor": {
+                                "name": "ChargeZone.in",
+                                "short_desc": "Chargezone is recognized as a leading provider of electric vehicle (EV) charging solutions in India. ",
+                                "long_desc": "The company offers comprehensive services that include the installation, maintenance, and smart management of EV charging infrastructure. Aimed at empowering eco-conscious drivers and businesses, Chargezone is dedicated to providing reliable and sustainable charging services. The company's approach integrates various aspects such as parking, energy supply, and route information to simplify the EV charging experience for both individual consumers and businesses, offering \"Energy as a Service\" and \"Battery as a Service\" models​",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "1",
+                                    "descriptor": {
+                                        "name": "energy",
+                                        "code": "EV"
+                                    }
+                                },
+                                {
+                                    "id": "2",
+                                    "descriptor": {
+                                        "name": "Green Energy",
+                                        "code": "GE"
+                                    }
+                                },
+                                {
+                                    "id": "3",
+                                    "descriptor": {
+                                        "name": "Pulse Energy",
+                                        "code": "PE"
+                                    }
+                                },
+                                {
+                                    "id": "12",
+                                    "descriptor": {
+                                        "name": "Chargers",
+                                        "code": "chargers"
+                                    }
+                                },
+                                {
+                                    "id": "13",
+                                    "descriptor": {
+                                        "name": "EV chargers",
+                                        "code": "ev_chargers"
+                                    }
+                                },
+                                {
+                                    "id": "14",
+                                    "descriptor": {
+                                        "name": "EV",
+                                        "code": "ev"
+                                    }
+                                },
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Charging",
+                                        "code": "charging"
+                                    }
+                                },
+                                {
+                                    "id": "16",
+                                    "descriptor": {
+                                        "name": "Charging Stations",
+                                        "code": "charging_stations"
+                                    }
+                                },
+                                {
+                                    "id": "17",
+                                    "descriptor": {
+                                        "name": "Electric Vehicle",
+                                        "code": "electric_vehicle"
+                                    }
+                                },
+                                {
+                                    "id": "18",
+                                    "descriptor": {
+                                        "name": "Energy",
+                                        "code": "energy"
+                                    }
+                                },
+                                {
+                                    "id": "19",
+                                    "descriptor": {
+                                        "name": "Charging ports",
+                                        "code": "charging_ports"
+                                    }
+                                },
+                                {
+                                    "id": "20",
+                                    "descriptor": {
+                                        "name": "Ev charging stations",
+                                        "code": "ev_charging_stations"
+                                    }
+                                }
+                            ],
+                            "rating": "4.8",
+                            "short_desc": "Chargezone is recognized as a leading provider of electric vehicle (EV) charging solutions in India. ",
+                            "locations": [
+                                {
+                                    "id": "4",
+                                    "gps": "2.9716,77.5946",
+                                    "address": "22, 12, Vittal Mallya Rd, KG Halli, D' Souza Layout, Ashok Nagar, Bengaluru, Karnataka 560001, India",
+                                    "city": {
+                                        "name": "Bengaluru"
+                                    },
+                                    "country": {
+                                        "name": "India"
+                                    },
+                                    "state": {
+                                        "name": "Karnataka"
+                                    },
+                                    "area_code": "560001"
+                                }
+                            ],
+                            "fulfillments": [
+                                {
+                                    "id": "1",
+                                    "type": "CHARGING",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "1",
+                                    "descriptor": {
+                                        "name": "pe-charging-01",
+                                        "code": "pec",
+                                        "short_desc": "Energy charging station",
+                                        "long_desc": "Energy charging station",
+                                        "images": [
+                                            {
+                                                "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbJ3iLFYAbgJ4LWvKVsbSd-tCNWfIbYRx3lw&usqp=CAU"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "8",
+                                        "currency": "INR"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 1000
+                                        }
+                                    },
+                                    "fulfillment_ids": [
+                                        "1"
+                                    ]
+                                },
+                                {
+                                    "id": "2",
+                                    "descriptor": {
+                                        "name": "pe-charging-02",
+                                        "code": "pec-02",
+                                        "short_desc": "The ChargePoint Green Energy Fast Charge Hub on 150 Green Energy Rd offers state-of-the-art, high-speed EV charging with 4 CCS and Type 2 connectors at 150 kW powe",
+                                        "long_desc": "The ChargePoint Green Energy Fast Charge Hub on 150 Green Energy Rd offers state-of-the-art, high-speed EV charging with 4 CCS and Type 2 connectors at 150 kW power. Open 24/7 with amenities including free WiFi, restrooms, and a cozy café nearby. Rated 4.5 stars for its convenience and reliability.",
+                                        "images": [
+                                            {
+                                                "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbJ3iLFYAbgJ4LWvKVsbSd-tCNWfIbYRx3lw&usqp=CAU"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "4",
+                                        "currency": "INR"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 1500
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "tags": [
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Charger type",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Connector type",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Power Rating",
+                                                    "display": true
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "2",
+                            "descriptor": {
+                                "name": "log9.in",
+                                "short_desc": "ElectraCharge is a leading provider of high-speed, reliable EV charging solutions, offering an extensive network of charging stations across urban and key travel corridors.",
+                                "long_desc": "ElectraCharge stands at the forefront of electric vehicle (EV) charging technology, providing an expansive and dependable network of charging stations strategically located in urban centers, shopping malls, and along major highways",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "4",
+                                    "descriptor": {
+                                        "name": "green tariff",
+                                        "code": "green_tariff"
+                                    }
+                                },
+                                {
+                                    "id": "12",
+                                    "descriptor": {
+                                        "name": "Chargers",
+                                        "code": "chargers"
+                                    }
+                                },
+                                {
+                                    "id": "19",
+                                    "descriptor": {
+                                        "name": "Charging ports",
+                                        "code": "charging_ports"
+                                    }
+                                },
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Charging",
+                                        "code": "charging"
+                                    }
+                                },
+                                {
+                                    "id": "16",
+                                    "descriptor": {
+                                        "name": "Charging Stations",
+                                        "code": "charging_stations"
+                                    }
+                                },
+                                {
+                                    "id": "17",
+                                    "descriptor": {
+                                        "name": "Electric Vehicle",
+                                        "code": "electric_vehicle"
+                                    }
+                                },
+                                {
+                                    "id": "1",
+                                    "descriptor": {
+                                        "name": "energy",
+                                        "code": "EV"
+                                    }
+                                },
+                                {
+                                    "id": "18",
+                                    "descriptor": {
+                                        "name": "Energy",
+                                        "code": "energy"
+                                    }
+                                },
+                                {
+                                    "id": "14",
+                                    "descriptor": {
+                                        "name": "EV",
+                                        "code": "ev"
+                                    }
+                                },
+                                {
+                                    "id": "13",
+                                    "descriptor": {
+                                        "name": "EV chargers",
+                                        "code": "ev_chargers"
+                                    }
+                                },
+                                {
+                                    "id": "20",
+                                    "descriptor": {
+                                        "name": "Ev charging stations",
+                                        "code": "ev_charging_stations"
+                                    }
+                                },
+                                {
+                                    "id": "2",
+                                    "descriptor": {
+                                        "name": "Green Energy",
+                                        "code": "GE"
+                                    }
+                                }
+                            ],
+                            "rating": "4.8",
+                            "short_desc": "ElectraCharge is a leading provider of high-speed, reliable EV charging solutions, offering an extensive network of charging stations across urban and key travel corridors.",
+                            "locations": [
+                                {
+                                    "id": "2",
+                                    "gps": "12.9094,77.5736",
+                                    "address": "142, 8th Main Road,JP Nagar 3rd Phase,Bangalore, Karnataka, 560078,\nIndia.",
+                                    "city": {
+                                        "name": "Bengaluru"
+                                    },
+                                    "country": {
+                                        "name": "India"
+                                    },
+                                    "state": {
+                                        "name": "Karnataka"
+                                    },
+                                    "area_code": "560078"
+                                }
+                            ],
+                            "fulfillments": [
+                                {
+                                    "id": "3",
+                                    "type": "BATTERY-SWAP",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "4",
+                                    "type": "MOBILE-BATTERY-SWAP",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "3",
+                                    "type": "BATTERY-SWAP",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "4",
+                                    "type": "MOBILE-BATTERY-SWAP",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "4",
+                                    "descriptor": {
+                                        "name": "es-charging-01",
+                                        "code": "ES1001",
+                                        "short_desc": " Fast, eco-friendly battery swap in the heart of the city for sedans and SUVs. Lithium-ion swaps under 5 minutes, 24/7. No membership required!",
+                                        "long_desc": "Welcome to Energy Station ES1001, your premier urban battery swap hub located in the bustling city center, designed specifically for sedan and SUV drivers. Our state-of-the-art facility offers rapid lithium-ion battery swaps in under 5 minutes, ensuring you're back on the road in no time. Open round the clock, ES1001 caters to all, with no membership necessary. Enjoy our assisted service as you relax with nearby food and beverage options, all while staying connected with our complimentary WiFi. ",
+                                        "images": [
+                                            {
+                                                "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUsoKK5GMUfPhhLBHHE_c7Yqh6FLx0AIRfxg&usqp=CAU"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "8",
+                                        "currency": "INR"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 1500
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "4"
+                                    ],
+                                    "fulfillment_ids": [
+                                        "3"
+                                    ],
+                                    "tags": [
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Battery Health Check",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Under 50 kWh",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Self Service",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Weekends Only",
+                                                    "display": true
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": "5",
+                                    "descriptor": {
+                                        "name": "es-charging-02",
+                                        "code": "ES2002",
+                                        "short_desc": "ES2002: Highway-side self-service battery swap for electric motorcycles. Solid-state batteries, reservations recommended. Solar and wind-powered, open during business hours.",
+                                        "long_desc": "Introducing Energy Station ES2002, strategically located along the highway for electric motorcycle enthusiasts. This self-service station specializes in solid-state battery swaps, offering a more efficient, longer-lasting charge for your journeys. To ensure a seamless experience, we recommend reservations, especially for our members who enjoy exclusive benefits and payment options. ES2002 operates within standard business hours, providing a secure and well-equipped environment. Facilities include restrooms and a comfortable waiting lounge, making it an ideal pit stop",
+                                        "images": [
+                                            {
+                                                "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUsoKK5GMUfPhhLBHHE_c7Yqh6FLx0AIRfxg&usqp=CAU"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "8",
+                                        "currency": "INR"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 2000
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "4"
+                                    ],
+                                    "fulfillment_ids": [
+                                        "4"
+                                    ],
+                                    "tags": [
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Battery Health Check",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Under 50 kWh",
+                                                    "display": true
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "3",
+                            "descriptor": {
+                                "name": "Green Energy Fast Charge Hub",
+                                "short_desc": "he ChargePoint Green Energy Fast Charge Hub on 150 Green Energy Rd offers state-of-the-art, high-speed EV charging with 4 CCS and Type 2 connectors at 150 kW power. ",
+                                "long_desc": "The ChargePoint Green Energy Fast Charge Hub on 150 Green Energy Rd offers state-of-the-art, high-speed EV charging with 4 CCS and Type 2 connectors at 150 kW power. Open 24/7 with amenities including free WiFi, restrooms, and a cozy café nearby. Rated 4.5 stars for its convenience and reliability. Charges at $0.35 per kWh, accepting credit cards and ChargePoint App payments. Perfect for a quick charge and a break on your journey!",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "2",
+                                    "descriptor": {
+                                        "name": "Green Energy",
+                                        "code": "GE"
+                                    }
+                                },
+                                {
+                                    "id": "4",
+                                    "descriptor": {
+                                        "name": "green tariff",
+                                        "code": "green_tariff"
+                                    }
+                                },
+                                {
+                                    "id": "14",
+                                    "descriptor": {
+                                        "name": "EV",
+                                        "code": "ev"
+                                    }
+                                },
+                                {
+                                    "id": "12",
+                                    "descriptor": {
+                                        "name": "Chargers",
+                                        "code": "chargers"
+                                    }
+                                },
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Charging",
+                                        "code": "charging"
+                                    }
+                                },
+                                {
+                                    "id": "19",
+                                    "descriptor": {
+                                        "name": "Charging ports",
+                                        "code": "charging_ports"
+                                    }
+                                },
+                                {
+                                    "id": "16",
+                                    "descriptor": {
+                                        "name": "Charging Stations",
+                                        "code": "charging_stations"
+                                    }
+                                },
+                                {
+                                    "id": "17",
+                                    "descriptor": {
+                                        "name": "Electric Vehicle",
+                                        "code": "electric_vehicle"
+                                    }
+                                },
+                                {
+                                    "id": "18",
+                                    "descriptor": {
+                                        "name": "Energy",
+                                        "code": "energy"
+                                    }
+                                },
+                                {
+                                    "id": "1",
+                                    "descriptor": {
+                                        "name": "energy",
+                                        "code": "EV"
+                                    }
+                                },
+                                {
+                                    "id": "13",
+                                    "descriptor": {
+                                        "name": "EV chargers",
+                                        "code": "ev_chargers"
+                                    }
+                                },
+                                {
+                                    "id": "20",
+                                    "descriptor": {
+                                        "name": "Ev charging stations",
+                                        "code": "ev_charging_stations"
+                                    }
+                                }
+                            ],
+                            "rating": "4.8",
+                            "short_desc": "he ChargePoint Green Energy Fast Charge Hub on 150 Green Energy Rd offers state-of-the-art, high-speed EV charging with 4 CCS and Type 2 connectors at 150 kW power. ",
+                            "locations": [
+                                {
+                                    "id": "5",
+                                    "gps": "12.9763,77.5848",
+                                    "address": "Shop No-120, 11th Cross, Margosa Rd, near Bank of India, Malleshwaram, Bengaluru, Karnataka 560003, India",
+                                    "city": {
+                                        "name": "Bengaluru"
+                                    },
+                                    "country": {
+                                        "name": "India"
+                                    },
+                                    "state": {
+                                        "name": "Karnataka"
+                                    },
+                                    "area_code": "560003"
+                                }
+                            ],
+                            "rateable": true
+                        },
+                        {
+                            "id": "7",
+                            "descriptor": {
+                                "name": "Yellowstone EcoDrive",
+                                "short_desc": "Rent eco-friendly electric vehicles for exploring Yellowstone Park and join guided eco-tours.",
+                                "long_desc": "Rental of electric vehicles for exploring Yellowstone National Park and surrounding areas, including guided eco-tours.",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "13",
+                                    "descriptor": {
+                                        "name": "EV chargers",
+                                        "code": "ev_chargers"
+                                    }
+                                }
+                            ],
+                            "rating": "4",
+                            "short_desc": "Rent eco-friendly electric vehicles for exploring Yellowstone Park and join guided eco-tours.",
+                            "locations": [
+                                {
+                                    "id": "9",
+                                    "address": "123 Eco Drive, Yellowstone Village",
+                                    "city": {
+                                        "name": "Jackson Hole"
+                                    },
+                                    "country": {
+                                        "name": "USA"
+                                    },
+                                    "state": {
+                                        "name": "Wyoming"
+                                    },
+                                    "area_code": "82412"
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "13",
+                                    "descriptor": {
+                                        "name": "Guided Eco-Tours",
+                                        "code": "Yellowstone_Eco",
+                                        "short_desc": "Guided Tours",
+                                        "long_desc": "Yellowstone EcoDrive's guided tours, explore the natural wonders of Yellowstone National Park in electric vehicles while minimizing environmental impact.",
+                                        "images": [
+                                            {
+                                                "url": "https://www.pickpik.com/electric-charge-road-sign-sign-hybrid-automobile-electric-129332"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "50",
+                                        "currency": "USD"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 100
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "29"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "9",
+                            "descriptor": {
+                                "name": "GreenWheels EV Rentals",
+                                "short_desc": "Experience Yellowstone sustainably with electric car and SUV rentals, perfect for eco-conscious travelers.",
+                                "long_desc": "Offers a fleet of electric cars and SUVs for rent, ideal for eco-conscious travelers visiting Yellowstone.",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "14",
+                                    "descriptor": {
+                                        "name": "EV",
+                                        "code": "ev"
+                                    }
+                                }
+                            ],
+                            "rating": "4",
+                            "short_desc": "Experience Yellowstone sustainably with electric car and SUV rentals, perfect for eco-conscious travelers.",
+                            "locations": [
+                                {
+                                    "id": "9",
+                                    "address": "123 Eco Drive, Yellowstone Village",
+                                    "city": {
+                                        "name": "Jackson Hole"
+                                    },
+                                    "country": {
+                                        "name": "USA"
+                                    },
+                                    "state": {
+                                        "name": "Wyoming"
+                                    },
+                                    "area_code": "82412"
+                                }
+                            ],
+                            "fulfillments": [
+                                {
+                                    "id": "5",
+                                    "type": "BATTERY CHARGING",
+                                    "rating": "4.5",
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "1",
+                                    "type": "CHARGING",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "14",
+                                    "descriptor": {
+                                        "name": "Electric Car Rentals",
+                                        "code": "Green-Wheels",
+                                        "short_desc": "Car Rentals",
+                                        "long_desc": "GreenWheels EV Rentals offers electric car rentals, providing eco-conscious travelers visiting Yellowstone National Park with sustainable transportation options to explore the majestic landscapes and wildlife of the region.",
+                                        "images": [
+                                            {
+                                                "url": "https://www.flickr.com/photos/143789194@N03/46991696195"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "60",
+                                        "currency": "USD"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 110
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "29"
+                                    ],
+                                    "fulfillment_ids": [
+                                        "1"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "10",
+                            "descriptor": {
+                                "name": "EcoRides Yellowstone",
+                                "short_desc": "Enjoy eco-friendly shuttle services within Yellowstone Park, reducing environmental impact while exploring.",
+                                "long_desc": "Provides electric shuttle services within Yellowstone National Park, reducing carbon footprint and offering convenient transportation for visitors.",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Charging",
+                                        "code": "charging"
+                                    }
+                                }
+                            ],
+                            "rating": "4",
+                            "short_desc": "Enjoy eco-friendly shuttle services within Yellowstone Park, reducing environmental impact while exploring.",
+                            "locations": [
+                                {
+                                    "id": "10",
+                                    "address": "456 Electric Avenue, Yellowstone Springs",
+                                    "city": {
+                                        "name": "Jackson Hole"
+                                    },
+                                    "country": {
+                                        "name": "USA"
+                                    },
+                                    "state": {
+                                        "name": "Wyoming"
+                                    },
+                                    "area_code": "82412"
+                                }
+                            ],
+                            "fulfillments": [
+                                {
+                                    "id": "2",
+                                    "type": "CHARGING",
+                                    "rating": "4.6",
+                                    "rateable": true,
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "5",
+                                    "type": "BATTERY CHARGING",
+                                    "rating": "4.5",
+                                    "tracking": false
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Shuttle Service",
+                                        "code": "Ecoride-yellow",
+                                        "short_desc": "Shuttle Service",
+                                        "long_desc": "EcoRides Yellowstone provides eco-friendly shuttle services within Yellowstone National Park, offering convenient and environmentally conscious transportation options for visitors to explore the park's diverse attractions and scenic beauty.",
+                                        "images": [
+                                            {
+                                                "url": "https://vectorportal.com/vector/electric-car-charging/18385"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "50",
+                                        "currency": "USD"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 150
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "31"
+                                    ],
+                                    "fulfillment_ids": [
+                                        "5"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "11",
+                            "descriptor": {
+                                "name": "CleanCharge EV Station",
+                                "short_desc": "Conveniently charge your electric vehicle at fast-charging stations near Yellowstone, promoting clean transportation.",
+                                "long_desc": "Operates electric vehicle charging stations equipped with fast-charging capabilities for travelers exploring Yellowstone and nearby areas.",
+                                "additional_desc": {
+                                    "url": "www.makerspace.com"
+                                },
+                                "images": [
+                                    {
+                                        "url": "https://makerspace/assembly/makerspace_logo.png",
+                                        "size_type": "sm"
+                                    }
+                                ]
+                            },
+                            "categories": [
+                                {
+                                    "id": "15",
+                                    "descriptor": {
+                                        "name": "Charging",
+                                        "code": "charging"
+                                    }
+                                }
+                            ],
+                            "rating": "4",
+                            "short_desc": "Conveniently charge your electric vehicle at fast-charging stations near Yellowstone, promoting clean transportation.",
+                            "locations": [
+                                {
+                                    "id": "11",
+                                    "address": "789 Greenway Boulevard, Yellowstone Junction",
+                                    "city": {
+                                        "name": "Jackson Hole"
+                                    },
+                                    "country": {
+                                        "name": "USA"
+                                    },
+                                    "state": {
+                                        "name": "Wyoming"
+                                    },
+                                    "area_code": "82412"
+                                }
+                            ],
+                            "fulfillments": [
+                                {
+                                    "id": "1",
+                                    "type": "CHARGING",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                },
+                                {
+                                    "id": "6",
+                                    "type": "INSTRUCTOR LED TRAINING",
+                                    "rating": "4.5",
+                                    "rateable": true,
+                                    "tracking": false
+                                }
+                            ],
+                            "rateable": true,
+                            "items": [
+                                {
+                                    "id": "6",
+                                    "descriptor": {
+                                        "name": "ev charging",
+                                        "code": "evc",
+                                        "short_desc": "Electric Vehicle (EV) charging involves replenishing the battery of an electric vehicle by connecting it to a power source or charging station.",
+                                        "long_desc": "Electric Vehicle (EV) charging is a critical component of the electric vehicle ecosystem, providing the necessary infrastructure to ensure that electric vehicles remain a viable and sustainable alternative to traditional internal combustion engine vehicles. EV charging can be categorized into different levels based on charging speed:",
+                                        "images": [
+                                            {
+                                                "url": "https://greenehergy.in/imaghttps://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5dkBso2rv_c0RYFQjDoa6A_Xu1sJsnwmtUw&usqp=CAUes/logo.png"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "0",
+                                        "currency": "INR"
+                                    },
+                                    "category_ids": [
+                                        "5",
+                                        "6"
+                                    ],
+                                    "tags": [
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Urban Center",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Lithium Ion",
+                                                    "display": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "display": true,
+                                            "descriptor": {
+                                                "description": "uei:charging"
+                                            },
+                                            "list": [
+                                                {
+                                                    "value": "Wind Energy Supported",
+                                                    "display": true
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": "16",
+                                    "descriptor": {
+                                        "name": " EV Charging",
+                                        "code": "Clean-Charge",
+                                        "short_desc": "Charging Stations",
+                                        "long_desc": "CleanCharge EV Station operates electric vehicle charging stations near Yellowstone National Park, facilitating clean transportation and sustainable travel by providing fast-charging solutions for electric vehicle owners exploring the natural wonders of the park and its surroundings.",
+                                        "images": [
+                                            {
+                                                "url": "https://www.istockphoto.com/vector/fuel-the-gun-oil-prices-drop-gm1390673273-447549241"
+                                            }
+                                        ]
+                                    },
+                                    "price": {
+                                        "value": "50",
+                                        "currency": "USD"
+                                    },
+                                    "quantity": {
+                                        "available": {
+                                            "count": 200
+                                        }
+                                    },
+                                    "category_ids": [
+                                        "32"
+                                    ],
+                                    "fulfillment_ids": [
+                                        "6"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
