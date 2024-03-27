@@ -1,11 +1,9 @@
 import * as chai from 'chai'
 const expect = chai.expect
 import AI from '../../../services/AI.js'
-import Actions from '../../../services/Actions.js'
 import logger from '../../../utils/logger.js';
 import { readFileSync } from 'fs';
 const ai = new AI();
-const actions = new Actions();
 const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
 const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
 const on_select = JSON.parse(readFileSync('./tests/data/api_responses/on_select.json'))
