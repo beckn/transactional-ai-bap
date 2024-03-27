@@ -35,6 +35,11 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         logger.info(response.response);
         expect(response.action).to.be.null;
     })
+
+    it('Should test get_beckn_action_from_text() fail if called init without the billing details', async () => {
+        const response = await ai.get_beckn_action_from_text('Lets place the order');
+        expect(response.action).to.be.null;
+    })
 })
 
 describe('Test cases for services/ai/compress_search_results()', () => {
@@ -51,10 +56,11 @@ describe('Test cases for services/ai/compress_search_results()', () => {
 describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => {
     it('Should test get_beckn_request_from_text() succesfully for a `search` intent', async () => {
         const response = await ai.get_beckn_request_from_text("I'm looking for some ev chargers.");
-        expect(response).to.be.an('object')
-        expect(response.method.toUpperCase()).to.be.eq('POST')
-        expect(response.url).to.contain('search')
-        expect(response.body.message.intent.descriptor).to.have.property('name')
+        expect(response.status).to.be.eq(true);
+        expect(response.data).to.be.an('object')
+        expect(response.data.method.toUpperCase()).to.be.eq('POST')
+        expect(response.data.url).to.contain('search')
+        expect(response.data.body.message.intent.descriptor).to.have.property('name')
     })    
     it('Should test get_beckn_request_from_text() succesfully for a `select`', async () => {
         
@@ -64,15 +70,15 @@ describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => 
             
         ]
         const response = await ai.get_beckn_request_from_text("Lets select the first item", context);
-        expect(response).to.be.an('object')
-        expect(response.method.toUpperCase()).to.be.eq('POST')
-        expect(response.url).to.contain('select')
-        expect(response.body.context).to.have.property('transaction_id')
-        expect(response.body.context).to.have.property('bpp_id')
-        expect(response.body.context).to.have.property('bpp_uri')
-        expect(response.body.message).to.have.property('order')
-        expect(response.body.message.order).to.have.property('items')
-        expect(response.body.message.order.items[0]).to.have.property('id')
+        expect(response.data).to.be.an('object')
+        expect(response.data.method.toUpperCase()).to.be.eq('POST')
+        expect(response.data.url).to.contain('select')
+        expect(response.data.body.context).to.have.property('transaction_id')
+        expect(response.data.body.context).to.have.property('bpp_id')
+        expect(response.data.body.context).to.have.property('bpp_uri')
+        expect(response.data.body.message).to.have.property('order')
+        expect(response.data.body.message.order).to.have.property('items')
+        expect(response.data.body.message.order.items[0]).to.have.property('id')
     })
 
     it('Should test get_beckn_request_from_text() succesfully for a `init`', async () => {
@@ -83,22 +89,22 @@ describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => 
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ]
         const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : Mayur Virendra, 9986949245, mayurlibra@gmail.com", context);
-        expect(response).to.be.an('object')
-        expect(response.method.toUpperCase()).to.be.eq('POST')
-        expect(response.url).to.contain('init')
-        expect(response.body.context).to.have.property('transaction_id')
-        expect(response.body.context).to.have.property('bpp_id')
-        expect(response.body.context).to.have.property('bpp_uri')
-        expect(response.body.message).to.have.property('order')
-        expect(response.body.message.order).to.have.property('items')
-        expect(response.body.message.order.items[0]).to.have.property('id')
-        expect(response.body.message.order).to.have.property('billing')
-        expect(response.body.message.order.billing).to.have.property('name')
-        expect(response.body.message.order.billing).to.have.property('email')
-        expect(response.body.message.order.billing).to.have.property('phone')
+        expect(response.data).to.be.an('object')
+        expect(response.data.method.toUpperCase()).to.be.eq('POST')
+        expect(response.data.url).to.contain('init')
+        expect(response.data.body.context).to.have.property('transaction_id')
+        expect(response.data.body.context).to.have.property('bpp_id')
+        expect(response.data.body.context).to.have.property('bpp_uri')
+        expect(response.data.body.message).to.have.property('order')
+        expect(response.data.body.message.order).to.have.property('items')
+        expect(response.data.body.message.order.items[0]).to.have.property('id')
+        expect(response.data.body.message.order).to.have.property('billing')
+        expect(response.data.body.message.order.billing).to.have.property('name')
+        expect(response.data.body.message.order.billing).to.have.property('email')
+        expect(response.data.body.message.order.billing).to.have.property('phone')
     });
 
-    it.only('Should test get_beckn_request_from_text() to return with questions if billing details are not provided for  `init`', async () => {
+    it('Should test get_beckn_request_from_text() to return with questions if billing details are not provided for  `init`', async () => {
         let context = [
             {"role": "user", "content": "I'm looking for some ev chargers"},
             {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
@@ -106,19 +112,7 @@ describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => 
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ]
         const response = await ai.get_beckn_request_from_text("Lets place the order.", context);
-        expect(response).to.be.an('object')
-        expect(response.method.toUpperCase()).to.be.eq('POST')
-        expect(response.url).to.contain('init')
-        expect(response.body.context).to.have.property('transaction_id')
-        expect(response.body.context).to.have.property('bpp_id')
-        expect(response.body.context).to.have.property('bpp_uri')
-        expect(response.body.message).to.have.property('order')
-        expect(response.body.message.order).to.have.property('items')
-        expect(response.body.message.order.items[0]).to.have.property('id')
-        expect(response.body.message.order).to.have.property('billing')
-        expect(response.body.message.order.billing).to.have.property('name')
-        expect(response.body.message.order.billing).to.have.property('email')
-        expect(response.body.message.order.billing).to.have.property('phone')
+        expect(response.status).to.be.eq(false);
     });
 
     it('Should test get_beckn_request_from_text() succesfully for a `confirm`', async () => {
@@ -131,53 +125,18 @@ describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => 
             {"role": "assistant", "content": JSON.stringify(on_init)}
         ]
         const response = await ai.get_beckn_request_from_text("Lets confirm the order!", context);
-        expect(response).to.be.an('object')
-        expect(response.method.toUpperCase()).to.be.eq('POST')
-        expect(response.url).to.contain('confirm')
-        expect(response.body.context).to.have.property('transaction_id')
-        expect(response.body.context).to.have.property('bpp_id')
-        expect(response.body.context).to.have.property('bpp_uri')
-        expect(response.body.message).to.have.property('order')
-        expect(response.body.message.order).to.have.property('items')
-        expect(response.body.message.order.items[0]).to.have.property('id')
-        expect(response.body.message.order).to.have.property('billing')
-        expect(response.body.message.order.billing).to.have.property('name')
-        expect(response.body.message.order.billing).to.have.property('email')
-        expect(response.body.message.order.billing).to.have.property('phone')
+        expect(response.data).to.be.an('object')
+        expect(response.data.method.toUpperCase()).to.be.eq('POST')
+        expect(response.data.url).to.contain('confirm')
+        expect(response.data.body.context).to.have.property('transaction_id')
+        expect(response.data.body.context).to.have.property('bpp_id')
+        expect(response.data.body.context).to.have.property('bpp_uri')
+        expect(response.data.body.message).to.have.property('order')
+        expect(response.data.body.message.order).to.have.property('items')
+        expect(response.data.body.message.order.items[0]).to.have.property('id')
+        expect(response.data.body.message.order).to.have.property('billing')
+        expect(response.data.body.message.order.billing).to.have.property('name')
+        expect(response.data.body.message.order.billing).to.have.property('email')
+        expect(response.data.body.message.order.billing).to.have.property('phone')
     });
 });
-
-describe.skip('Test complete workflow for placing an ev order', () => {
-    it('Should test the complete workflow for placing an EV order', async () => {
-        let context = [];
-        const search_instruction = "I'm looking for ev charging stations.";
-        const search_req = await ai.get_beckn_request_from_text(search_instruction);
-        
-        expect(search_req).to.be.an('object')
-        expect(search_req.method.toUpperCase()).to.be.eq('POST')
-        expect(search_req.url).to.contain('search')
-        expect(search_req.body.message.intent.descriptor).to.have.property('name')
-        
-        const search_res = await actions.call_api(search_req.url, search_req.method, search_req.body);
-        context.push({"role": "user", "content": search_instruction});
-
-        // compress search response to an array to reduce the token size
-        const compressed_search_res = await ai.compress_search_results(search_res.data);
-        context.push({"role": "assistant", "content": JSON.stringify({context: search_res.data.context, responses: compressed_search_res})});
-        
-        
-        // Select
-        const select_instruction = "Lets select the first item";
-        const select_req = await ai.get_beckn_request_from_text(select_instruction, context);
-        expect(select_req).to.be.an('object')
-        const select_res = await actions.call_api(select_req.url, select_req.method, select_req.body);
-        
-        context.push({"role": "user", "content": select_instruction});
-        context.push({"role": "assistant", "content": JSON.stringify(select_res)});
-        expect(select_res).to.have.property('data')
-        expect(select_res.data.responses).to.be.an('array')
-        expect(select_res.data.responses.length).to.be.greaterThan(0)
-        expect(select_res.data.responses[0].message).to.have.property('order')
-        
-    })
-})

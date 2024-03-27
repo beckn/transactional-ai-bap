@@ -51,6 +51,12 @@ class AI {
     }
     
     async get_beckn_request_from_text(instruction, context=[]){
+        let action_response = {
+            status: false,
+            data: null,
+            message: null
+        }
+        
         
         // Preparse presets
         let presets = {
@@ -62,36 +68,45 @@ class AI {
         }
         
         // get the right/compressed schema
-        let schema = await this._get_schema_by_instruction(instruction)
+        const schema_response = await this._get_schema_by_instruction(instruction)
+        const schema = schema_response.data;
         
-        let openai_messages = [
-            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
-            ...config.SCHEMA_TRANSLATION_CONTEXT,
-            {"role": "system", "content": `Use the following presets to fill the context : ${JSON.stringify(presets)}`},
-            ...context,
-            { "role": "user", "content": instruction }
-        ]
-        
-        try{
-            const completion = await openai.chat.completions.create({
-                messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID,
-                response_format: { type: 'json_object' },
-                temperature: 0,
-            })
-            const jsonString = completion.choices[0].message.content.trim()
-            logger.info(jsonString)
-            logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
+        // If its a valid action
+        if(schema_response.status){
+            let openai_messages = [
+                { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
+                ...config.SCHEMA_TRANSLATION_CONTEXT,
+                {"role": "system", "content": `Use the following presets to fill the context : ${JSON.stringify(presets)}`},
+                ...context,
+                { "role": "user", "content": instruction }
+            ]
             
-            const response = JSON.parse(jsonString)
-            response.url = `${config.PRESETS.base_url}/${response.body.context.action}`
-            return response
+            try{
+                const completion = await openai.chat.completions.create({
+                    messages: openai_messages,
+                    model: process.env.OPENAI_MODEL_ID,
+                    response_format: { type: 'json_object' },
+                    temperature: 0,
+                })
+                const jsonString = completion.choices[0].message.content.trim()
+                logger.info(jsonString)
+                logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
+                
+                const response = JSON.parse(jsonString)
+                response.url = `${config.PRESETS.base_url}/${response.body.context.action}`
+                action_response = {...action_response, status: true, data: response}
+            }
+            catch(e){
+                logger.error(e);
+                action_response = {...action_response, message: e.message}
+            }
         }
-        catch(e){
-            logger.error(e);
-            return null;
+        else{
+            action_response = {...action_response, message: schema_response.message}
         }
         
+        
+        return action_response;
     }
     
     async compress_search_results(search_res){
@@ -115,29 +130,36 @@ class AI {
     }
     
     async _get_schema_by_instruction(instruction) {
-
+        let response = {
+            status: false,
+            data: null,
+            message : null
+        }
         const action = await this.get_beckn_action_from_text(instruction);
-        
-        try {
-            const filePath = `./schemas/core_1.1.0/${action?.action}.yml`;
-            const schema = yaml.load(readFileSync(filePath, 'utf8'));
-            return schema;
-        } catch (error) {
-            const defaultFilePath = './schemas/core_1.1.0.yml';
-            const defaultSchema = yaml.load(readFileSync(defaultFilePath, 'utf8'));
-            
-            // Reduce schema
-            if (action?.action) {
+        if(action?.action){
+            try {
+                const filePath = `./schemas/core_1.1.0/${action?.action}.yml`;
+                const schema = yaml.load(readFileSync(filePath, 'utf8'));
+                response = {...response, status: true, data: schema};
+            } catch (error) {
+                const defaultFilePath = './schemas/core_1.1.0.yml';
+                const defaultSchema = yaml.load(readFileSync(defaultFilePath, 'utf8'));
+                
+                // Reduce schema
                 const specificSchema = JSON.stringify(defaultSchema.paths[`/${action.action}`])
                 if (specificSchema) {
                     defaultSchema.paths = {
                         [`/${action.action}`]: specificSchema,
                     }
                 }
+                
+                response = {...response, status: true, data: defaultSchema};
             }
-            
-            return defaultSchema;
         }
+        else{
+            response = {...response, message: action.response}
+        }
+        return response;
     }
 }
 

@@ -107,6 +107,7 @@ components:
       properties:
         name:
           type: string
+          description: It should contain the search query string such as product or service name.
         code:
           type: string
         short_desc:

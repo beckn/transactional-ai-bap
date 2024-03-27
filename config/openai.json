@@ -1,7 +1,7 @@
 {
     "SUPPORTED_ACTIONS": [
         { "key": "search", "description": "Perform a search" },
-        { "key": "select", "description": "the instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. This is equivalent of adding items to cart (or equivalent) by selecting them." },
+        { "key": "select", "description": "The instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. This is equivalent of adding items to cart (or equivalent) by selecting them." },
         { "key": "init", "description": "Initialize an order by providing billing and/or shipping details." },
         { "key": "confirm", "description": "Confirm an action" },
         { "key": "status", "description": "Get the status of an action" },
@@ -19,7 +19,7 @@
         { "role": "system", "content": "A typical order flow should be search > select > init > confirm."},
         { "role": "system", "content": "Auto-generate uuid wherever required and should be a valid uuid such as ."},
         { "role": "system", "content": "Use the context to identify the transaction id returned in search api response and use it in subsequent api calls."},
-        { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context."},
+        { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context of all calls except `search`."},
         { "role": "system", "content": "Use the response from assistant to select items from the list of items provided by the assistant."}
 
     ],
