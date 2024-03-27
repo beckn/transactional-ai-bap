@@ -1,8 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
+dotenv.config()
 import express from 'express'
+import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
+import messageController from './controllers/Bot.js'
+
 const app = express()
 
 // parse application/x-www-form-urlencoded
@@ -13,6 +15,7 @@ app.use(bodyParser.json())
 
 // Define endpoints here
 // app.post('/act', actions.act)
+app.post('/webhook', messageController.process_wa_webhook)
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {
