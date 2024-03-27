@@ -176,7 +176,7 @@ class AI {
         }
         return response;
     }
-    
+
     async get_message_from_beckn_response(json_response) {
         const openai_messages = [
             {
@@ -184,10 +184,6 @@ class AI {
                 content: `You must validate this JSON object structure ${JSON.stringify(json_response)}. If JSON object is empty return a response in JSON object format {success:false, message:Empty JSON}. And if the JSON is invalid you should create an error message and set that in the message key of JSON object {success:false}. If its valid then create a meaningful text message containing all the information present in this json ${JSON.stringify(json_response)} based on the action description in the responses array of the json and return the message `,
             },
         ]
-        let response = {
-            action: null,
-            response: null,
-        }
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
@@ -195,14 +191,19 @@ class AI {
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
-            response = JSON.parse(completion.choices[0].message.content)
+            let response = JSON.parse(completion.choices[0].message.content)
             if (!response.success) {
                 throw new Error(response.message || 'Invalid JSON')
             }
+            return response;
         } catch (e) {
             logger.error(e)
+            return {
+                success:false,
+                message:e.message
+            }
         }
-        return response
+       
     }
 }
 
