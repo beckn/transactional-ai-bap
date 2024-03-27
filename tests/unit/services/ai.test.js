@@ -45,15 +45,15 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
 describe('Test cases for services/ai/compress_search_results()', () => {
     it('Should test succesful compression of search results', async () => {
         const compressed = await ai.compress_search_results(on_search);
-        expect(compressed.providers).to.be.an('array')
-        expect(compressed.providers.length).to.be.greaterThan(0)
-        expect(compressed.providers[0]).to.have.property('id')
-        expect(compressed.providers[0]).to.have.property('name')
-        expect(compressed.providers[0]).to.have.property('items');
+        expect(compressed.responses.providers).to.be.an('array')
+        expect(compressed.responses.providers.length).to.be.greaterThan(0)
+        expect(compressed.responses.providers[0]).to.have.property('id')
+        expect(compressed.responses.providers[0]).to.have.property('name')
+        expect(compressed.responses.providers[0]).to.have.property('items');
     })
 })
 
-describe.only('Test cases for services/ai/get_beckn_request_from_text()', () => {
+describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
     it('Should test get_beckn_request_from_text() succesfully for a `search` intent', async () => {
         const response = await ai.get_beckn_request_from_text("I'm looking for some ev chargers.");
         expect(response.status).to.be.eq(true);

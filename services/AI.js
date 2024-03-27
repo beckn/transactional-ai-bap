@@ -70,7 +70,7 @@ class AI {
         // get the right/compressed schema
         const schema_response = await this._get_schema_by_instruction(instruction)
         const schema = schema_response.data;
-        
+
         // If its a valid action
         if(schema_response.status){
             let openai_messages = [
@@ -110,8 +110,23 @@ class AI {
     }
     
     async compress_search_results(search_res){
+
+        const desired_output = {
+            "providers": [
+                {
+                    "id": "some_provider_id",
+                    "name": "some_provider_name",
+                    "items": [
+                        {
+                            "id": "some_item_id",
+                            "name": "some_item_name"
+                        }
+                    ]
+                }
+            ]
+        }
         let openai_messages = [
-            { "role" : "system", "content": "Your job is to complress the search results received from user into a json array of `providers` with the following structure : {id: 'some_provider_id', name: 'some_provider_name', items: [array of items with their ids and names]}" },
+            { "role" : "system", "content": `Your job is to complress the search results received from user into the following JSON structure : ${JSON.stringify(desired_output)}`},
             { "role" : "system", "content": "you should not send providers that do not have items." },
             { "role": "user", "content": JSON.stringify(search_res)}
         ]
