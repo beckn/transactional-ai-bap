@@ -1,7 +1,7 @@
 import twilio from 'twilio'
 import logger from '../utils/logger.js'
 import axios from 'axios'
-
+import AI from './AI'
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const twilioNumber = process.env.TWILIO_NUMBER
@@ -11,6 +11,7 @@ const client = twilio(accountSid, authToken)
 class Actions {
     
     constructor() {
+        this.ai = new AI()
         this.context = [];
     }
     
@@ -47,7 +48,18 @@ class Actions {
     
     async process_instruction(messageBody) {
         try {
-          return `You said "${messageBody}"`
+          const beckn_request = await this.ai.get_beckn_request_from_text(messageBody);
+          if(!beckn_request.status){
+            return beckn_request.message;
+          }
+          const call_api_response = await this.call_api({...response.data})
+          if(!call_api_response.status){
+            return call_api_response.data
+          }
+          const get_text_from_json_response = await this.ai.get_text_from_json(call_api_response.data)
+          return `You said "${get_text_from_json_response}"`
+
+        //   return `You said "${messageBody}"`
         } catch (error) {
           logger.error(`Error processing instruction: ${error.message}`)
           throw new Error(`Failed to process the instruction: ${error.message}`)
