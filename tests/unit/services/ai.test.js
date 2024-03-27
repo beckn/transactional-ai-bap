@@ -138,3 +138,16 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.message.order.billing).to.have.property('phone')
     });
 });
+
+
+describe('Test cases for services/ai/get_message_from_beckn_response()', () => {
+    it('Should test get_message_from_beckn_response() and throw response with success false for empty object', async () => {
+        const response = await ai.get_message_from_beckn_response({})
+        expect(response.success).to.equal(false)
+        expect(response.message).to.equal('Empty JSON')
+    })
+    it('Should test get_message_from_beckn_response() return some message with success true', async () => {
+        const response = await ai.get_message_from_beckn_response(on_init)
+        expect(response.success).to.equal(true)
+    })
+})
