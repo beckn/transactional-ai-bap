@@ -1,6 +1,7 @@
 import twilio from 'twilio'
 import logger from '../utils/logger.js'
 import axios from 'axios'
+import AI from './AI.js'
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -11,6 +12,7 @@ const client = twilio(accountSid, authToken)
 class Actions {
     
     constructor() {
+        this.ai = new AI()
         this.context = [];
     }
     
@@ -45,15 +47,48 @@ class Actions {
         return responseObject
     }
     
-    async process_instruction(messageBody) {
-        try {
-          return `You said "${messageBody}"`
-        } catch (error) {
-          logger.error(`Error processing instruction: ${error.message}`)
-          throw new Error(`Failed to process the instruction: ${error.message}`)
+    async process_instruction(message, context=[]) {
+        let response = {
+            status: false,
+            formatted: 'Failed to process the instruction',
         }
-    }
+        try {
 
+            // Get becnk request from text message
+            const beckn_request = await this.ai.get_beckn_request_from_text(message, context);
+            if(!beckn_request.status){
+                response.formatted = beckn_request.message;              
+            }
+            else{
+                // Call the API
+                const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
+                if(!call_api_response.status){
+                    response.formatted = `Failed to call the API: ${call_api_response.error}`
+                    response.data = call_api_response.data              
+                }
+                else{
+
+                    response = {
+                        status: true,
+                        raw: beckn_request.data.body.context.action==='search' ? await this.ai.compress_search_results(call_api_response.data) : call_api_response.data
+                    }
+
+                    // Format the response
+                    const get_text_from_json_response = await this.ai.get_text_from_json(
+                        call_api_response.data,
+                        [...context, { role: 'user', content: message }]
+                    )
+                    response.formatted = get_text_from_json_response.message
+                }                
+            }            
+        } catch (error) {
+            logger.error(`Error processing instruction: ${error.message}`)
+            response.formatted = `Failed to process the instruction: ${error.message}`
+        }
+        
+        return response;
+    }
+    
     async send_message(recipient, message) {
         try {
             await client.messages.create({

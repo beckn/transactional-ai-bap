@@ -4,6 +4,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
+import DBService from './services/DBService.js'
 
 const app = express()
 
@@ -16,6 +17,10 @@ app.use(bodyParser.json())
 // Define endpoints here
 // app.post('/act', actions.act)
 app.post('/webhook', messageController.process_wa_webhook)
+
+// Reset all sessions
+const db = new DBService();
+await db.clear_all_sessions();
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {
