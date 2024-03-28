@@ -26,14 +26,12 @@ describe('Test cases for process_instruction function', ()=> {
   it('Should test succesfull process instruction with response status:false', async () => {
     const messageBody = "What is capital of India";
     const data = await actionsService.process_instruction(messageBody);
-    console.log(data)
     expect(data.status).to.equal(false)
   })
   
   it('Should test succesfull process instruction for Searching a ev charging station', async () => {
     const messageBody = "I want to search ev charging";
     const data = await actionsService.process_instruction(messageBody);
-    console.log(data)
     expect(data.formatted).to.contain('ChargeZone.in')
   })
   
@@ -41,7 +39,7 @@ describe('Test cases for process_instruction function', ()=> {
   it('Should test succesfull process instruction for throwing an error', async () => {
     const messageBody = "";
     try{
-      const data = await actionsService.process_instruction(messageBody);
+      await actionsService.process_instruction(messageBody);
     }catch(error){
       expect(error).to.be.an.instanceOf(Error)
     }
