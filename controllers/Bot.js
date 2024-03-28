@@ -9,10 +9,13 @@ const db = new DBService();
 
 async function process_wa_webhook(req, res) {
     try {
-        const message = req.body.Body
+        const message = req.
+        body.Body
         const sender = req.body.From
         const format = req.headers['content-type'] || 'text/xml';
         const twiml = new MessagingResponse();
+
+        logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
 
         // get or create session
         const  session_response = await db.get_session(sender);
@@ -29,9 +32,9 @@ async function process_wa_webhook(req, res) {
         
         const process_response = await actionsService.process_instruction(message, session.data)
         
-        if(process_response.formatted){
+        if(process_response.formatted && process_response.raw && typeof process_response.raw === 'object'){
             session.data.push({ role: 'user', content: message });  // add user message to session
-            session.data.push({ role: 'assistant', content: process_response.raw }); // add system response to session
+            session.data.push({ role: 'assistant', content: JSON.stringify(process_response.raw) }); // add system response to session
             await db.update_session(sender, session);
         }        
 

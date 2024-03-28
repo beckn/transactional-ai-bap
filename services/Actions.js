@@ -70,11 +70,14 @@ class Actions {
 
                     response = {
                         status: true,
-                        raw: call_api_response.data                        
+                        raw: beckn_request.data.body.context.action==='search' ? await this.ai.compress_search_results(call_api_response.data) : call_api_response.data
                     }
 
                     // Format the response
-                    const get_text_from_json_response = await this.ai.get_text_from_json(call_api_response.data)
+                    const get_text_from_json_response = await this.ai.get_text_from_json(
+                        call_api_response.data,
+                        [...context, { role: 'user', content: message }]
+                    )
                     response.formatted = get_text_from_json_response.message
                 }                
             }            

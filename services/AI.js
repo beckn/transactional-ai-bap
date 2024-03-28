@@ -116,6 +116,8 @@ class AI {
                 {
                     "id": "some_provider_id",
                     "name": "some_provider_name",
+                    "bpp_id": "some_bpp_id",
+                    "bpp_uri": "some_bpp_uri",
                     "items": [
                         {
                             "id": "some_item_id",
@@ -177,12 +179,16 @@ class AI {
         return response;
     }
 
-    async get_text_from_json(json_response) {
+    async get_text_from_json(json_response, context=[]) {
+        const desired_output = {
+            status: true,
+            message: "<Whastapp friendly formatted message>"
+        };
         const openai_messages = [
-            {
-                role: 'system',
-                content: `You must validate this JSON object structure ${JSON.stringify(json_response)}. If JSON object is empty return a response in JSON object format {success:false, message:Empty JSON}. And if the JSON is invalid you should create an error message and set that in the message key of JSON object {success:false}. If its valid then create a meaningful text message containing all the information present in this json ${JSON.stringify(json_response)} based on the action description in the responses array of the json and return the message `,
-            },
+            {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and retunr this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
+            {role: 'system', content: `A typical order flow on beckn is search > select > init > confirm. Pelase add a call to action for the next step in the message. Also, please ensure that you have billing and shipping details before calling init if not already provided in the chat history.`},
+            ...context,
+            {role: 'user',content: `${JSON.stringify(json_response)}`},
         ]
         try {
             const completion = await openai.chat.completions.create({
@@ -191,15 +197,12 @@ class AI {
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
-            let response = JSON.parse(completion.choices[0].message.content)
-            if (!response.success) {
-                throw new Error(response.message || 'Invalid JSON')
-            }
+            let response = JSON.parse(completion.choices[0].message.content)            
             return response;
         } catch (e) {
             logger.error(e)
             return {
-                success:false,
+                status:false,
                 message:e.message
             }
         }
