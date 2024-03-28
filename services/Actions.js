@@ -50,35 +50,37 @@ class Actions {
     async process_instruction(message, context=[]) {
         let response = {
             status: false,
-            message: 'Failed to process the instruction',
+            formatted: 'Failed to process the instruction',
         }
         try {
 
             // Get becnk request from text message
             const beckn_request = await this.ai.get_beckn_request_from_text(message, context);
             if(!beckn_request.status){
-                response.message = beckn_request.message;              
+                response.formatted = beckn_request.message;              
             }
             else{
                 // Call the API
                 const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
                 if(!call_api_response.status){
-                    response.message = `Failed to call the API: ${call_api_response.error}`
+                    response.formatted = `Failed to call the API: ${call_api_response.error}`
                     response.data = call_api_response.data              
                 }
                 else{
 
-                    // Format the response
-                    const get_text_from_json_response = await this.ai.get_text_from_json(call_api_response.data)
                     response = {
                         status: true,
-                        message: get_text_from_json_response.message
+                        raw: call_api_response.data                        
                     }
+
+                    // Format the response
+                    const get_text_from_json_response = await this.ai.get_text_from_json(call_api_response.data)
+                    response.formatted = get_text_from_json_response.message
                 }                
             }            
         } catch (error) {
             logger.error(`Error processing instruction: ${error.message}`)
-            response.message = `Failed to process the instruction: ${error.message}`
+            response.formatted = `Failed to process the instruction: ${error.message}`
         }
         
         return response;

@@ -67,14 +67,6 @@ components:
             - description: The callback URL of the Subscriber. This should necessarily contain the same domain name as set in `subscriber_id``.
               type: string
               format: uri
-        bpp_id:
-          description: Subscriber ID of the BPP
-          allOf:
-            - $ref: '#/components/schemas/Context/properties/bap_id/allOf/0'
-        bpp_uri:
-          description: Subscriber URL of the BPP for accepting calls from BAPs.
-          allOf:
-            - $ref: '#/components/schemas/Context/properties/bap_uri/allOf/0'
         transaction_id:
           description: 'This is a unique value which persists across all API calls from `search` through `confirm`. This is done to indicate an active user session across multiple requests. The BPPs can use this value to push personalized recommendations, and dynamic offerings related to an ongoing transaction despite being unaware of the user active on the BAP.'
           type: string
