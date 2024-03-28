@@ -74,4 +74,37 @@ describe('Test cases for services/actions.js', () => {
       expect(response.status).to.be.false;
     })
   })
+
+  describe.only('Test cases for Process Instruction action', () => {
+    
+    it('Should test succesfull process instruction for general statement', async () => {
+     const messageBody = "What is capital of India";
+     const data = await actionsService.process_instruction(messageBody);
+     expect(data.message).to.contain('New Delhi')
+    })
+
+    it('Should test succesfull process instruction with response status:false', async () => {
+      const messageBody = "What is capital of India";
+      const data = await actionsService.process_instruction(messageBody);
+      console.log(data)
+      expect(data.status).to.equal(false)
+     })
+
+    it('Should test succesfull process instruction for Searching a ev charging station', async () => {
+      const messageBody = "I want to search ev charging";
+      const data = await actionsService.process_instruction(messageBody);
+      console.log(data)
+      expect(data.message).to.contain('ChargeZone.in')
+     })
+
+
+     it('Should test succesfull process instruction for throwing an error', async () => {
+      const messageBody = "";
+      try{
+        const data = await actionsService.process_instruction(messageBody);
+      }catch(error){
+        expect(error).to.be.an.instanceOf(Error)
+      }
+     })
+  })
 })
