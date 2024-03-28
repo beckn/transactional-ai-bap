@@ -9,7 +9,7 @@ describe('Test cases for services/actions.js', () => {
     it('should process the instruction message', async () => {
       const messageBody = 'test message';
       const result = await actionsService.process_instruction(messageBody);
-      expect(result).to.equal('You said "test message"');
+      expect(result.message).to.equal('You said "test message"');
     });
   })
   

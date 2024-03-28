@@ -177,7 +177,7 @@ class AI {
         return response;
     }
 
-    async get_message_from_beckn_response(json_response) {
+    async get_text_from_json(json_response) {
         const openai_messages = [
             {
                 role: 'system',
@@ -187,7 +187,7 @@ class AI {
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID,
+                model: 'gpt-4-0125-preview', // using a higher token size model
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
