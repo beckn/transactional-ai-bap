@@ -75,7 +75,7 @@ describe('Test cases for services/actions.js', () => {
     })
   })
 
-  describe.only('Test cases for Process Instruction action', () => {
+  describe('Test cases for Process Instruction action', () => {
     
     it('Should test succesfull process instruction for general statement', async () => {
      const messageBody = "What is capital of India";
