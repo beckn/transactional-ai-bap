@@ -6,14 +6,18 @@ import {
     ITEM_NAME,
     CAT_ATTR_TAG_RELATIONS,
     STRAPI_TOURISM_TOKEN,
+    NEW_CATALOG_AVAILABLE,
+    TRIGGER_BLIZZARD_MESSAGE,
+    CANCEL_BOOKING_MESSAGE
 } from '../utils/constants.js'
+
 const action = new Actions()
 const TOURISM_STRAPI_URL = process.env.TOURISM_STRAPI_URL || ''
 const TWILIO_RECEPIENT_NUMBER = process.env.TOURISM_STRAPI_URL
 export const cancelBookingController = async (req, res) => {
     try {
-        const { messageBody, orderId } = req.body
-        console.log(orderId)
+        const { orderId } = req.body
+        const messageBody = CANCEL_BOOKING_MESSAGE;
         const getOrderFulfillmentDetails = await axios.get(
             `${TOURISM_STRAPI_URL}/order-fulfillments?order_id=${orderId}`,
             {
@@ -51,6 +55,7 @@ export const cancelBookingController = async (req, res) => {
 
 export const updateCatalog = async (req, res) => {
     try {
+        const messageBody = NEW_CATALOG_AVAILABLE;
         await axios.put(
             `${TOURISM_STRAPI_URL}/items/${ITEM_ID}`,
             {
@@ -67,6 +72,21 @@ export const updateCatalog = async (req, res) => {
         )
         await action.send_message(TWILIO_RECEPIENT_NUMBER, messageBody)
         return res.send({ message: 'Catalog Updated' })
+    } catch (error) {
+        logger.error(error.message)
+        return res.send({ message: error.message })
+    }
+}
+
+
+export const notificationController = async (req, res) => {
+    try {
+        const messageBody = TRIGGER_BLIZZARD_MESSAGE;
+        const sendWhatsappNotificationResponse = await action.send_message(
+            TWILIO_RECEPIENT_NUMBER,
+            messageBody
+        )
+        return res.send(sendWhatsappNotificationResponse)
     } catch (error) {
         logger.error(error.message)
         return res.send({ message: error.message })
