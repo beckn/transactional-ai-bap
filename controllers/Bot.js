@@ -40,7 +40,9 @@ async function process_wa_webhook(req, res) {
 
         twiml.message(process_response.formatted)
         if(format!='application/json'){
-            res.type('text/xml').send(twiml.toString())
+            // res.type('text/xml').send(twiml.toString())
+            actionsService.send_message(sender, process_response.formatted)
+            res.send("Done!")
         }
         else{
             raw_yn ? res.send(process_response.raw) : res.send(process_response.formatted)

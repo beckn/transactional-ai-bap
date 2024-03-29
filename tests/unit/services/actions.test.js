@@ -51,12 +51,17 @@ describe('should test send_message()', () => {
     const recipient = process.env.TEST_RECEPIENT_NUMBER;
     const message = "hi, this is a test message";
     
-    try {
-      await actionsService.send_message(recipient, message);
-      
-    } catch (error) {
-      throw new Error('Message sending failed');
-    }
+    let status = await actionsService.send_message(recipient, message);
+    expect(status).to.be.true;
+  });
+
+  it('should test send a message via Twilio with a whatsapp prefix', async () => {
+    const recipient = `whatsapp:${process.env.TEST_RECEPIENT_NUMBER}`;
+    const message = "hi, this is a test message";
+    
+    let status = await actionsService.send_message(recipient, message);
+    expect(status).to.be.true;
+
   });
   
   it('should throw an error for invalid recipient', async () => {

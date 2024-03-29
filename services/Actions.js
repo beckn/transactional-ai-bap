@@ -94,14 +94,17 @@ class Actions {
     
     async send_message(recipient, message) {
         try {
-            await client.messages.create({
+            
+            const response = await client.messages.create({
                 body: message,
                 from: `whatsapp:${twilioNumber}`,
-                to: `whatsapp:${recipient}`,
+                to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
             })
+            logger.info(`Message sent: ${JSON.stringify(response)}`)
+            return true;
         } catch (error) {
-            logger.error(`Error sending message: ${error.message}`)
-            throw new Error(`Failed to send message: ${error.message}`)
+            logger.error(`Error sending message: ${error.message}`)           
+            return false;
         }
     }
 }

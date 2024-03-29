@@ -218,7 +218,7 @@ class AI {
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID, 
+                model: 'gpt-4-0125-preview', 
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
