@@ -26,8 +26,8 @@ services:
             - redis-new
         networks:
             - beckn_action_bot_network
-        volumes:
-            - ./:/app
+        # volumes:
+        #     - ./:/app
 
 volumes:
     index_data:
