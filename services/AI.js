@@ -59,7 +59,8 @@ class AI {
         }
         
         // get the right/compressed schema
-        const schema_response = await this._get_schema_by_instruction(instruction)
+        const schema_response = await this._get_schema_by_instruction(instruction, context)
+        logger.info(`Got schema details, preparing payload using AI...`)
         const schema = schema_response.data;
 
         // If its a valid action
@@ -67,7 +68,7 @@ class AI {
             let openai_messages = [
                 { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
                 ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
-                {"role": "system", "content": `Prepare 'context' from this : ${JSON.stringify(schema_response.data.config)}`},
+                {"role": "system", "content": `Following is the conversation history`},
                 ...context,
                 { "role": "user", "content": instruction }
             ]
@@ -80,11 +81,19 @@ class AI {
                     temperature: 0,
                 })
                 const jsonString = completion.choices[0].message.content.trim()
+                logger.info(`Got beckn payload`)
                 logger.info(jsonString)
                 logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
                 
-                const response = JSON.parse(jsonString)
+                let response = JSON.parse(jsonString)
+                
+                // Corrections
+                response.body.context = {
+                    ...response.body.context,
+                    ...schema_response.data.config
+                };
                 response.url = `${schema_response.data.config.base_url}/${response.body.context.action}`
+
                 action_response = {...action_response, status: true, data: response}
             }
             catch(e){
@@ -125,7 +134,7 @@ class AI {
         ]
         const completion = await openai.chat.completions.create({
             messages: openai_messages,
-            model: process.env.OPENAI_MODEL_ID,
+            model: 'gpt-4-0125-preview', // Using bigger model for search result compression
             response_format: { type: 'json_object' },
             temperature: 0,
         })
@@ -137,7 +146,7 @@ class AI {
         return {...search_res, responses: compressed};
     }
     
-    async _get_schema_by_instruction(instruction) {
+    async _get_schema_by_instruction(instruction, context=[]) {
         let response = {
             status: false,
             data: {
@@ -149,8 +158,11 @@ class AI {
         }
 
         const action = await this.get_beckn_action_from_text(instruction);
+        logger.info(`Got action from instruction : ${JSON.stringify(action)}`)
         if(action?.action){
-            response.data.config = await this._get_config_by_action(action.action);
+            response.data.config = await this._get_config_by_action(action.action, instruction, context);
+            logger.info(`Got config from action : ${JSON.stringify(response.data.config)}`);
+
             try {
                 const filePath = `./schemas/core_1.1.0/${action?.action}.yml`;
                 const schema = yaml.load(readFileSync(filePath, 'utf8'));
@@ -200,13 +212,13 @@ class AI {
         const openai_messages = [
             {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and retunr this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
             {role: 'system', content: `A typical order flow on beckn is search > select > init > confirm. Pelase add a call to action for the next step in the message. Also, please ensure that you have billing and shipping details before calling init if not already provided in the chat history.`},
-            ...context,
-            {role: 'user',content: `${JSON.stringify(json_response)}`},
+            ...context.filter(c => c.role === 'user'),
+            {role: 'assistant',content: `${JSON.stringify(json_response)}`},
         ]
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: 'gpt-4-0125-preview', // using a higher token size model
+                model: process.env.OPENAI_MODEL_ID, 
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
@@ -222,18 +234,39 @@ class AI {
        
     }
     
-    async _get_config_by_action(action){
+    async _get_config_by_action(action, instruction, context=[]){
         
-        // TODO: update this fucntion to lookup the root registry and use AI to find the best registry for this, get rid of registry_oconfig.
-        return {
+        const desired_structure = {
             action: action,
-            version: registry_config[0].version,
-            domain:`Any one of ${JSON.stringify(registry_config[0].domains)} based on this description: ${registry_config[0].description}`,
+            version: 'VERSION_AS_PER_REGISTRY',
+            domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`,
             message_id : uuidv4(),
             transaction_id: uuidv4(),
-            base_url: registry_config[0].url,
-            bap_id: registry_config[0].bap_subscriber_id,
-            bap_uri: registry_config[0].bap_subscriber_url,
+            base_url: 'AS_PER_REGISTRY',
+            bap_id: 'AS_PER_REGISTRY',
+            bap_uri: 'AS_PER_REGISTRY',
+        }
+
+        const openai_messages = [
+            { role: 'system', content: `Your job is to analyse the given instruction, action and registry details and generated a config json in the following structure : ${JSON.stringify(desired_structure)}` },
+            { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
+            { role: 'system', content: `Instruction : ${instruction}` },
+            { role: 'system', content: `Action : ${action}` },
+            ...context.filter(c => c.role === 'user')
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            let response = JSON.parse(completion.choices[0].message.content)            
+            return response;
+        } catch (e) {
+            logger.error(e)
+            return {}
         }
     }
 }

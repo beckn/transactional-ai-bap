@@ -6,7 +6,7 @@ on:
             - main
 jobs:
     test-lint:
-        name: Test
+        name: Unit tests
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout code

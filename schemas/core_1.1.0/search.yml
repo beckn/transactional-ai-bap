@@ -96,6 +96,8 @@ components:
     Descriptor:
       description: Physical description of something.
       type: object
+      required:
+        - name
       properties:
         name:
           type: string

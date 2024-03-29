@@ -61,6 +61,7 @@ class Actions {
             }
             else{
                 // Call the API
+                logger.info(`Making api call...`)
                 const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
                 if(!call_api_response.status){
                     response.formatted = `Failed to call the API: ${call_api_response.error}`
@@ -68,12 +69,14 @@ class Actions {
                 }
                 else{
 
+                    logger.info(`API call successful. Compessing search results in case of search...`)
                     response = {
                         status: true,
                         raw: beckn_request.data.body.context.action==='search' ? await this.ai.compress_search_results(call_api_response.data) : call_api_response.data
                     }
 
                     // Format the response
+                    logger.info(`Formatting response...`);
                     const get_text_from_json_response = await this.ai.get_text_from_json(
                         call_api_response.data,
                         [...context, { role: 'user', content: message }]

@@ -6,61 +6,6 @@ info:
 security:
   - SubscriberAuth: []
 paths:
-  /init:
-    post:
-      tags:
-        - Beckn Provider Platform (BPP)
-      description: Initialize an order by providing billing and/or shipping details
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                context:
-                  allOf:
-                    - $ref: '#/components/schemas/Context'
-                    - properties:
-                        action:
-                          enum:
-                            - init
-                      required:
-                        - action
-                message:
-                  type: object
-                  properties:
-                    order:
-                      $ref: '#/components/schemas/Order'
-                  required:
-                    - order
-              required:
-                - context
-                - message
-      responses:
-        default:
-          description: Acknowledgement of message received after successful validation of schema and signature
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: object
-                    properties:
-                      ack:
-                        allOf:
-                          - $ref: '#/components/schemas/Ack'
-                          - properties:
-                              status:
-                                enum:
-                                  - ACK
-                                  - NACK
-                    required:
-                      - ack
-                  error:
-                    $ref: '#/components/schemas/Error'
-                required:
-                  - message
   /confirm:
     post:
       tags:
@@ -157,6 +102,10 @@ components:
     Order:
       description: Describes a legal purchase order. It contains the complete details of the legal contract created between the buyer and the seller.
       type: object
+      required:
+        - items
+        - billing
+        - fulfillments
       properties:
         id:
           type: string

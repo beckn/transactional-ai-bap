@@ -9,10 +9,10 @@ const db = new DBService();
 
 async function process_wa_webhook(req, res) {
     try {
-        const message = req.
-        body.Body
+        const message = req.body.Body
         const sender = req.body.From
         const format = req.headers['content-type'] || 'text/xml';
+        const raw_yn = req.body.raw_yn || false;
         const twiml = new MessagingResponse();
 
         logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
@@ -43,7 +43,7 @@ async function process_wa_webhook(req, res) {
             res.type('text/xml').send(twiml.toString())
         }
         else{
-            res.send(process_response.formatted)
+            raw_yn ? res.send(process_response.raw) : res.send(process_response.formatted)
         }
         
     } catch (error) {

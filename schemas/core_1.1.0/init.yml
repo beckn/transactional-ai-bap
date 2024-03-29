@@ -102,6 +102,9 @@ components:
     Order:
       description: Describes a legal purchase order. It contains the complete details of the legal contract created between the buyer and the seller.
       type: object
+      required:
+        - items
+        - billing
       properties:
         id:
           type: string

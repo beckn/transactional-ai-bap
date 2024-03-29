@@ -30,19 +30,22 @@ describe('API tests for /webhook endpoint for an end to end search > select > in
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
             Body: 'I would like to place an order. My details are : John Doe, 9999999999, test@example.com',
+            raw_yn: true
         })
 
         expect(response.status).equal(200)
-        expect(response.text).to.contain('initiated')
+        expect(response.body.responses[0].message.order.fulfillments[0]).to.have.property('id')
+
     })
 
     it('Should test successful confirm response using /webhook endpoint', async () => {
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
             Body: 'Lets confirm!',
+            raw_yn: true
         })
 
         expect(response.status).equal(200)
-        expect(response.text).to.contain('confirmed');
+        expect(response._body.responses[0].message.order).to.have.property('id')
     })
 })

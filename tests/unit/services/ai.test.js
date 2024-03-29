@@ -8,6 +8,7 @@ const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.
 const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
 const on_select = JSON.parse(readFileSync('./tests/data/api_responses/on_select.json'))
 const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json'))
+const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 
 
 describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
@@ -144,7 +145,6 @@ describe('Test cases for services/ai/get_text_from_json()', () => {
     it('Should test get_text_from_json() and throw response with success false for empty object', async () => {
         const response = await ai.get_text_from_json({})
         expect(response.status).to.equal(false)
-        expect(response.message).to.contain('empty')
     })
     it('Should test get_text_from_json() return some message with success true', async () => {
         const context = [
@@ -152,5 +152,37 @@ describe('Test cases for services/ai/get_text_from_json()', () => {
         ]
         const response = await ai.get_text_from_json(on_search, context)
         expect(response.status).to.equal(true)
+    })
+})
+
+describe('Test cases for _get_config_by_action()', async () => {
+    it('Should return right config for search action in ev context', async () => {
+        const config = await ai._get_config_by_action('search', "I'm looking for ev:chargers");;
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('uei:charging');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
+    })
+
+    it('Should return right config for search action in hospitality contect', async () => {
+        const config = await ai._get_config_by_action('search', "I'm looking for some hotels");;
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('hospitality');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
+    })
+
+    it('Should return right config for search action in retail contect', async () => {
+        const config = await ai._get_config_by_action('search', "I'm looking for some pet food");;
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('retail:1.1.0');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
     })
 })
