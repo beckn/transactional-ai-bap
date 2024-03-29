@@ -2,7 +2,7 @@ name: Docker Build, Push and Deploy
 
 on:
     push:
-        branches-ignore:
+        branches:
             - main
 
 jobs:
