@@ -1,11 +1,12 @@
 import Actions from '../services/Actions.js'
 import logger from '../utils/logger.js'
 const action = new Actions()
+const TWILIO_RECEPIENT_NUMBER = process.env.TOURISM_STRAPI_URL
 export const notificationController = async (req, res) => {
     try {
-        const { recipientNumber, messageBody } = req.body
+        const { messageBody } = req.body
         const sendWhatsappNotificationResponse = await action.send_message(
-            recipientNumber,
+            TWILIO_RECEPIENT_NUMBER,
             messageBody
         )
         return res.send(sendWhatsappNotificationResponse)

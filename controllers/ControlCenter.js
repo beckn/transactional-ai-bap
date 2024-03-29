@@ -9,9 +9,10 @@ import {
 } from '../utils/constants.js'
 const action = new Actions()
 const TOURISM_STRAPI_URL = process.env.TOURISM_STRAPI_URL || ''
+const TWILIO_RECEPIENT_NUMBER = process.env.TOURISM_STRAPI_URL
 export const cancelBookingController = async (req, res) => {
     try {
-        const { recipientNumber, messageBody, orderId } = req.body
+        const { messageBody, orderId } = req.body
         console.log(orderId)
         const getOrderFulfillmentDetails = await axios.get(
             `${TOURISM_STRAPI_URL}/order-fulfillments?order_id=${orderId}`,
@@ -37,7 +38,7 @@ export const cancelBookingController = async (req, res) => {
                 }
             )
 
-            await action.send_message(recipientNumber, messageBody)
+            await action.send_message(TWILIO_RECEPIENT_NUMBER, messageBody)
             return res.send({ message: 'Notified' })
         }
 
@@ -64,7 +65,7 @@ export const updateCatalog = async (req, res) => {
                 },
             }
         )
-
+        await action.send_message(TWILIO_RECEPIENT_NUMBER, messageBody)
         return res.send({ message: 'Catalog Updated' })
     } catch (error) {
         logger.error(error.message)
