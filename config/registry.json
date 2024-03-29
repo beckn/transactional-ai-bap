@@ -1,0 +1,14 @@
+[
+    {
+        "url": "https://mit-ps-bap-client.becknprotocol.io",
+        "domains": [
+            "uei:charging",
+            "retail:1.1.0",
+            "hospitality"
+        ],
+        "description": "This network supports multiple domains e.g. uei:charging for ev chargers, retail:1.1.0 for retail stores including grocceries and pet supplies, hospitality for hotels",
+        "bap_subscriber_id": "mit-ps-bap.becknprotocol.io",
+        "bap_subscriber_url": "https://mit-ps-bap.becknprotocol.io",
+        "version": "1.1.0"
+    }
+]

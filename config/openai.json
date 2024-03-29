@@ -11,9 +11,6 @@
         { "key": "rating", "description": "Provide a rating" },
         { "key": "support", "description": "Get support" }
     ],
-    "SUPPORTED_DOMAINS": [
-        {"key": "uei:charging", "description": "Used for energy transactions"}
-    ],
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},
         { "role": "system", "content": "A typical order flow should be search > select > init > confirm."},
@@ -22,11 +19,5 @@
         { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context of all calls except `search`."},
         { "role": "system", "content": "Use the response from assistant to select items from the list of items provided by the assistant."}
 
-    ],
-    "PRESETS" : {
-        "bap_id": "mit-ps-bap.becknprotocol.io",
-        "bap_uri": "https://mit-ps-bap.becknprotocol.io",
-        "version": "1.1.0",
-        "base_url": "https://mit-ps-bap-client.becknprotocol.io"
-    }
+    ]
 }

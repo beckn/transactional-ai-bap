@@ -7,7 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
 })
-const config = JSON.parse(readFileSync('./config/openai.json'))
+const openai_config = JSON.parse(readFileSync('./config/openai.json'))
+const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 
 class AI {
     
@@ -23,7 +24,7 @@ class AI {
     */
     async get_beckn_action_from_text(text){
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions. The supported actions with their descriptions are : ${JSON.stringify(config.SUPPORTED_ACTIONS)}.` }, 
+            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions. The supported actions with their descriptions are : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}.` }, 
             { role: 'system', content: `You must return a json in the following format {'action':'SOME_ACTION_OR_NULL', 'response': 'Should be reponse based on the query.'}` },
             { role: 'system', content: `If the instruction is an action, the action key should be set under 'action' otehrwise action should be null and response should contain completion for the given text.` }, 
             { role: 'system', content: `A typical order flow should be search > select > init > confirm.`},
@@ -57,16 +58,6 @@ class AI {
             message: null
         }
         
-        
-        // Preparse presets
-        let presets = {
-            ...config.PRESETS,
-            domain : "Any of these : uei:charging",
-            message_id : uuidv4(),
-            transaction_id: uuidv4(),
-            action :`Any of these : ${JSON.stringify(config.SUPPORTED_DOMAINS.map(item => item.key))}`
-        }
-        
         // get the right/compressed schema
         const schema_response = await this._get_schema_by_instruction(instruction)
         const schema = schema_response.data;
@@ -75,8 +66,8 @@ class AI {
         if(schema_response.status){
             let openai_messages = [
                 { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
-                ...config.SCHEMA_TRANSLATION_CONTEXT,
-                {"role": "system", "content": `Use the following presets to fill the context : ${JSON.stringify(presets)}`},
+                ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
+                {"role": "system", "content": `Prepare 'context' from this : ${JSON.stringify(schema_response.data.config)}`},
                 ...context,
                 { "role": "user", "content": instruction }
             ]
@@ -93,7 +84,7 @@ class AI {
                 logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
                 
                 const response = JSON.parse(jsonString)
-                response.url = `${config.PRESETS.base_url}/${response.body.context.action}`
+                response.url = `${schema_response.data.config.base_url}/${response.body.context.action}`
                 action_response = {...action_response, status: true, data: response}
             }
             catch(e){
@@ -149,15 +140,29 @@ class AI {
     async _get_schema_by_instruction(instruction) {
         let response = {
             status: false,
-            data: null,
+            data: {
+                schema:null,
+                config: null,
+                action: null
+            },
             message : null
         }
+
         const action = await this.get_beckn_action_from_text(instruction);
         if(action?.action){
+            response.data.config = await this._get_config_by_action(action.action);
             try {
                 const filePath = `./schemas/core_1.1.0/${action?.action}.yml`;
                 const schema = yaml.load(readFileSync(filePath, 'utf8'));
-                response = {...response, status: true, data: schema};
+                response = {
+                    ...response, 
+                    status: true, 
+                    data: {
+                        ...response.data, 
+                        schema: schema,
+                        action: action.action
+                    }
+                }; // update schema and action
             } catch (error) {
                 const defaultFilePath = './schemas/core_1.1.0.yml';
                 const defaultSchema = yaml.load(readFileSync(defaultFilePath, 'utf8'));
@@ -170,7 +175,15 @@ class AI {
                     }
                 }
                 
-                response = {...response, status: true, data: defaultSchema};
+                response = {
+                    ...response, 
+                    status: true, 
+                    data: {
+                        ...response.data,
+                        schema: defaultSchema,
+                        action: action.action
+                    }
+                };
             }
         }
         else{
@@ -207,6 +220,21 @@ class AI {
             }
         }
        
+    }
+    
+    async _get_config_by_action(action){
+        
+        // TODO: update this fucntion to lookup the root registry and use AI to find the best registry for this, get rid of registry_oconfig.
+        return {
+            action: action,
+            version: registry_config[0].version,
+            domain:`Any one of ${JSON.stringify(registry_config[0].domains)} based on this description: ${registry_config[0].description}`,
+            message_id : uuidv4(),
+            transaction_id: uuidv4(),
+            base_url: registry_config[0].url,
+            bap_id: registry_config[0].bap_subscriber_id,
+            bap_uri: registry_config[0].bap_subscriber_url,
+        }
     }
 }
 

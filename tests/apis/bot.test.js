@@ -1,11 +1,11 @@
 import { describe, it } from 'mocha'
-import app from '../../../server.js'
+import app from '../../server.js'
 import request from 'supertest'
 import * as chai from 'chai'
 const expect = chai.expect
 
 
-describe.skip('API tests for /webhook endpoint for an end to end search > select > init > confirm use case', () => {
+describe('API tests for /webhook endpoint for an end to end search > select > init > confirm use case', () => {
     it('Should test succesful search response using /webhook endpoint', async () => {
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
