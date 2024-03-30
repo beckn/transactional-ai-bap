@@ -24,11 +24,8 @@ class AI {
     */
     async get_beckn_action_from_text(text, context=[]){
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions and their descriptions. The supported actions with their descriptions are : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}.` }, 
-            { role: 'system', content: `An action must only be matched if the criteria given in description is fulfilled.` },
+            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given descriptions. The supported actions with their descriptions are : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}.` }, 
             { role: 'system', content: `You must return a json in the following format {'action':'SOME_ACTION_OR_NULL', 'reason': 'Reason for miss'}` },
-            { role: 'system', content: `If the instruction does not match any of the actions, action should be null. 'action' must have one of teh actions or null, it should not send any otehr string` }, 
-            { role: 'system', content: `A typical order flow should be search > select > init > confirm.`},
             { role: 'system', content: `Following is the context history for reference.` },
             ...context,
             { role: 'user', content: text }

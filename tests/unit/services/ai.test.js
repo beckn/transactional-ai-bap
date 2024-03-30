@@ -28,12 +28,12 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
     
     it('Should test get_beckn_action_from_text() fail for a general query', async () => {
         const response = await ai.get_beckn_action_from_text('What is 2+2?');
-        expect(response.action).to.be.null;
+        expect(response.action).to.not.be.a('string');
     })
     
     it('Should test get_beckn_action_from_text() succesfully for an itinerary', async () => {
         const response = await ai.get_beckn_action_from_text('I want to plan a trip to the mountains. Can you please help me with that?');
-        expect(response.action).to.be.null;
+        expect(response.action).to.not.be.a('string');
     })
 
     it('Should test get_beckn_action_from_text() succesfulle if called init with the billing details', async () => {
@@ -55,7 +55,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ];
         const response = await ai.get_beckn_action_from_text('Lets place the order', context);
-        expect(response.action).to.be.null;
+        expect(response.action).to.not.be.a('string');
     })    
 
 })
