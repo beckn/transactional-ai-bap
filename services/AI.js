@@ -14,6 +14,7 @@ class AI {
     
     constructor() {
         this.context = [];
+        this.action = null;
     }
     
     /**
@@ -181,7 +182,8 @@ class AI {
             message : null
         }
 
-        const action = await this.get_beckn_action_from_text(instruction, context);
+        // const action = await this.get_beckn_action_from_text(instruction, context);
+        const action = this.action;
         logger.info(`Got action from instruction : ${JSON.stringify(action)}`)
         if(action?.action){
             response.data.config = await this._get_config_by_action(action.action, instruction, context);
@@ -236,8 +238,12 @@ class AI {
         };
         const openai_messages = [
             {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
-            {role: 'system', content: `A typical order flow on beckn is search > select > init > confirm. Please add a call to action for the next step in the message. Also, please ensure that you have billing and shipping details before calling init if not already provided in the chat history.`},
-            {role: 'system', content: `you should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
+            {role: 'system', content: `User can select an item after seeing the search results or directly 'init' by selecting an item and sharing their billing details. You should ask user what they want to do next.`},
+            {role: 'system', content: `If its a 'select' response, do ask for billing details to initiate the order.`},
+            {role: 'system', content: `If its an 'init' response, you should ask for confirmation.`},
+            {role: 'system', content: `If its a 'confirm' response, you should include the order id in your response.`},
+            {role: 'system', content: `You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
+            {role: 'system', content: `If the given json looks like an error, summarize teh error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
             ...context.filter(c => c.role === 'user'),
             {role: 'assistant',content: `${JSON.stringify(json_response)}`},
         ]

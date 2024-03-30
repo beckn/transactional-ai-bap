@@ -62,6 +62,10 @@ class Actions {
         }
         try {
 
+            // Get action from text message
+            this.ai.action = await this.ai.get_beckn_action_from_text(message, context);
+            if(this.ai.action?.action === 'search') context = [];
+
             // Get becnk request from text message
             const beckn_request = await this.ai.get_beckn_request_from_text(message, context);
             if(!beckn_request.status){
