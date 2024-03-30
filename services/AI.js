@@ -24,13 +24,14 @@ class AI {
     */
     async get_beckn_action_from_text(text, context=[]){
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions. The supported actions with their descriptions are : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}.` }, 
-            { role: 'system', content: `You must return a json in the following format {'action':'SOME_ACTION_OR_NULL', 'response': 'Should be reponse based on the query.'}` },
-            { role: 'system', content: `If the instruction is an action, the action key should be set under 'action' otehrwise action should be null and response should contain completion for the given text.` }, 
+            { role: 'system', content: `Your job is to analyse the text input given by user and identify if that is an action based on given set of actions and their descriptions. The supported actions with their descriptions are : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}.` }, 
+            { role: 'system', content: `An action must only be matched if the criteria given in description is fulfilled.` },
+            { role: 'system', content: `You must return a json in the following format {'action':'SOME_ACTION_OR_NULL', 'reason': 'Reason for miss'}` },
+            { role: 'system', content: `If the instruction does not match any of the actions, action should be null. 'action' must have one of teh actions or null, it should not send any otehr string` }, 
             { role: 'system', content: `A typical order flow should be search > select > init > confirm.`},
             { role: 'system', content: `Following is the context history for reference.` },
             ...context,
-            { role: 'user', content: text}
+            { role: 'user', content: text }
         ]
         
         let response = {
@@ -160,7 +161,7 @@ class AI {
         ]
         const completion = await openai.chat.completions.create({
             messages: openai_messages,
-            model: 'gpt-4-0125-preview', // Using bigger model for search result compression
+            model: process.env.OPENAI_MODEL_ID, // Using bigger model for search result compression
             response_format: { type: 'json_object' },
             temperature: 0,
         })
@@ -231,21 +232,22 @@ class AI {
         return response;
     }
 
-    async get_text_from_json(json_response, context=[]) {
+    async get_text_from_json(json_response, context=[], model = process.env.OPENAI_MODEL_ID) {
         const desired_output = {
             status: true,
             message: "<Whastapp friendly formatted message>"
         };
         const openai_messages = [
-            {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and retunr this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
-            {role: 'system', content: `A typical order flow on beckn is search > select > init > confirm. Pelase add a call to action for the next step in the message. Also, please ensure that you have billing and shipping details before calling init if not already provided in the chat history.`},
+            {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
+            {role: 'system', content: `A typical order flow on beckn is search > select > init > confirm. Please add a call to action for the next step in the message. Also, please ensure that you have billing and shipping details before calling init if not already provided in the chat history.`},
+            {role: 'system', content: `you should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
             ...context.filter(c => c.role === 'user'),
             {role: 'assistant',content: `${JSON.stringify(json_response)}`},
         ]
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: 'gpt-4-0125-preview', 
+                model: model, 
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })

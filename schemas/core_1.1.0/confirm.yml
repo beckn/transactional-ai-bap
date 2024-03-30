@@ -124,6 +124,11 @@ components:
           enum:
             - DRAFT
             - DEFAULT
+        items:
+          description: The items purchased / availed in this order. This should be based on what was used in the `select` call.
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
         billing:
           description: The billing details of this order
           allOf:
@@ -133,11 +138,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Fulfillment'
-        items:
-          description: The items purchased / availed in this order
-          type: array
-          items:
-            $ref: '#/components/schemas/Item'
     Descriptor:
       description: Physical description of something.
       type: object

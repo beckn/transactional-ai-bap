@@ -1,8 +1,8 @@
 {
     "SUPPORTED_ACTIONS": [
-        { "key": "search", "description": "Perform a search" },
-        { "key": "select", "description": "The instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. This is equivalent of adding items to cart (or equivalent) by selecting them." },
-        { "key": "init", "description": "Initialize an order by providing billing and/or shipping details." },
+        { "key": "search", "description": "Action should be `search` if user wants to search forsome product or service." },
+        { "key": "select", "description": "Action should be `select` if the user wants to add something to the cart (or equivalent)" },
+        { "key": "init", "description": "An instruction can only be init action if the user has provided their billing details. This information is mandatory and without the billing details, instriction CANNOT be treated as init." },
         { "key": "confirm", "description": "Confirm an action" },
         { "key": "status", "description": "Get the status of an action" },
         { "key": "track", "description": "Track an action" },

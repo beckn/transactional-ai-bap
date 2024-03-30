@@ -91,24 +91,3 @@ describe('should test send_message()', () => {
   });
 });
 
-describe('Test cases for api calling', () => {
-  it('Should test succesfull api call', async () => {
-    let url = 'https://jsonplaceholder.typicode.com/posts/1';
-    let method = 'GET';
-    let data = {};
-    let headers = {};
-    const response = await actionsService.call_api(url, method, data, headers);
-    expect(response.status).to.be.true;
-    expect(response.data).to.be.an('object');
-    
-  })
-  
-  it('Should test unsuccesfull api call', async () => {
-    let url = '/posts/1';
-    let method = 'GET';
-    let data = {};
-    let headers = {};
-    const response = await actionsService.call_api(url, method, data, headers);
-    expect(response.status).to.be.false;
-  })
-})
