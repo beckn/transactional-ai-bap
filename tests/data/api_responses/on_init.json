@@ -213,9 +213,9 @@
                         ]
                     },
                     "billing": {
-                        "name": "Mayur Virendra",
-                        "email": "mayurlibra@gmail.com",
-                        "phone": "9986949245"
+                        "name": "John Doe",
+                        "email": "john.doe@example.com",
+                        "phone": "9000000001"
                     },
                     "categories": [
                         {

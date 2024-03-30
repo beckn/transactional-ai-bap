@@ -43,7 +43,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
             {"role": "user", "content": "I want to select the first item"},
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ];
-        const response = await ai.get_beckn_action_from_text('Lets place the order. My details are : Mayur Virendra, 9986949245, mayurlibra@gmail.com', context);
+        const response = await ai.get_beckn_action_from_text('Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999', context);
         expect(response.action).to.be.eq('init');
     }) 
 
@@ -106,7 +106,7 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
             {"role": "user", "content": "I want to select the first item"},
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ]
-        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : Mayur Virendra, 9986949245, mayurlibra@gmail.com", context);
+        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999", context);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('init')
@@ -129,7 +129,7 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
             {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
             {"role": "user", "content": "I want to select the first item"},
             {"role": "assistant", "content": JSON.stringify(on_select)},
-            {"role": "user", "content": "Lets place the order. My details are : Mayur Virendra, 9986949245, mayurlibra@gmail.com"},
+            {"role": "user", "content": "Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999"},
             {"role": "assistant", "content": JSON.stringify(on_init)}
         ]
         const response = await ai.get_beckn_request_from_text("Lets confirm the order!", context);
