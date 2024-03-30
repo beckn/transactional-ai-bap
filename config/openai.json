@@ -14,7 +14,8 @@
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},
         { "role": "system", "content": "A typical order flow should be search > select > init > confirm."},
-        { "role": "system", "content": "Use the response of search from assistant to select items from the list of items provided by the assistant."}
-
+        { "role": "system", "content": "Use the response of search from assistant to select items from the list of items provided by the assistant."},
+        { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context of all calls except `search`."},
+        { "role": "system", "content": "For `select`, `init`, `confirm`, you must use the item `id` as part of the payload for selected item instead of name or any other key."}
     ]
 }

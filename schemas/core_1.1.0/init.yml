@@ -188,34 +188,6 @@ components:
       description: Describes the count or amount of an item
       type: object
       properties:
-        allocated:
-          description: This represents the exact quantity allocated for purchase of the item.
-          type: object
-          properties:
-            count:
-              type: integer
-              minimum: 0
-        available:
-          description: This represents the exact quantity available for purchase of the item. The buyer can only purchase multiples of this
-          type: object
-          properties:
-            count:
-              type: integer
-              minimum: 0
-        maximum:
-          description: This represents the maximum quantity allowed for purchase of the item
-          type: object
-          properties:
-            count:
-              type: integer
-              minimum: 1
-        minimum:
-          description: This represents the minimum quantity allowed for purchase of the item
-          type: object
-          properties:
-            count:
-              type: integer
-              minimum: 0
         selected:
           description: This represents the quantity selected for purchase of the item
           type: object
@@ -223,14 +195,6 @@ components:
             count:
               type: integer
               minimum: 0
-        unitized:
-          description: This represents the quantity available in a single unit of the item
-          type: object
-          properties:
-            count:
-              type: integer
-              minimum: 1
-              maximum: 1
     Item:
       description: 'Describes a product or a service offered to the end consumer by the provider. In the mobility sector, it can represent a fare product like one way journey. In the logistics sector, it can represent the delivery service offering. In the retail domain it can represent a product like a grocery item.'
       type: object

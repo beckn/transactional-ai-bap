@@ -193,9 +193,9 @@ components:
       type: object
       properties:
         id:
-          description: ID of the item.
+          description: ID of the item. In case of a select, this should be the id of item selected.
           type: string
         quantity:
-          description: The selling quantity of the item
+          description: The selling quantity of the item. In case of a select, this should be the quantity selected by the user.
           allOf:
             - $ref: '#/components/schemas/ItemQuantity'

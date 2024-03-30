@@ -154,7 +154,8 @@ class AI {
         }
         let openai_messages = [
             { "role" : "system", "content": `Your job is to complress the search results received from user into the following JSON structure : ${JSON.stringify(desired_output)}`},
-            { "role" : "system", "content": "you should not send providers that do not have items." },
+            { "role" : "system", "content": "bpp_id and bpp_uri for a provide must be picked up from its own context only." },
+            { "role" : "system", "content": "you should not use responses or providers that do not have items." },
             { "role": "user", "content": JSON.stringify(search_res)}
         ]
         const completion = await openai.chat.completions.create({
