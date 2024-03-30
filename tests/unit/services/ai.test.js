@@ -1,7 +1,6 @@
 import * as chai from 'chai'
 const expect = chai.expect
 import AI from '../../../services/AI.js'
-import logger from '../../../utils/logger.js';
 import { readFileSync } from 'fs';
 const ai = new AI();
 const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
