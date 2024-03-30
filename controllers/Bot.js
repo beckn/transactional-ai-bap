@@ -27,14 +27,17 @@ async function process_wa_webhook(req, res) {
             }
         }
 
-
-        logger.info(`Received message from ${sender}: ${message}`)
-        
+        // Process instruction
         const process_response = await actionsService.process_instruction(message, session.data)
-        
-        if(process_response.formatted && process_response.raw && typeof process_response.raw === 'object'){
+        if(process_response.formatted){
             session.data.push({ role: 'user', content: message });  // add user message to session
-            session.data.push({ role: 'assistant', content: JSON.stringify(process_response.raw) }); // add system response to session
+            if(process_response.raw && typeof process_response.raw === 'object'){
+                session.data.push({ role: 'assistant', content: JSON.stringify(process_response.raw) }); // add system response to session
+            }
+            else{
+                session.data.push({ role: 'assistant', content: process_response.formatted }); // add system response to session
+            }
+            
             await db.update_session(sender, session);
         }        
 
