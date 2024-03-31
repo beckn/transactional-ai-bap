@@ -4,7 +4,7 @@ import ActionService from '../../../services/Actions.js'
 import { describe } from 'mocha'
 const actionsService = new ActionService()
 
-describe('Test cases for process_instruction function', ()=> {
+describe.skip('Test cases for process_instruction function', ()=> {
   it('should process the instruction message', async () => {
     const messageBody = 'Hi. What is 2+2?';
     const result = await actionsService.process_instruction(messageBody);

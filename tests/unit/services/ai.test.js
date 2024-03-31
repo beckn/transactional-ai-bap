@@ -7,57 +7,143 @@ const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.
 const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
 const on_select = JSON.parse(readFileSync('./tests/data/api_responses/on_select.json'))
 const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json'))
+const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confirm.json'))
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
+const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
 
 
-describe.only('Test cases for services/ai/get_beckn_action_from_text()', () => {
-    
-    it('Should test get_beckn_action_from_text() succesfully for a search intent', async () => {
-        const response = await ai.get_beckn_action_from_text("I'm looking for some ev chargers.");
-        expect(response.action).to.equal('search');
+describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
+    it('Should return null action when asked a general query', async () => {
+        const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_QUERY);
+        expect(response).to.have.property('action')
+        expect(response.action).to.be.null    
     })
-    
-    it('Should test get_beckn_action_from_text() succesfully for a select intent', async () => {
+
+    it('Should return null action when shared details about a trip', async () => {
+        const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_DETAILS);
+        expect(response).to.have.property('action')
+        expect(response.action).to.be.null    
+    })
+
+    it('Should return null action when asked about list of bookings to be done', async () => {
+        const response = await ai.get_beckn_action_from_text(trip_planning.BOOKINGS_QUERY);
+        expect(response).to.have.property('action')
+        expect(response.action).to.be.null    
+    })
+
+    it('Should return search action when asked about booking a hotel', async () => {
+        const response = await ai.get_beckn_action_from_text(trip_planning.FIND_HOTEL);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('search')
+    });
+
+    it('Should return select action when user selects an item', async () => {
         const context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)}            
-        ]
-        const response = await ai.get_beckn_action_from_text('I like the first one.', context);
-        expect(response.action).to.equal('select');
-    })
-    
-    it('Should test get_beckn_action_from_text() fail for a general query', async () => {
-        const response = await ai.get_beckn_action_from_text('What is 2+2?');
-        expect(response.action).to.not.be.a('string');
-    })
-    
-    it('Should test get_beckn_action_from_text() succesfully for an itinerary', async () => {
-        const response = await ai.get_beckn_action_from_text('I want to plan a trip to the mountains. Can you please help me with that?');
-        expect(response.action).to.not.be.a('string');
-    })
-
-    it('Should test get_beckn_action_from_text() succesfulle if called init with the billing details', async () => {
-        let context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
-            {"role": "user", "content": "I want to select the first item"},
-            {"role": "assistant", "content": JSON.stringify(on_select)}
+            {role: 'user', content: trip_planning.FIND_HOTEL},
+            {role: 'assistant', content: trip_planning.FIND_HOTEL_RESPONSE}            
         ];
-        const response = await ai.get_beckn_action_from_text('Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999', context);
-        expect(response.action).to.be.eq('init');
-    }) 
+        const response = await ai.get_beckn_action_from_text(trip_planning.SELECT_HOTEL, context);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('select')
+    });
 
-    it.skip('Should test get_beckn_action_from_text() fail if called init without the billing details', async () => {
-        let context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
-            {"role": "user", "content": "I want to select the first item"},
-            {"role": "assistant", "content": JSON.stringify(on_select)}
+    it('Should return init action when user tried to place an order', async () => {
+        const context = [
+            {role: 'user', content: trip_planning.FIND_HOTEL},
+            {role: 'assistant', content: trip_planning.FIND_HOTEL_RESPONSE},
+            {role: 'user', content: trip_planning.SELECT_HOTEL},
+            {role: 'assistant', content: trip_planning.SELECT_HOTEL_RESPONSE}
         ];
-        const response = await ai.get_beckn_action_from_text('Lets place the order', context);
-        expect(response.action).to.not.be.a('string');
-    })    
+        
+        const response = await ai.get_beckn_action_from_text(trip_planning.INIT_HOTEL, context);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('init')
+    });
 
+    it('Should return confirm action when user tried to confirm an order', async () => {
+        const context = [
+            {role: 'user', content: trip_planning.FIND_HOTEL},
+            {role: 'assistant', content: trip_planning.FIND_HOTEL_RESPONSE},
+            {role: 'user', content: trip_planning.SELECT_HOTEL},
+            {role: 'assistant', content: trip_planning.SELECT_HOTEL_RESPONSE}
+        ];
+        
+        const response = await ai.get_beckn_action_from_text(trip_planning.CONFIRM_HOTEL, context);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('confirm')
+    });
+
+    it('Should return null action when user used the word `confirm` for someothing else', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you confirm whats the latest time?');
+        expect(response).to.have.property('action')
+        expect(response.action).to.be.null
+    });
+})
+
+describe('Test cases for get_ai_response_to_query() function', () => {
+    it('Should return a response with success false for an empty query', async () => {
+        const response = await ai.get_ai_response_to_query('Hi');
+        expect(response).to.be.an.string;
+    })
+
+    it('Should return a response with success true for a valid query', async () => {
+        const response = await ai.get_ai_response_to_query('I want to plan atrip from Denver to yellowstone');
+        expect(response).to.be.an.string;
+    })
+})
+
+describe('Test cases for get_schema_by_action() function', () => {
+    it('Should return a search schema for search', async () => {
+        ai.action = {action: 'search'};
+        const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
+        expect(response.paths).to.have.property('/search')
+    })
+
+    it('Should return false if no action found', async () => {
+        const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
+        expect(response).to.be.false;
+    })
+
+    it('Should return false if inavlid action found', async () => {
+        ai.action = {action: 'invalid'};
+        const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
+        expect(response).to.be.false;
+    })
+})
+
+describe('Test cases for get_context_by_instruction()', async () => {
+    it('Should return right config for search action in ev context', async () => {
+        ai.action = {action: 'search'};
+        const config = await ai.get_context_by_instruction("I'm looking for ev:chargers");;
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('uei:charging');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
+    })
+
+    it('Should return right config for search action in hospitality contect', async () => {
+        ai.action = {action: 'search'};
+        const config = await ai.get_context_by_instruction("Okay, lets find some hotels near Yellowstone National Park");
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('hospitality');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
+    })
+
+    it('Should return right config for search action in retail contect', async () => {
+        ai.action = {action: 'search'};
+        const config = await ai.get_context_by_instruction("I'm looking for some pet food");;
+        expect(config).to.have.property('action')
+        expect(config.action).to.equal('search');
+        expect(config.domain).to.equal('retail:1.1.0');
+        expect(config.version).to.equal(registry_config[0].version);
+        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
+        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
+    })
 })
 
 describe('Test cases for services/ai/compress_search_results()', () => {
@@ -73,7 +159,10 @@ describe('Test cases for services/ai/compress_search_results()', () => {
 
 describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
     it('Should test get_beckn_request_from_text() succesfully for a `search` intent', async () => {
-        const response = await ai.get_beckn_request_from_text("I'm looking for some ev chargers.");
+
+        ai.action = {action: 'search'};
+        const schema = await ai.get_schema_by_action();
+        const response = await ai.get_beckn_request_from_text("I'm looking for some ev chargers.", [], on_search.context, schema);
         expect(response.status).to.be.eq(true);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
@@ -83,11 +172,14 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
 
     it('Should test get_beckn_request_from_text() succesfully for a `select`', async () => {
         
+        ai.action = {action: 'select'};
+        const schema = await ai.get_schema_by_action();
+        
         const context = [
             {"role": "user", "content": "I'm looking for some ev chargers"},
             {"role": "assistant", "content": JSON.stringify(on_search_compressed)}            
         ]
-        const response = await ai.get_beckn_request_from_text("Lets select the first item", context);
+        const response = await ai.get_beckn_request_from_text("Lets select the first item", context, on_select.context, schema);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('select')
@@ -106,7 +198,10 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
             {"role": "user", "content": "I want to select the first item"},
             {"role": "assistant", "content": JSON.stringify(on_select)}
         ]
-        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999", context);
+        ai.action = {action: 'init'};
+        const schema = await ai.get_schema_by_action();        
+
+        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999", context, on_init.context, schema);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('init')
@@ -132,7 +227,11 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
             {"role": "user", "content": "Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999"},
             {"role": "assistant", "content": JSON.stringify(on_init)}
         ]
-        const response = await ai.get_beckn_request_from_text("Lets confirm the order!", context);
+
+        ai.action = {action: 'confirm'};
+        const schema = await ai.get_schema_by_action();
+        
+        const response = await ai.get_beckn_request_from_text("Lets confirm the order!", context, on_confirm.context, schema);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('confirm')
@@ -163,34 +262,3 @@ describe('Test cases for services/ai/get_text_from_json()', () => {
     })
 })
 
-describe('Test cases for _get_config_by_action()', async () => {
-    it('Should return right config for search action in ev context', async () => {
-        const config = await ai._get_config_by_action('search', "I'm looking for ev:chargers");;
-        expect(config).to.have.property('action')
-        expect(config.action).to.equal('search');
-        expect(config.domain).to.equal('uei:charging');
-        expect(config.version).to.equal(registry_config[0].version);
-        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
-        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
-    })
-
-    it('Should return right config for search action in hospitality contect', async () => {
-        const config = await ai._get_config_by_action('search', "I'm looking for some hotels");;
-        expect(config).to.have.property('action')
-        expect(config.action).to.equal('search');
-        expect(config.domain).to.equal('hospitality');
-        expect(config.version).to.equal(registry_config[0].version);
-        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
-        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
-    })
-
-    it('Should return right config for search action in retail contect', async () => {
-        const config = await ai._get_config_by_action('search', "I'm looking for some pet food");;
-        expect(config).to.have.property('action')
-        expect(config.action).to.equal('search');
-        expect(config.domain).to.equal('retail:1.1.0');
-        expect(config.version).to.equal(registry_config[0].version);
-        expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
-        expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
-    })
-})

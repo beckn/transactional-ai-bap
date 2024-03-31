@@ -16,7 +16,7 @@ app.use(bodyParser.json())
 
 // Define endpoints here
 // app.post('/act', actions.act)
-app.post('/webhook', messageController.process_wa_webhook)
+app.post('/webhook', messageController.process_text)
 
 // Reset all sessions
 const db = new DBService();
