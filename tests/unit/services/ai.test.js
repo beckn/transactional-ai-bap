@@ -85,6 +85,12 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response).to.have.property('action')
         expect(response.action).to.equal('search');
     });
+
+    it('Should return `clear` action when user wishes to clear the chat', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you clear this session ', hotel_session.data.actions);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('clear');
+    });
 })
 
 describe('Test cases for get_ai_response_to_query() function', () => {

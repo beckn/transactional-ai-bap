@@ -111,7 +111,12 @@ async function process_text(req, res) {
             session.actions = EMPTY_SESSION.actions;
         }
         
-        if(ai.action?.action == null) {
+
+        if(ai.action?.action === 'clear'){
+            session = EMPTY_SESSION;
+            response.formatted = 'Session cleared! You can start a new session now.';
+        }
+        else if(ai.action?.action == null) {
             // get ai response
             response.formatted = await ai.get_ai_response_to_query(message, session.text);
             logger.info(`AI response: ${response.formatted}`);
