@@ -1,36 +1,47 @@
 {
     "context": {
         "ttl": "PT10M",
-        "action": "init",
-        "timestamp": "2024-03-26T11:18:24.112Z",
-        "message_id": "523a77f6-5afd-4a4a-a047-d70c0f48129f",
-        "transaction_id": "99847583-fd40-4c0f-b682-f53ea3061a74",
+        "action": "confirm",
+        "timestamp": "2024-03-31T08:23:16.219Z",
+        "message_id": "255de7b0-3a67-4340-bfd6-c9c876733dd8",
+        "transaction_id": "a9aaecca-10b7-4d19-b640-b047a7c62196",
         "domain": "uei:charging",
         "version": "1.1.0",
         "bap_id": "mit-ps-bap.becknprotocol.io",
         "bap_uri": "https://mit-ps-bap.becknprotocol.io",
+        "location": {
+            "country": {
+                "code": "DE"
+            }
+        },
         "bpp_id": "mit-ps-energy.becknprotocol.io",
-        "bpp_uri": "http://mit-ps-energy.becknprotocol.io"
+        "bpp_uri": "https://mit-ps-energy.becknprotocol.io"
     },
     "responses": [
         {
             "context": {
                 "domain": "uei:charging",
-                "action": "on_init",
+                "action": "on_confirm",
                 "version": "1.1.0",
                 "bpp_id": "mit-ps-energy.becknprotocol.io",
                 "bpp_uri": "http://mit-ps-energy.becknprotocol.io",
                 "country": "IND",
                 "city": "std:080",
+                "location": {
+                    "country": {
+                        "code": "DE"
+                    }
+                },
                 "bap_id": "mit-ps-bap.becknprotocol.io",
                 "bap_uri": "https://mit-ps-bap.becknprotocol.io",
-                "transaction_id": "99847583-fd40-4c0f-b682-f53ea3061a74",
-                "message_id": "523a77f6-5afd-4a4a-a047-d70c0f48129f",
+                "transaction_id": "a9aaecca-10b7-4d19-b640-b047a7c62196",
+                "message_id": "255de7b0-3a67-4340-bfd6-c9c876733dd8",
                 "ttl": "PT10M",
-                "timestamp": "2024-03-26T11:12:33.010Z"
+                "timestamp": "2024-03-31T08:23:21.474Z"
             },
             "message": {
                 "order": {
+                    "id": "25",
                     "provider": {
                         "id": "1",
                         "descriptor": {
@@ -213,114 +224,29 @@
                         ]
                     },
                     "billing": {
-                        "name": "John Doe",
-                        "email": "john.doe@example.com",
-                        "phone": "9000000001"
+                        "name": "Industry buyer",
+                        "address": "B005 aspire heights, Jurong East, SGP, 680230",
+                        "state": {
+                            "name": "Jurong East"
+                        },
+                        "city": {
+                            "name": "Jurong East"
+                        },
+                        "email": "nobody@nomail.com",
+                        "phone": "9886098860"
                     },
-                    "categories": [
-                        {
-                            "id": "1",
-                            "value": "energy",
-                            "createdAt": "2024-03-17T16:31:12.649Z",
-                            "updatedAt": "2024-03-17T16:31:14.959Z",
-                            "publishedAt": "2024-03-17T16:31:14.952Z",
-                            "category_code": "EV"
-                        },
-                        {
-                            "id": "2",
-                            "value": "Green Energy",
-                            "createdAt": "2024-03-17T16:31:23.376Z",
-                            "updatedAt": "2024-03-17T16:31:24.769Z",
-                            "publishedAt": "2024-03-17T16:31:24.765Z",
-                            "category_code": "GE"
-                        },
-                        {
-                            "id": "3",
-                            "value": "Pulse Energy",
-                            "createdAt": "2024-03-17T16:31:32.691Z",
-                            "updatedAt": "2024-03-17T16:31:34.039Z",
-                            "publishedAt": "2024-03-17T16:31:34.035Z",
-                            "category_code": "PE"
-                        },
-                        {
-                            "id": "12",
-                            "value": "Chargers",
-                            "createdAt": "2024-03-19T13:05:29.765Z",
-                            "updatedAt": "2024-03-19T13:05:30.970Z",
-                            "publishedAt": "2024-03-19T13:05:30.963Z",
-                            "category_code": "chargers"
-                        },
-                        {
-                            "id": "13",
-                            "value": "EV chargers",
-                            "createdAt": "2024-03-19T14:52:01.556Z",
-                            "updatedAt": "2024-03-19T14:52:02.914Z",
-                            "publishedAt": "2024-03-19T14:52:02.895Z",
-                            "category_code": "ev_chargers"
-                        },
-                        {
-                            "id": "14",
-                            "value": "EV",
-                            "createdAt": "2024-03-19T14:54:18.530Z",
-                            "updatedAt": "2024-03-19T14:54:19.589Z",
-                            "publishedAt": "2024-03-19T14:54:19.574Z",
-                            "category_code": "ev"
-                        },
-                        {
-                            "id": "15",
-                            "value": "Charging",
-                            "createdAt": "2024-03-19T14:54:36.936Z",
-                            "updatedAt": "2024-03-19T14:54:38.540Z",
-                            "publishedAt": "2024-03-19T14:54:38.534Z",
-                            "category_code": "charging"
-                        },
-                        {
-                            "id": "16",
-                            "value": "Charging Stations",
-                            "createdAt": "2024-03-19T14:54:57.694Z",
-                            "updatedAt": "2024-03-19T14:54:58.893Z",
-                            "publishedAt": "2024-03-19T14:54:58.887Z",
-                            "category_code": "charging_stations"
-                        },
-                        {
-                            "id": "17",
-                            "value": "Electric Vehicle",
-                            "createdAt": "2024-03-19T14:55:25.756Z",
-                            "updatedAt": "2024-03-19T14:55:26.785Z",
-                            "publishedAt": "2024-03-19T14:55:26.779Z",
-                            "category_code": "electric_vehicle"
-                        },
-                        {
-                            "id": "18",
-                            "value": "Energy",
-                            "createdAt": "2024-03-19T14:55:39.408Z",
-                            "updatedAt": "2024-03-19T14:55:42.898Z",
-                            "publishedAt": "2024-03-19T14:55:42.894Z",
-                            "category_code": "energy"
-                        },
-                        {
-                            "id": "19",
-                            "value": "Charging ports",
-                            "createdAt": "2024-03-19T14:56:02.059Z",
-                            "updatedAt": "2024-03-19T14:56:14.635Z",
-                            "publishedAt": "2024-03-19T14:56:04.067Z",
-                            "category_code": "charging_ports"
-                        },
-                        {
-                            "id": "20",
-                            "value": "Ev charging stations",
-                            "createdAt": "2024-03-19T14:56:28.350Z",
-                            "updatedAt": "2024-03-19T14:56:30.212Z",
-                            "publishedAt": "2024-03-19T14:56:30.208Z",
-                            "category_code": "ev_charging_stations"
-                        }
-                    ],
                     "fulfillments": [
                         {
                             "id": "1",
-                            "type": "CHARGING",
-                            "rating": "4.5",
-                            "rateable": true,
+                            "customer": {
+                                "contact": {
+                                    "email": "fox.judie61234@abc.org",
+                                    "phone": "+91-9999999999"
+                                },
+                                "person": {
+                                    "name": "Judie Fox6"
+                                }
+                            },
                             "tracking": false
                         }
                     ],

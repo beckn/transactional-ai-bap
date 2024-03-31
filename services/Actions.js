@@ -28,8 +28,16 @@ class Actions {
         const request = { url: endpoint, method, data, headers }
         
         try {
-            const response = await axios(request)
+            let response = await axios(request)
             
+            // optimise search results. 
+            // This code will ensure that for search resylts, only the responses with catalog providers are returned and out of them we only take the first resopnse to further reduce the token size. 
+            // This should be imlemented by different baps based on their requirements.
+            if(request.data.context.action==='search'){
+                response.data.responses = response.data.responses.filter(res => res.message && res.message.catalog && res.message.catalog.providers && res.message.catalog.providers.length > 0)
+                if(response.data.responses.length > 0) 
+                    response.data.responses = response.data.responses.slice(0, 1);                
+            }
             responseObject = {
                 status: true,
                 data: response.data,
@@ -54,6 +62,10 @@ class Actions {
         }
         try {
 
+            // Get action from text message
+            this.ai.action = await this.ai.get_beckn_action_from_text(message, context);
+            if(this.ai.action?.action === 'search') context = [];
+
             // Get becnk request from text message
             const beckn_request = await this.ai.get_beckn_request_from_text(message, context);
             if(!beckn_request.status){
@@ -61,6 +73,7 @@ class Actions {
             }
             else{
                 // Call the API
+                logger.info(`Making api call...`)
                 const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
                 if(!call_api_response.status){
                     response.formatted = `Failed to call the API: ${call_api_response.error}`
@@ -68,12 +81,14 @@ class Actions {
                 }
                 else{
 
+                    logger.info(`API call successful. Compessing search results in case of search...`)
                     response = {
                         status: true,
                         raw: beckn_request.data.body.context.action==='search' ? await this.ai.compress_search_results(call_api_response.data) : call_api_response.data
                     }
 
                     // Format the response
+                    logger.info(`Formatting response...`);
                     const get_text_from_json_response = await this.ai.get_text_from_json(
                         call_api_response.data,
                         [...context, { role: 'user', content: message }]
@@ -91,14 +106,17 @@ class Actions {
     
     async send_message(recipient, message) {
         try {
-            await client.messages.create({
+            
+            const response = await client.messages.create({
                 body: message,
                 from: `whatsapp:${twilioNumber}`,
-                to: `whatsapp:${recipient}`,
+                to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
             })
+            logger.info(`Message sent: ${JSON.stringify(response)}`)
+            return true;
         } catch (error) {
-            logger.error(`Error sending message: ${error.message}`)
-            throw new Error(`Failed to send message: ${error.message}`)
+            logger.error(`Error sending message: ${error.message}`)           
+            return false;
         }
     }
 }

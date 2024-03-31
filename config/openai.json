@@ -1,32 +1,16 @@
 {
     "SUPPORTED_ACTIONS": [
-        { "key": "search", "description": "Perform a search" },
-        { "key": "select", "description": "The instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. This is equivalent of adding items to cart (or equivalent) by selecting them." },
-        { "key": "init", "description": "Initialize an order by providing billing and/or shipping details." },
-        { "key": "confirm", "description": "Confirm an action" },
-        { "key": "status", "description": "Get the status of an action" },
-        { "key": "track", "description": "Track an action" },
-        { "key": "cancel", "description": "Cancel an action" },
-        { "key": "update", "description": "Update an action" },
-        { "key": "rating", "description": "Provide a rating" },
-        { "key": "support", "description": "Get support" }
-    ],
-    "SUPPORTED_DOMAINS": [
-        {"key": "uei:charging", "description": "Used for energy transactions"}
+        { "action": "search", "description": "Perform a search for a service or product. If a service or product is not specified, its not a search. Listing all bookings is not a search." },
+        { "action": "select", "description": "If the user likes or selects any item, this action should be used." },
+        { "action": "init", "description": "If the user wants to place an order after search and select and has shared the billing details." },
+        { "action": "confirm", "description": "Confirm an order. This action gets called when users confirms an order." },
+        { "action": "clear", "description": "If the user wants to clear the session or restart session or chat." }
     ],
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},
         { "role": "system", "content": "A typical order flow should be search > select > init > confirm."},
-        { "role": "system", "content": "Auto-generate uuid wherever required and should be a valid uuid such as ."},
-        { "role": "system", "content": "Use the context to identify the transaction id returned in search api response and use it in subsequent api calls."},
+        { "role": "system", "content": "Use the response of search from assistant to select items from the list of items provided by the assistant."},
         { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context of all calls except `search`."},
-        { "role": "system", "content": "Use the response from assistant to select items from the list of items provided by the assistant."}
-
-    ],
-    "PRESETS" : {
-        "bap_id": "mit-ps-bap.becknprotocol.io",
-        "bap_uri": "https://mit-ps-bap.becknprotocol.io",
-        "version": "1.1.0",
-        "base_url": "https://mit-ps-bap-client.becknprotocol.io"
-    }
+        { "role": "system", "content": "For `select`, `init`, `confirm`, you must use the item `id` as part of the payload for selected item instead of name or any other key."}
+    ]
 }
