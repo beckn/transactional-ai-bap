@@ -10,7 +10,7 @@ const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 
 
-describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
+describe.only('Test cases for services/ai/get_beckn_action_from_text()', () => {
     
     it('Should test get_beckn_action_from_text() succesfully for a search intent', async () => {
         const response = await ai.get_beckn_action_from_text("I'm looking for some ev chargers.");

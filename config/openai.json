@@ -1,9 +1,9 @@
 {
     "SUPPORTED_ACTIONS": [
-        { "key": "search", "description": "Perform a search" },
-        { "key": "select", "description": "The instruction declares the customer's cart (or equivalent) created by selecting objects from the catalog. If the user likes or selects any item, this action should be used." },
-        { "key": "init", "description": "Initialize an order by providing billing and/or shipping details. This can also be called before select, so if user provides billing details and asks to place an order, this action should be used." },
-        { "key": "confirm", "description": "Confirm an action" }
+        { "key": "search", "description": "Perform a search for a service or product. If a service or product is not specified, its not a search. Listing all bookings is not a search." },
+        { "key": "select", "description": "The instruction declares the customer's cart (or equivalent) created by selecting objects from the search results. If the user likes or selects any item, this action should be used." },
+        { "key": "init", "description": "Initialize an order by providing billing and/or shipping details. This can also be called before select, so if user provides billing details and asks to place an order, this action should be used. `search` must have been called before this action." },
+        { "key": "confirm", "description": "Confirm an order. This action gets called when users confirms an order after `init` has been called." }
     ],
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},
