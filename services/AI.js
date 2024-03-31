@@ -28,7 +28,7 @@ class AI {
             { role: 'system', content: `Your job is to analyse the latest user input and check if its a valid action based on the supported actions given here : : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`},
             { role: 'system', content: `'action' must be null if its not from the given set of actions.` },
-            ...context,
+            ...(context.length > 0 ? context.slice(-1) : []), // only use teh last message for context here
             { role: 'user', content: text }
         ]
         

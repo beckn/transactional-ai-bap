@@ -91,4 +91,34 @@ describe('Test cases for trip planning workflow', ()=>{
         expect(response.status).equal(200)
         expect(response.text).to.be.a('string')
     })
+
+    it('Should init a hotel order when asked.', async () => {
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "lets initiate the order, My details are : John Doe, 9999999999, test@example.com"
+        })
+
+        expect(response.status).equal(200)
+        expect(response.text).to.be.a('string')
+    })
+
+    it('Should init a hotel order when asked.', async () => {
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Lets confirm!"
+        })
+
+        expect(response.status).equal(200)
+        expect(response.text).to.be.a('string')
+    })
+
+    it.only('Should try and find another hotel', async () => {
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Lets confirm!"
+        })
+
+        expect(response.status).equal(200)
+        expect(response.text).to.be.a('string')
+    })
 })

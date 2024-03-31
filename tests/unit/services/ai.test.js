@@ -10,6 +10,7 @@ const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json
 const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confirm.json'))
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
+const hotel_session = JSON.parse(readFileSync('./tests/data/sessions/hotel.json'))
 
 
 describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
@@ -78,6 +79,12 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response).to.have.property('action')
         expect(response.action).to.be.null
     });
+
+    it('Should return search action when user searches after a long context', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you find some hotels near Casper ', hotel_session.data.actions);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('search');
+    });
 })
 
 describe('Test cases for get_ai_response_to_query() function', () => {
@@ -143,7 +150,7 @@ describe('Test cases for get_context_by_instruction()', async () => {
         expect(config.version).to.equal(registry_config[0].version);
         expect(config.bap_id).to.equal(registry_config[0].bap_subscriber_id);
         expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
-    })
+    })    
 })
 
 describe('Test cases for services/ai/compress_search_results()', () => {
