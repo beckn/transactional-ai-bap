@@ -2,7 +2,6 @@ import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
 import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
-import twilio from 'twilio'
 
 const actionsService = new ActionsService()
 const db = new DBService();
