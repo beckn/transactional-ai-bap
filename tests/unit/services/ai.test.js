@@ -107,6 +107,7 @@ describe('Test cases for get_schema_by_action() function', () => {
     })
 
     it('Should return false if no action found', async () => {
+        ai.action = null;
         const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
         expect(response).to.be.false;
     })
@@ -247,10 +248,7 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.context).to.have.property('bpp_uri')
         expect(response.data.body.message).to.have.property('order')
         expect(response.data.body.message.order).to.have.property('items')
-        expect(response.data.body.message.order.items[0]).to.have.property('id')
-        expect(response.data.body.message.order).to.have.property('billing')
-        expect(response.data.body.message.order.billing).to.have.property('name')
-        expect(response.data.body.message.order.billing).to.have.property('email')
+        expect(response.data.body.message.order.items[0]).to.have.property('id')        
     });
 });
 

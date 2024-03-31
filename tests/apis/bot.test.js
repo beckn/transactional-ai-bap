@@ -112,7 +112,7 @@ describe('Test cases for trip planning workflow', ()=>{
         expect(response.text).to.be.a('string')
     })
 
-    it.only('Should try and find another hotel', async () => {
+    it('Should try and find another hotel', async () => {
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
             Body: "Lets confirm!"
