@@ -4,7 +4,6 @@ import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
 import twilio from 'twilio'
 
-const { MessagingResponse } = twilio.twiml
 const actionsService = new ActionsService()
 const db = new DBService();
 
