@@ -6,10 +6,10 @@ import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
 import DBService from './services/DBService.js'
-import { notificationController } from './controllers/Notification.js'
 import {
-    cancelBookingController,
+    cancelBooking,
     updateCatalog,
+    notify
 } from './controllers/ControlCenter.js'
 const app = express()
 app.use(cors())
@@ -22,8 +22,8 @@ app.use(bodyParser.json())
 // Define endpoints here
 // app.post('/act', actions.act)
 app.post('/webhook', messageController.process_wa_webhook)
-app.post('/notify', notificationController)
-app.post('/cancel-booking', cancelBookingController)
+app.post('/notify', notify)
+app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
 // Reset all sessions
 const db = new DBService()

@@ -11,6 +11,14 @@
         { "role": "system", "content": "A typical order flow should be search > select > init > confirm."},
         { "role": "system", "content": "Use the response of search from assistant to select items from the list of items provided by the assistant."},
         { "role": "system", "content": "Use the response of search request from assistant for filling transaction_id, bpp_id, bpp_uri in the context of all calls except `search`."},
-        { "role": "system", "content": "For `select`, `init`, `confirm`, you must use the item `id` as part of the payload for selected item instead of name or any other key."}
-    ]
+        { "role": "system", "content": "Use the response from assistant to select items from the list of items provided by the assistant."}
+
+    ],
+    "PRESETS" : {
+        "bap_id": "mit-ps-bap.becknprotocol.io",
+        "bap_uri": "https://mit-ps-bap.becknprotocol.io",
+        "version": "1.1.0",
+        "base_url": "https://mit-ps-bap-client.becknprotocol.io",
+        "TOURISM_STRAPI_URL": "https://mit-bpp-tourism.becknprotocol.io/api"
+    }
 }

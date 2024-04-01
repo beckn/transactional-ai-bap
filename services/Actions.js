@@ -44,7 +44,7 @@ class Actions {
                 cookies: response.headers['set-cookie'],
             }
             logger.info(`API call was successful: , response.status`)
-            logger.info(JSON.stringify(response.data, null, 2))
+            // logger.info(JSON.stringify(response.data, null, 2))
         } catch (error) {
             logger.error(error)
             

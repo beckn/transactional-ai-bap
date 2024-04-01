@@ -1,0 +1,78 @@
+import { describe, it} from 'mocha'
+import app from '../../../server.js'
+import request from 'supertest'
+import * as chai from 'chai'
+const expect = chai.expect
+
+
+describe('API tests for /notify endpoint for an end to end Notify Request', () => {
+    it('Should test unsuccess response for invalid whatsapp number.', async () => {
+        const response = await request(app).post('/notify').send({
+            "userNo":"+919123456789"
+        })
+        expect(response._body.status.status).equal('failed')
+    })
+
+    it('Should test success response for no whatsapp number provided in the payload and will sent to TEST_RECEPIENT_NUMBER', async () => {
+        const response = await request(app).post('/notify').send({
+           
+        })
+        expect(response._body.status.status).to.not.equal('failed')
+    })
+
+    it('Should test success response for valid whatsapp number', async () => {
+        const response = await request(app).post('/notify').send({
+            "userNo":process.env.TEST_RECEPIENT_NUMBER
+        })
+        expect(response._body.status.status).to.not.equal('failed')
+    })
+
+    
+})
+
+
+
+describe('API tests for /cancel-booking endpoint for an end to end Notify Message', () => {
+    it('Should test unsuccess response for invalid order Id.', async () => {
+        const response = await request(app).post('/cancel-booking').send({
+            "orderId":"Abcd"
+        })
+        expect(response._body.status).equal(false)
+    })
+
+    it('Should test unsuccess response for no order Id.', async () => {
+        const response = await request(app).post('/cancel-booking').send({})
+        expect(response._body.status).equal(false)
+    })
+
+   
+    it('Should test success response for valid order Id.', async () => {
+        const response = await request(app).post('/cancel-booking').send({
+            "orderId":"1"
+        })
+        expect(response._body.message).equal('Notification delivered')
+    })
+
+    
+})
+
+describe('API tests for /update-catalog endpoint for an end to end Notify Message', () => {
+    it('Should test success response for invalid whatsapp No.', async () => {
+        const response = await request(app).post('/update-catalog').send({
+            "userNo":"+919123456789"
+        })
+        expect(response._body.message).equal('Notification Failed')
+    })
+
+    it('Should test success response for no whatsapp number provided in the payload and will sent to TEST_RECEPIENT_NUMBER', async () => {
+        const response = await request(app).post('/update-catalog').send({})
+        expect(response._body.message).equal('Catalog Updated')
+    })
+
+    it('Should test success response for valid whatsapp number', async () => {
+        const response = await request(app).post('/update-catalog').send({
+            "userNo":process.env.TEST_RECEPIENT_NUMBER
+        })
+        expect(response._body.message).equal('Catalog Updated')
+    })
+})
