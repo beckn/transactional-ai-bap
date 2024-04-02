@@ -52,7 +52,8 @@ describe('should test send_message()', () => {
     const message = "hi, this is a test message";
     
     let status = await actionsService.send_message(recipient, message);
-    expect(status).to.be.true;
+  
+    expect(['delivered', 'sent']).to.include(status.deliveryStatus)
   });
 
   it('should test send a message via Twilio with a whatsapp prefix', async () => {
@@ -60,7 +61,7 @@ describe('should test send_message()', () => {
     const message = "hi, this is a test message";
     
     let status = await actionsService.send_message(recipient, message);
-    expect(status).to.be.true;
+    expect(['delivered', 'sent']).to.include(status.deliveryStatus)
 
   });
   
@@ -85,7 +86,6 @@ describe('should test send_message()', () => {
       await actionsService.send_message(recipient, message);
       throw new Error('Expected an error to be thrown');
     } catch (error) {
-      
       expect(error).to.be.an.instanceOf(Error);
     }
   });
