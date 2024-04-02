@@ -126,7 +126,7 @@ async function process_text(req, res) {
             session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
-            response = await process_action(ai.action, message, session.actions);
+            response = await process_action(ai.action, message, session.actions, sender);
             
             // update actions
             if(response.formatted && response.raw){
@@ -164,7 +164,7 @@ async function process_text(req, res) {
  * @param {*} actions_context 
  * @returns 
  */
-async function process_action(action, text, actions_context){
+async function process_action(action, text, actions_context, sender=null){
     let ai = new AI();
     let response = {
         raw: null,
@@ -173,6 +173,8 @@ async function process_action(action, text, actions_context){
     
     ai.action = action;
     
+    actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
+            
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
     
@@ -186,6 +188,7 @@ async function process_action(action, text, actions_context){
         if(request.status){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
+            actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
             if(!api_response.status){
                 response.formatted = `Failed to call the API: ${api_response.error}`
             }
