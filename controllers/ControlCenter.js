@@ -1,5 +1,4 @@
 import Actions from '../services/Actions.js'
-import { readFileSync } from 'fs';
 import logger from '../utils/logger.js'
 import {
     ITEM_ID,
