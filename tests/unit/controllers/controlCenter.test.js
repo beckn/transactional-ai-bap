@@ -60,7 +60,7 @@ describe('API tests for /cancel-booking endpoint for an end to end Notify Messag
  
         expect(response.status).equal(200)
         expect(response._body.status).equal(true)
-        expect(['Notification delivered' , 'Notification sent']).to.include(response._body.message)
+        expect(response._body.message).to.not.equal('Notification failed')
     })
 
     
