@@ -148,7 +148,7 @@ describe('Test cases for get_context_by_instruction()', async () => {
         expect(config.bap_url).to.equal(registry_config[0].bpp_subscriber_uri);
     })
 
-    it('Should return right config for search action in retail contect', async () => {
+    it('Should return right config for search action in retail context', async () => {
         ai.action = {action: 'search'};
         const config = await ai.get_context_by_instruction("I'm looking for some pet food");;
         expect(config).to.have.property('action')
