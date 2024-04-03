@@ -23,6 +23,7 @@ jobs:
                   echo "TWILIO_AUTH_TOKEN=${{secrets.TWILIO_AUTH_TOKEN}}" >> .env
                   echo "TWILIO_NUMBER=${{secrets.TWILIO_NUMBER}}" >> .env
                   echo "TEST_RECEPIENT_NUMBER=${{secrets.TEST_RECEPIENT_NUMBER}}" >> .env
+                  echo "STRAPI_TOURISM_TOKEN=${{secrets.STRAPI_TOURISM_TOKEN}}" >> .env
 
             - name: Set up Node.js
               uses: actions/setup-node@v2

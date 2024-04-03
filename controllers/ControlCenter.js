@@ -21,7 +21,6 @@ export const cancelBooking = async (req, res) => {
         }
       
         const validOrderId = await action.call_api(`${TOURISM_STRAPI_URL}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${process.env.STRAPI_TOURISM_TOKEN}`})
-        logger.info(`${JSON.stringify([`${TOURISM_STRAPI_URL}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${process.env.STRAPI_TOURISM_TOKEN}`}])}`)
         logger.info(`OrderDetails: ${JSON.stringify(validOrderId)}`)
         if(!validOrderId.status){
             return res.status(400).send({ message: `Invalid Order Id`, status:false })
