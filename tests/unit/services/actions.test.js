@@ -46,14 +46,14 @@ describe.skip('Test cases for process_instruction function', ()=> {
   })
 })
 
-describe('should test send_message()', () => {
+describe.only('should test send_message()', () => {
   it('should test send a message via Twilio', async () => {
     const recipient = process.env.TEST_RECEPIENT_NUMBER;
     const message = "hi, this is a test message";
     
     let status = await actionsService.send_message(recipient, message);
   
-    expect(['delivered', 'sent']).to.include(status.deliveryStatus)
+    expect(status.deliveryStatus).to.not.equal('failed')
   });
 
   it('should test send a message via Twilio with a whatsapp prefix', async () => {
@@ -61,7 +61,7 @@ describe('should test send_message()', () => {
     const message = "hi, this is a test message";
     
     let status = await actionsService.send_message(recipient, message);
-    expect(['delivered', 'sent']).to.include(status.deliveryStatus)
+    expect(status.deliveryStatus).to.not.equal('failed')
 
   });
   

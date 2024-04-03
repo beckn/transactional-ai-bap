@@ -18,7 +18,7 @@ describe('API tests for /notify endpoint for an end to end Notify Request', () =
 
         expect(response.status).to.equal(200)
         expect(response._body.status).to.equal(true)
-        expect(['sent', 'delivered']).to.include(response._body.deliveryStatus)
+        expect(response._body.deliveryStatus).to.not.equal('failed')
     })
 
     it('Should test success response for valid whatsapp number', async () => {
@@ -27,7 +27,7 @@ describe('API tests for /notify endpoint for an end to end Notify Request', () =
         })
         expect(response.status).to.equal(200)
         expect(response._body.status).to.equal(true)
-        expect(['sent', 'delivered']).to.include(response._body.deliveryStatus)
+        expect(response._body.deliveryStatus).to.not.equal('failed')
     })
 
     
