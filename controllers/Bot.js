@@ -86,6 +86,9 @@ async function process_text(req, res) {
     };
     
     const EMPTY_SESSION = {
+        profile:{
+            misc: {}
+        },
         sessionId: sender,
         text : [],
         actions : {
@@ -104,6 +107,21 @@ async function process_text(req, res) {
     }
     
     try{
+
+        // Get profile
+        const profileResponse = await ai.get_profile_from_text(message, session.profile);
+        if(profileResponse.status){
+            session.profile = {
+                ...session.profile, 
+                ...profileResponse.data,
+                misc: {
+                    ...session.profile.misc,
+                    ...profileResponse.data.misc
+                }
+            };
+        }
+
+        // get action
         ai.action = await ai.get_beckn_action_from_text(message, session.actions.formatted);
 
         // Reset actions context if action is search
@@ -112,9 +130,16 @@ async function process_text(req, res) {
         }
         
 
-        if(ai.action?.action === 'clear'){
-            session = EMPTY_SESSION;
+        if(ai.action?.action === 'clear_chat'){
+            session = {
+                ...EMPTY_SESSION,
+                profile: session.profile
+            };
             response.formatted = 'Session cleared! You can start a new session now.';
+        }
+        else if(ai.action?.action === 'clear_all'){
+            session = EMPTY_SESSION;
+            response.formatted = 'Session & profile cleared! You can start a new session now.';
         }
         else if(ai.action?.action == null) {
             // get ai response
@@ -126,7 +151,7 @@ async function process_text(req, res) {
             session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
-            response = await process_action(ai.action, message, session.actions, sender);
+            response = await process_action(ai.action, message, session, sender);
             
             // update actions
             if(response.formatted && response.raw){
@@ -161,10 +186,10 @@ async function process_text(req, res) {
  * Can be reused by gpt bots if required
  * @param {*} action 
  * @param {*} text 
- * @param {*} actions_context 
+ * @param {*} session 
  * @returns 
  */
-async function process_action(action, text, actions_context, sender=null){
+async function process_action(action, text, session, sender=null){
     let ai = new AI();
     let response = {
         raw: null,
@@ -179,11 +204,11 @@ async function process_action(action, text, actions_context, sender=null){
     const schema = await ai.get_schema_by_action(action.action);
     
     // Get config
-    const beckn_context = await ai.get_context_by_instruction(text, actions_context.raw);
+    const beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
     
     // Prepare request
     if(schema && beckn_context){
-        const request = await ai.get_beckn_request_from_text(text, actions_context.raw, beckn_context, schema);
+        const request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
         
         if(request.status){
             // call api
@@ -196,7 +221,8 @@ async function process_action(action, text, actions_context, sender=null){
                 response.raw = request.data.body.context.action==='search' ? await ai.compress_search_results(api_response.data) : api_response.data
                 const formatted_response = await ai.get_text_from_json(
                     api_response.data,
-                    [...actions_context.formatted, { role: 'user', content: text }]
+                    [...session.actions.formatted, { role: 'user', content: text }],
+                    session.profile
                 );
                 response.formatted = formatted_response.message;
             }            

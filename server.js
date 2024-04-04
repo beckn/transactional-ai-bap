@@ -21,13 +21,15 @@ app.use(bodyParser.json())
 
 // Define endpoints here
 // app.post('/act', actions.act)
-app.post('/webhook', messageController.process_wa_webhook)
+app.post('/webhook', messageController.process_text)
 app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
+
+
 // Reset all sessions
-const db = new DBService()
-await db.clear_all_sessions()
+// const db = new DBService()
+// await db.clear_all_sessions()
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {
