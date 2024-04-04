@@ -5,7 +5,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
-import DBService from './services/DBService.js'
+// import DBService from './services/DBService.js'
 import {
     cancelBooking,
     updateCatalog,
