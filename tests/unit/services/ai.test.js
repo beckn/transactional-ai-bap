@@ -2,6 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 import AI from '../../../services/AI.js'
 import { readFileSync } from 'fs';
+import DBService from '../../../services/DBService.js';
 const ai = new AI();
 const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
 const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
@@ -11,7 +12,11 @@ const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confir
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
 const hotel_session = JSON.parse(readFileSync('./tests/data/sessions/hotel.json'))
+const db = new DBService();
 
+beforeEach(async ()=>{
+    await db.clear_all_sessions();
+})
 
 describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
     it('Should return null action when asked a general query', async () => {

@@ -138,7 +138,8 @@ async function process_action(action, text, session, sender=null){
     
     ai.action = action;
     
-    actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
+    
+    format!='application/json' && actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
             
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
@@ -153,7 +154,7 @@ async function process_action(action, text, session, sender=null){
         if(request.status){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
-            actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
+            format!='application/json' && actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
             if(!api_response.status){
                 response.formatted = `Failed to call the API: ${api_response.error}`
             }
