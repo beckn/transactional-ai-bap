@@ -89,10 +89,14 @@ components:
       description: 'The intent to buy or avail a product or a service. The BAP can declare the intent of the consumer containing <ul><li>What they want (A product, service, offer)</li><li>Who they want (A seller, service provider, agent etc)</li><li>Where they want it and where they want it from</li><li>When they want it (start and end time of fulfillment</li><li>How they want to pay for it</li></ul><br>This has properties like descriptor,provider,fulfillment,payment,category,offer,item,tags<br>This is typically used by the BAP to send the purpose of the user''s search to the BPP. This will be used by the BPP to find products or services it offers that may match the user''s intent.<br>For example, in Mobility, the mobility consumer declares a mobility intent. In this case, the mobility consumer declares information that describes various aspects of their journey like,<ul><li>Where would they like to begin their journey (intent.fulfillment.start.location)</li><li>Where would they like to end their journey (intent.fulfillment.end.location)</li><li>When would they like to begin their journey (intent.fulfillment.start.time)</li><li>When would they like to end their journey (intent.fulfillment.end.time)</li><li>Who is the transport service provider they would like to avail services from (intent.provider)</li><li>Who is traveling (This is not recommended in public networks) (intent.fulfillment.customer)</li><li>What kind of fare product would they like to purchase (intent.item)</li><li>What add-on services would they like to avail</li><li>What offers would they like to apply on their booking (intent.offer)</li><li>What category of services would they like to avail (intent.category)</li><li>What additional luggage are they carrying</li><li>How would they like to pay for their journey (intent.payment)</li></ul><br>For example, in health domain, a consumer declares the intent for a lab booking the describes various aspects of their booking like,<ul><li>Where would they like to get their scan/test done (intent.fulfillment.start.location)</li><li>When would they like to get their scan/test done (intent.fulfillment.start.time)</li><li>When would they like to get the results of their test/scan (intent.fulfillment.end.time)</li><li>Who is the service provider they would like to avail services from (intent.provider)</li><li>Who is getting the test/scan (intent.fulfillment.customer)</li><li>What kind of test/scan would they like to purchase (intent.item)</li><li>What category of services would they like to avail (intent.category)</li><li>How would they like to pay for their journey (intent.payment)</li></ul>'
       type: object
       properties:
-        descriptor:
-          description: 'A raw description of the search intent. Free text search strings, raw audio, etc can be sent in this object.'
+        item:
+          description: Details of the item that the consumer wants to search
           allOf:
-            - $ref: '#/components/schemas/Descriptor'
+            - $ref: '#/components/schemas/Item'
+        fulfillment:
+          description: Details on how the customer wants their order fulfilled
+          allOf:
+            - $ref: '#/components/schemas/Fulfillment'
     Descriptor:
       description: Physical description of something.
       type: object
@@ -103,20 +107,83 @@ components:
           type: string
           description: It should contain the search query string such as product or service name.
         code:
+          type: string        
+    Item:
+      description: 'Describes a product or a service offered to the end consumer by the provider. In the mobility sector, it can represent a fare product like one way journey. In the logistics sector, it can represent the delivery service offering. In the retail domain it can represent a product like a grocery item.'
+      type: object
+      properties:
+        descriptor:
+          description: Physical description of the item
+          allOf:
+            - $ref: '#/components/schemas/Descriptor'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagGroup'
+    Tag:
+      description: 'Describes a tag. This is used to contain extended metadata. This object can be added as a property to any schema to describe extended attributes. For BAPs, tags can be sent during search to optimize and filter search results. BPPs can use tags to index their catalog to allow better search functionality. Tags are sent by the BPP as part of the catalog response in the `on_search` callback. Tags are also meant for display purposes. Upon receiving a tag, BAPs are meant to render them as name-value pairs. This is particularly useful when rendering tabular information about a product or service.'
+      type: object
+      properties:
+        descriptor:
+          description: 'Description of the Tag, can be used to store detailed information.'
+          allOf:
+            - $ref: '#/components/schemas/Descriptor'
+        value:
+          description: The value of the tag. This set by the BPP and rendered as-is by the BAP.
           type: string
-        short_desc:
+        display:
+          description: 'This value indicates if the tag is intended for display purposes. If set to `true`, then this tag must be displayed. If it is set to `false`, it should not be displayed. This value can override the group display value.'
+          type: boolean
+    TagGroup:
+      description: 'A collection of tag objects with group level attributes. For detailed documentation on the Tags and Tag Groups schema go to https://github.com/beckn/protocol-specifications/discussions/316'
+      type: object
+      properties:
+        list:
+          description: 'An array of Tag objects listed under this group. This property can be set by BAPs during search to narrow the `search` and achieve more relevant results. When received during `on_search`, BAPs must render this list under the heading described by the `name` property of this schema.'
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    Fulfillment:
+      description: Describes how a an order will be rendered/fulfilled to the end-customer
+      type: object
+      properties:
+        stops:
+          description: The list of logical stops encountered during the fulfillment of an order.
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+    Stop:
+      description: A logical point in space and time during the fulfillment of an order.
+      type: object
+      properties:
+        location:
+          description: Location of the stop. It should only be used if a valid gps location is avaiable in the context.
+          allOf:
+            - $ref: '#/components/schemas/Location'
+        type:
+          description: The type of stop. Allowed values of this property can be defined by the network policy.
           type: string
-        long_desc:
+        time:
+          description: Timings applicable at the stop.
+          allOf:
+            - $ref: '#/components/schemas/Time'
+    Location:
+      description: The physical location of something
+      type: object
+      properties:
+        gps:
+          description: The GPS co-ordinates of this location.
+          allOf:
+            - $ref: '#/components/schemas/Gps'
+    Gps:
+      description: Describes a GPS coordinate. This should only be used if a valid gps location is available.
+      type: string
+      pattern: '^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$'
+    Time:
+      description: 'Describes time in its various forms. It can be a single point in time; duration; or a structured timetable of operations<br>This has properties like label, time stamp,duration,range, days, schedule'
+      type: object
+      properties:
+        timestamp:
           type: string
-        additional_desc:
-          type: object
-          properties:
-            url:
-              type: string
-            content_type:
-              type: string
-              enum:
-                - text/plain
-                - text/html
-                - application/json
+          format: date-time
     

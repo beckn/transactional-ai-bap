@@ -12,6 +12,7 @@ const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confir
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
 const hotel_session = JSON.parse(readFileSync('./tests/data/sessions/hotel.json'))
+const yellowstone_session = JSON.parse(readFileSync('./tests/data/sessions/yellowstone.json'))
 const db = new DBService();
 
 beforeEach(async ()=>{
@@ -342,5 +343,56 @@ describe('Test cases for get_profile_from_text', () => {
         const response = await ai.get_profile_from_text('Yes please');
         expect(response.status).to.be.true;
         expect(response.data).to.be.empty;
+    })
+})
+
+
+// Dedicated test cases for search resolution
+describe('Test cases for search resolution for different domains', () => {
+    let schema = {};
+    let beckn_context = {};
+
+    before(async ()=>{
+        ai.action = {action: 'search'};
+        schema = await ai.get_schema_by_action();
+        beckn_context = await ai.get_context_by_instruction('Can you find ev chargers near Denver?', []);
+    })
+
+    it('get_beckn_request_from_text() should resolve correct keyword based search', async () => {
+
+        const response = await ai.get_beckn_request_from_text("Can you find ev chargers?", [], beckn_context, schema, yellowstone_session.profile);
+        expect(response.data.body.message.intent.item.descriptor).to.have.property('name')
+    })
+
+    it('get_beckn_request_from_text() should resolve correct gps co-ordinates if a location is shared.', async () => {
+
+        const context = [
+            {role: 'user', content: 'My co-ordinates are : 39.742043, -104.991531.'},
+        ]
+        const response = await ai.get_beckn_request_from_text("Can you find ev chargers near Denver?", context, beckn_context, schema, yellowstone_session.profile);
+        expect(response.data.body.message.intent.item.descriptor).to.have.property('name')
+        expect(response.data.body.message.intent.fulfillment.stops[0].location).to.have.property('gps')
+        expect(response.data.body.message.intent.fulfillment.stops[0].location.gps).to.not.be.empty;
+    })
+
+    it(`get_beckn_request_from_text() should resolve correct check-in, checkout-dates in case of a hotel booking`, async () => {
+        const context = [
+            {role: 'user', content: `I'm planning a 3 days trip from Denver to Yellowstone national park starting 6th April.`},
+        ]
+        const response = await ai.get_beckn_request_from_text("Can you find some hotels near Yellowstone national park?", context, beckn_context, schema, yellowstone_session.profile);
+        expect(response.data.body.message.intent.item.descriptor).to.have.property('name')
+        expect(response.data.body.message.intent.fulfillment.stops[0].time).to.have.property('timestamp')
+        expect(response.data.body.message.intent.fulfillment.stops[0].time).to.not.be.empty; 
+    })
+
+    it(`get_beckn_request_from_text() should resolve correct tags when shared preferences`, async () => {
+        const context = [
+            {role: 'user', content: `I'm planning a 3 days trip from Denver to Yellowstone national park starting 6th April.`},
+            {role: 'user', content: `I have an EV and a pet dog.`},
+        ]
+        const response = await ai.get_beckn_request_from_text("Can you find some hotels near Yellowstone national park?", context, beckn_context, schema, yellowstone_session.profile);
+        expect(response.data.body.message.intent.item).to.have.property('tags')
+        expect(response.data.body.message.intent.item.tags.length).to.be.greaterThan(0)
+        
     })
 })

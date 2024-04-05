@@ -74,7 +74,8 @@ class AI {
         try{
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID
+                model: process.env.OPENAI_MODEL_ID,
+                max_tokens: 300
             })
             response = completion.choices[0].message.content;
         }
@@ -174,6 +175,7 @@ class AI {
             { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
             ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
             {"role": "system", "content": `This is the user profile that you can use for transactions : ${JSON.stringify(profile)}`},
+            {"role": "system", "content": `Network policy: ${JSON.stringify(registry_config[0].policies)}`},
             {"role": "system", "content": `Following is the conversation history`},
             ...context,
             { "role": "user", "content": instruction }
@@ -188,7 +190,6 @@ class AI {
             })
             const jsonString = completion.choices[0].message.content.trim()
             logger.info(`Got beckn payload`)
-            logger.info(jsonString)
             logger.info(`\u001b[1;34m ${JSON.stringify(completion.usage)}\u001b[0m`)
             
             let response = JSON.parse(jsonString)
@@ -200,6 +201,11 @@ class AI {
             };
             response.url = `${beckn_context.base_url}/${beckn_context.action}`
 
+            // Post-processing
+            response.body.message = await this.cleanup_payload(response.body.message);
+            
+            logger.info(JSON.stringify(response));
+            
             action_response = {...action_response, status: true, data: response}
         }
         catch(e){
@@ -211,6 +217,30 @@ class AI {
         return action_response;
     }
     
+    async cleanup_payload(payload){
+        let response = {};
+        const openai_messages = [
+            { role: 'system', content: 'You are required to take the given json payload and remove any empty fields from it and return the resulting json object.'},
+            { role: 'system', content: `Input payload: ${JSON.stringify(payload)}`}
+        ]
+
+        try{
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID,
+                response_format: { type: 'json_object' },
+                temperature: 0,
+            })
+            const jsonString = completion.choices[0].message.content.trim()
+            response = JSON.parse(jsonString)            
+        }
+        catch(e){
+            logger.error(e);            
+        }
+
+        return response;
+    }
+
     async compress_search_results(search_res){
 
         const desired_output = {

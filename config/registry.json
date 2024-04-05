@@ -11,6 +11,15 @@
         "description": "This network supports multiple domains e.g. uei:charging for ev chargers, retail:1.1.0 for retail stores including grocceries and pet supplies, hospitality for hotels, dhp:consultation:0.1.0 for doctors or healthcare, tourism for tickets and tours",
         "bap_subscriber_id": "mit-ps-bap.becknprotocol.io",
         "bap_subscriber_url": "https://mit-ps-bap.becknprotocol.io",
-        "version": "1.1.0"
+        "version": "1.1.0",
+        "policies": {
+            "tags": [
+                { "pet-friendly": { "enum": ["yes", "no"]}},
+                { "ev-charging": { "enum": ["yes", "no"]}},
+                { "accomodation-type“": { "enum": ["campsite", "hotel", "independent-house"]}},
+                { "vehicle-type": { "enum": ["2-wheeler", "4-wheeler"]}},
+                { "connector-type": { "enum": ["CCS", "CHAdeMo"]}}
+            ]
+        }
     }
 ]

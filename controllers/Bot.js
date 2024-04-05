@@ -61,6 +61,8 @@ async function process_text(req, res) {
             };
         }
 
+        logger.info(`\u001b[1;34m Profile: ${JSON.stringify(session.profile)}\u001b[0m`);
+
         // get action
         ai.action = await ai.get_beckn_action_from_text(message, session.actions.formatted);
 
@@ -91,7 +93,7 @@ async function process_text(req, res) {
             session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
-            response = await process_action(ai.action, message, session, sender);
+            response = await process_action(ai.action, message, session, sender, format);
             
             // update actions
             if(response.formatted && response.raw){
@@ -129,7 +131,7 @@ async function process_text(req, res) {
  * @param {*} session 
  * @returns 
  */
-async function process_action(action, text, session, sender=null){
+async function process_action(action, text, session, sender=null, format='application/json'){
     let ai = new AI();
     let response = {
         raw: null,
@@ -149,7 +151,7 @@ async function process_action(action, text, session, sender=null){
     
     // Prepare request
     if(schema && beckn_context){
-        const request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
+        const request = await ai.get_beckn_request_from_text(text, [...session.text, ...session.actions.raw], beckn_context, schema, session.profile);
         
         if(request.status){
             // call api
