@@ -143,7 +143,7 @@ async function process_text(req, res) {
         }
         else if(ai.action?.action == null) {
             // get ai response
-            response.formatted = await ai.get_ai_response_to_query(message, session.text);
+            response.formatted = await ai.get_ai_response_to_query(message, session.text, session.profile);
             logger.info(`AI response: ${response.formatted}`);
             
             // update session
