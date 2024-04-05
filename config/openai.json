@@ -4,7 +4,8 @@
         { "action": "select", "description": "If the user likes or selects any item, this action should be used." },
         { "action": "init", "description": "If the user wants to place an order after search and select and has shared the billing details." },
         { "action": "confirm", "description": "Confirm an order. This action gets called when users confirms an order." },
-        { "action": "clear", "description": "If the user wants to clear the session or restart session or chat." }
+        { "action": "clear_chat", "description": "If the user wants to clear the session or restart session or chat." },
+        { "action": "clear_all", "description": "If the user wants to clear the complete session or the profile." }
     ],
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},

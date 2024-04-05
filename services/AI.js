@@ -161,7 +161,7 @@ class AI {
      * @param {*} schema 
      * @returns 
      */
-    async get_beckn_request_from_text(instruction, context=[], beckn_context={}, schema={}){
+    async get_beckn_request_from_text(instruction, context=[], beckn_context={}, schema={}, profile={}){
 
         logger.info(`Getting beckn request from instruction : ${instruction}`)
         let action_response = {
@@ -173,6 +173,7 @@ class AI {
         let openai_messages = [
             { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
             ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
+            {"role": "system", "content": `This is the user profile that you can use for transactions : ${JSON.stringify(profile)}`},
             {"role": "system", "content": `Following is the conversation history`},
             ...context,
             { "role": "user", "content": instruction }
@@ -249,26 +250,27 @@ class AI {
     }
     
     
-    async get_text_from_json(json_response, context=[], model = process.env.OPENAI_MODEL_ID) {
+    async get_text_from_json(json_response, context=[], profile={}) {
         const desired_output = {
             status: true,
             message: "<Whastapp friendly formatted message>"
         };
         const openai_messages = [
             {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
-            {role: 'system', content: `User can select an item after seeing the search results or directly 'init' by selecting an item and sharing their billing details. You should ask user what they want to do next.`},
-            {role: 'system', content: `If its a 'select' response, do ask for billing details to initiate the order.`},
+            {role: 'system', content: `User can select an item after seeing the search results. You should ask user what they want to do next.`},
+            {role: 'system', content: `If its a 'select' response you should ask if the user wants to place the order. If the user profile does not have billing details such as name, phone, email, you should also ask the user to share the billing details dot place the order.`},
             {role: 'system', content: `If its an 'init' response, you should ask for confirmation.`},
             {role: 'system', content: `If its a 'confirm' response, you should include the order id in your response.`},
             {role: 'system', content: `You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
             {role: 'system', content: `If the given json looks like an error, summarize teh error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
-            ...context.filter(c => c.role === 'user'),
+            {role: 'system', content: `User pforile : ${JSON.stringify(profile)}`},
+            ...context,
             {role: 'assistant',content: `${JSON.stringify(json_response)}`},
         ]
         try {
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: model, 
+                model: process.env.OPENAI_MODEL_ID, 
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
@@ -282,7 +284,46 @@ class AI {
             }
         }
        
-    }    
+    }
+
+    async get_profile_from_text(message, profile={}){
+        const desired_output = {
+            "name": "",
+            "email": "",
+            "phone": "",
+            "address": "",
+            "gender": "",
+            "age" : ""
+        }
+
+        const openai_messages = [
+            { role: 'system', content: `Please analyse the given user message and extract profile information about the user which is not already part of their profile. The desired outout format should be the following json ${JSON.stringify(desired_output)}` },
+            { role: 'system', content: `You must not send any vague or incomplete information or anything that does not tell something about the user profile.` },
+            { role: 'system', content: `Any profile infromation that does not match the desired output should be sent under a key 'misc'. You are not always required to return a response, return empty json if no profile information extracted.` },
+            { role: 'system', content: `Existing profile : ${JSON.stringify(profile)}`},
+            { role: 'user', content: message }
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            let response = JSON.parse(completion.choices[0].message.content)            
+            return {
+                status: true,
+                data: response
+            };
+        } catch (e) {
+            logger.error(e)
+            return {
+                status:false,
+                message:e.message
+            }
+        }
+    }
 }
 
 export default AI;

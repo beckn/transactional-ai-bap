@@ -15,7 +15,8 @@
             }
         },
         "bpp_id": "mit-ps-energy.becknprotocol.io",
-        "bpp_uri": "https://mit-ps-energy.becknprotocol.io"
+        "bpp_uri": "https://mit-ps-energy.becknprotocol.io",
+        "base_url": "https://mit-ps-bap-client.becknprotocol.io"
     },
     "responses": [
         {
