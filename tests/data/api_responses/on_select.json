@@ -10,7 +10,8 @@
         "bap_id": "mit-ps-bap.becknprotocol.io",
         "bap_uri": "https://mit-ps-bap.becknprotocol.io",
         "bpp_id": "mit-ps-energy.becknprotocol.io",
-        "bpp_uri": "http://mit-ps-energy.becknprotocol.io"
+        "bpp_uri": "http://mit-ps-energy.becknprotocol.io",
+        "base_url": "https://mit-ps-bap-client.becknprotocol.io"
     },
     "responses": [
         {

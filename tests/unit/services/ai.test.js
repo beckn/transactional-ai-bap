@@ -86,10 +86,16 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.equal('search');
     });
 
-    it('Should return `clear` action when user wishes to clear the chat', async () => {
+    it('Should return `clear_chat` action when user wishes to clear the chat', async () => {
         const response = await ai.get_beckn_action_from_text('Can you clear this session ', hotel_session.data.actions);
         expect(response).to.have.property('action')
-        expect(response.action).to.equal('clear');
+        expect(response.action).to.equal('clear_chat');
+    });
+
+    it('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you clear this session along with my profile.', hotel_session.data.actions);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('clear_all');
     });
 })
 
@@ -100,7 +106,7 @@ describe('Test cases for get_ai_response_to_query() function', () => {
     })
 
     it('Should return a response with success true for a valid query', async () => {
-        const response = await ai.get_ai_response_to_query('I want to plan atrip from Denver to yellowstone');
+        const response = await ai.get_ai_response_to_query('I want to plan a trip from Denver to yellowstone');
         expect(response).to.be.an.string;
     })
 })
@@ -118,7 +124,7 @@ describe('Test cases for get_schema_by_action() function', () => {
         expect(response).to.be.false;
     })
 
-    it('Should return false if inavlid action found', async () => {
+    it('Should return false if invalid action found', async () => {
         ai.action = {action: 'invalid'};
         const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
         expect(response).to.be.false;
@@ -231,6 +237,31 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.message.order.billing).to.have.property('phone')
     });
 
+
+    it('Should test get_beckn_request_from_text() succesfully for a `init` if billing details shared earlier', async () => {
+        let context = [
+            {"role": "user", "content": "I'm looking for some ev chargers"},
+            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
+            {"role": "user", "content": "I want to select the first item"},
+            {"role": "assistant", "content": JSON.stringify(on_select)}
+        ]
+
+        const profile = {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "phone": "9999999999"
+        }
+        ai.action = {action: 'init'};
+        const schema = await ai.get_schema_by_action();        
+
+        const response = await ai.get_beckn_request_from_text("Lets place the order", context, on_init.context, schema, profile);
+        expect(response.data.body.message.order.billing).to.have.property('name')
+        expect(response.data.body.message.order.billing.name).to.eq(profile.name);
+        expect(response.data.body.message.order.billing).to.have.property('email')
+        expect(response.data.body.message.order.billing.email).to.eq(profile.email);
+        expect(response.data.body.message.order.billing).to.have.property('phone')
+        expect(response.data.body.message.order.billing.phone).to.eq(profile.phone);
+    });
     
     it('Should test get_beckn_request_from_text() succesfully for a `confirm`', async () => {
         let context = [
@@ -273,3 +304,28 @@ describe('Test cases for services/ai/get_text_from_json()', () => {
     })
 })
 
+
+describe('Test cases for get_profile_from_text', () => {
+    it('Should return an object with billing details if billing details shared', async ()=> {
+        const response = await ai.get_profile_from_text('John Doe, 9999999999, john.doe@example.com');
+        expect(response.status).to.be.true;
+        expect(response.data).to.have.property('name');
+        expect(response.data.name).to.eq('John Doe');
+        expect(response.data).to.have.property('phone');
+        expect(response.data.phone).to.eq('9999999999');
+        expect(response.data).to.have.property('email');
+        expect(response.data.email).to.eq('john.doe@example.com');
+    })
+
+    it('Should return misc. information about user if shared', async ()=> {
+        const response = await ai.get_profile_from_text('I just bough an EV and wanted to take it for a spin.');
+        expect(response.status).to.be.true;
+        expect(response.data).to.have.property('misc');
+    })
+
+    it('Should return nothing if no profile information available', async ()=> {
+        const response = await ai.get_profile_from_text('Yes please');
+        expect(response.status).to.be.true;
+        expect(response.data).to.be.empty;
+    })
+})
