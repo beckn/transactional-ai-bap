@@ -176,6 +176,5 @@ async function process_action(action, text, session, sender=null){
 }
 
 export default {
-    process_wa_webhook,
     process_text
 }
