@@ -203,7 +203,7 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('search')
-        expect(response.data.body.message.intent.descriptor).to.have.property('name')
+        expect(response.data.body.message.intent.item.descriptor).to.have.property('name')
     })
 
     it('Should test get_beckn_request_from_text() succesfully for a `select`', async () => {
