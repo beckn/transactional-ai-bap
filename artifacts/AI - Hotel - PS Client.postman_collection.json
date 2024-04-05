@@ -1,0 +1,337 @@
+{
+	"info": {
+		"_postman_id": "13937e19-e77f-42af-8090-16f2f1a49335",
+		"name": "AI - Hotel - PS Client",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24455291"
+	},
+	"item": [
+		{
+			"name": "Hotel",
+			"item": [
+				{
+					"name": "search",
+					"item": [
+						{
+							"name": "item code",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"item\": {\n                \"descriptor\": {\n                    \"code\": \"Trail-Park\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "item name",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"item\": {\n                \"descriptor\": {\n                    \"name\": \"Deluxe Room\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "item short_desc",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"item\": {\n                \"descriptor\": {\n                    \"short_desc\": \"Queen Size Beds with AC\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "item long_desc",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"item\": {\n                \"descriptor\": {\n                    \"long_desc\": \"Spacious Accomodation for you and your pet friends\"\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "item tag",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"item\": {\n                \"tags\": [\n                    {\n                        \"descriptor\": {\n                            \"code\": \"pet-friendly\"\n                        },\n                        \"value\": \"yes\"\n                    },\n                    {\n                        \"descriptor\": {\n                            \"code\": \"ev-charging\"\n                        },\n                        \"value\": \"yes\"\n                    },\n                    {\n                        \"descriptor\": {\n                            \"code\": \"accomodation-type\"\n                        },\n                        \"value\": \"campsite\"\n                    }\n                ]\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "item fulfillment",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"city\": {\n                \"name\": \"Bangalore\",\n                \"code\": \"std:080\"\n            },\n            \"country\": {\n                \"name\": \"India\",\n                \"code\": \"IND\"\n            }\n        },\n        \"action\": \"search\",\n        \"version\": \"1.1.0\",\n        \"timestamp\": \"2023-10-09T04:46:28.012Z\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\"\n    },\n    \"message\": {\n        \"intent\": {\n            \"fulfillment\": {\n                \"stops\": [\n                    {\n                        \"type\": \"check-in\",\n                        \"location\": {\n                            \"gps\": \"48.9762,-117.7012\"\n                        },\n                        \"time\": {\n                            \"timestamp\": \"2024-04-03T08:53:56.438Z\"\n                        }\n                    },\n                    {\n                        \"type\": \"check-out\",\n                        \"location\": {\n                            \"gps\": \"48.9762,-117.7012\"\n                        },\n                        \"time\": {\n                            \"timestamp\": \"2024-04-03T08:53:56.438Z\"\n                        }\n                    }\n                ]\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/search",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Select",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"country\": {\n                \"code\": \"IND\"\n            }\n        },\n        \"transaction_id\": \"a9aaecca-10b7-4d19-b640-b047a7c62196\",\n        \"message_id\": \"{{$randomUUID}}\",\n        \"action\": \"select\",\n        \"timestamp\": \"2023-05-25T05:23:03.443Z\",\n        \"version\": \"1.1.0\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\",\n        \"ttl\": \"PT10M\"\n    },\n    \"message\": {\n        \"order\": {\n            \"provider\":{\n                \"id\":\"45\"\n            },\n            \"items\": [\n                {\n                    \"id\": \"66\",\n                    \"quantity\": {\n                        \"selected\": {\n                            \"count\": 2\n                        }\n                    }\n                }\n            ],\n            \"fulfillments\": [\n                {\n                \"id\": \"3\",\n                \"customer\": {\n                    \"person\": {\n                    \"tags\": [\n                        {\n                        \"descriptor\": {\n                            \"name\": \"Guest & Room count\"\n                        },\n                        \"list\": [\n                            {\n                            \"descriptor\": {\n                                \"name\": \"Room count\"\n                            },\n                            \"value\": \"2\"\n                            },\n                            {\n                            \"descriptor\": {\n                                \"name\": \"Guest Count\"\n                            },\n                            \"value\": \"2\"\n                            },\n                            {\n                            \"descriptor\": {\n                                \"name\": \"Children Count\"\n                            },\n                            \"value\": \"0\"\n                            }\n                        ]\n                        }\n                    ]\n                    }\n                },\n                \"stops\": [\n                    {\n                    \"time\": {\n                        \"label\": \"Checkin & Checkout Dates\",\n                        \"range\": {\n                        \"start\": \"2024-04-01T00:00:00Z\",\n                        \"end\": \"2024-04-05T00:00:00Z\"\n                        }\n                    }\n                    }\n                ]\n                }\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/select",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"select"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"country\": {\n                \"code\": \"IND\"\n            }\n        },\n        \"transaction_id\": \"a9aaecca-10b7-4d19-b640-b047a7c62196\",\n        \"message_id\": \"{{$randomUUID}}\",\n        \"action\": \"init\",\n        \"timestamp\": \"2023-05-25T05:23:03.443Z\",\n        \"version\": \"1.1.0\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\",\n        \"ttl\": \"PT10M\"\n    },\n    \"message\": {\n        \"order\": {\n            \"provider\": {\n                \"id\": \"1\"\n            },\n            \"items\": [\n                {\n                    \"id\": \"1\"\n                }\n            ],\n            \"billing\": {\n                \"name\": \"Motiur Rehman\",\n                \"phone\": \"9191223433\",\n                \"email\": \"nc.rehman@gmail.com\",\n                \"address\": \"123, Terminal 1, Kempegowda Int'l Airport Rd, A - Block, Gangamuthanahalli, Karnataka 560300, India\",\n                \"city\": {\n                    \"name\": \"Gangamuthanahalli\"\n                },\n                \"state\": {\n                    \"name\": \"Karnataka\"\n                }\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/init",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"init"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"country\": {\n                \"code\": \"IND\"\n            }\n        },\n        \"transaction_id\": \"a9aaecca-10b7-4d19-b640-b047a7c62196\",\n        \"message_id\": \"{{$randomUUID}}\",\n        \"action\": \"confirm\",\n        \"timestamp\": \"2023-05-25T05:23:03.443Z\",\n        \"version\": \"1.1.0\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\",\n        \"ttl\": \"PT10M\"\n    },\n    \"message\": {\n        \"order\": {\n            \"items\": [\n                {\n                    \"id\": \"66\"\n                }\n            ],\n            \"fulfillments\": [\n                {\n                    \"id\": \"3\",\n                    \"customer\": {\n                        \"contact\": {\n                            \"email\": \"fox.judie61234@abc.org\",\n                            \"phone\": \"+91-9999999999\"\n                        },\n                        \"person\": {\n                            \"name\": \"Judie Fox6\"\n                        }\n                    }\n                }\n            ],\n            \"billing\": {\n                \"name\": \"Industry buyer\",\n                \"address\": \"B005 aspire heights, Jurong East, SGP, 680230\",\n                \"state\": {\n                    \"name\": \"Jurong East\"\n                },\n                \"city\": {\n                    \"name\": \"Jurong East\"\n                },\n                \"email\": \"nobody@nomail.com\",\n                \"phone\": \"9886098860\"\n            },\n            \"payments\": [\n                {\n                    \"status\": \"PAID\",\n                    \"type\": \"PRE-FULFILLMENT\",\n                    \"params\": {\n                        \"transaction_id\": \"raz816863816313\",\n                        \"amount\": \"264000.00\",\n                        \"currency\": \"INR\",\n                        \"bank_code\": \"INB0004321\",\n                        \"bank_account_number\": \"1234002341\"\n                    }\n                }\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": {\n        \"domain\": \"{{hospitality}}\",\n        \"location\": {\n            \"country\": {\n                \"code\": \"DE\"\n            }\n        },\n        \"action\": \"status\",\n        \"version\": \"1.1.0\",\n        \"bap_uri\": \"{{bap_uri}}\",\n        \"bap_id\": \"{{bap_id}}\",\n        \"bpp_id\": \"{{bpp_id_hotel}}\",\n        \"bpp_uri\": \"{{bpp_uri_hotel}}\",\n        \"transaction_id\": \"a9aaecca-10b7-4d19-b640-b047a7c62195\",\n        \"message_id\": \"{{$randomUUID}}\",\n        \"timestamp\": \"2023-05-25T05:23:03.443Z\",\n        \"ttl\": \"P30M\"\n    },\n    \"message\": {\n        \"order_id\": \"380\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "core_version",
+			"value": "1.1.0",
+			"type": "string"
+		},
+		{
+			"key": "bap_id",
+			"value": "mit-ps-bap.becknprotocol.io",
+			"type": "string"
+		},
+		{
+			"key": "bap_uri",
+			"value": "https://mit-ps-bap.becknprotocol.io",
+			"type": "string"
+		},
+		{
+			"key": "bpp_id_hotel",
+			"value": "mit-ps-hotel.becknprotocol.io",
+			"type": "string"
+		},
+		{
+			"key": "bpp_uri_hotel",
+			"value": "https://mit-ps-hotel.becknprotocol.io",
+			"type": "string"
+		},
+		{
+			"key": "base_url",
+			"value": "https://mit-ps-bap-client.becknprotocol.io",
+			"type": "string"
+		},
+		{
+			"key": "hospitality",
+			"value": "hospitality",
+			"type": "string"
+		}
+	]
+}
