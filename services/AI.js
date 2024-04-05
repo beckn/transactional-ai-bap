@@ -59,9 +59,10 @@ class AI {
      * @param {*} context 
      * @returns 
      */
-    async get_ai_response_to_query(instruction, context=[]){
+    async get_ai_response_to_query(instruction, context=[], profile = {}){
         const openai_messages = [
-            { role: 'system', content: 'If you are asked to prepare an itinery or plan a trip, always ask for user preferences such as accommodation types, journey details, dietary preferences, things of interest, journey dates, journey destination, number of members, special requests.'},
+            { role: 'system', content: 'If you are asked to prepare an itinerary or plan a trip, you should have information about the user preferences such as journey dates, journey destination, number of members, mode of transport etc. You must check if these details are available in the user profile or not. If not, you should ask for these details before proceeding further. If the detail are available, or partial details are available you should ask for the missing details and show the details you have that wil be used for planning the trip for confirmation.'},
+            { role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             ...context,
             { role: 'user', content: instruction}
         ]
