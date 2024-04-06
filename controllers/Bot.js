@@ -217,7 +217,7 @@ async function process_action(action, text, session, sender=null){
     if(schema && beckn_context){
         let request=null;
         if(ai.action.action==='search'){
-            const message = await ai.get_beckn_message_from_text(text, session.text);
+            const message = await ai.get_beckn_message_from_text(text, session.text, beckn_context.domain);
             request = {
                 status: true,
                 data:{
