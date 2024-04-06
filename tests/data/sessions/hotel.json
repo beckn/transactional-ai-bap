@@ -63,14 +63,6 @@
                 "role":"assistant"
             },
             {
-                "content":"Lets find some hotels near Casper",
-                "role":"user"
-            },
-            {
-                "content":"Sure! Here are a few pet-friendly hotels near Casper, Wyoming, where you can stay during your trip: 1. La Quinta by Wyndham Casper Address: 400 West F Street, Casper, Wyoming Phone: (307) 232-8541 Website: https://www.wyndhamhotels.com/laquinta/casper-wyoming/la-quinta-casper/overview 2. Holiday Inn Express Casper Address: 4250 Legion Ln, Casper, Wyoming Phone: (307) 577-5000 Website: https://www.ihg.com/holidayinnexpress/hotels/us/en/casper/cprwy/hoteldetail 3. Comfort Inn Evansville - Casper Address: 265 American Rd, Evansville, Wyoming Phone: (307) 234-2770 Website: https://www.choicehotels.com/wyoming/evansville/comfort-inn-hotels/wy223 These hotels offer pet-friendly accommodations and are conveniently located near Casper. You can check their availability and book a room for your stay. Let me know if you need more options or information.",
-                "role":"assistant"
-            },
-            {
                 "content":"Can you find some hotels near Casper?",
                 "role":"user"
             },

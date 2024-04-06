@@ -15,6 +15,7 @@ class AI {
     constructor() {
         this.context = [];
         this.action = null;
+        this.bookings = [];
     }
     
     /**
@@ -23,10 +24,17 @@ class AI {
      * @param {*} context 
      * @returns 
      */
-    async get_beckn_action_from_text(text, context=[]){
+    async get_beckn_action_from_text(text, context=[], bookings = []){
+        let booking_context = [];
+        if(bookings.length > 0){
+            booking_context = [
+                { role: 'system', content: `In case of a 'search', the transaction_id should be taken based on which booking out of the list of bookings the user wants to make. For e.g. if the user wants to book the first booking in the list, the transaction_id should be the transaction_id of the first booking. Booking list : ${JSON.stringify(bookings)}`}
+            ];
+        }
         const openai_messages = [
             { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
-            { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`},
+            { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL', transaction_id: 'SOME_TRANSACTION_ID'}.`},
+            ...booking_context,
             { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
             { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
             ...context, 
@@ -61,10 +69,10 @@ class AI {
      * @returns 
      */
     async get_ai_response_to_query(instruction, context=[], profile = {}){
+        
         const openai_messages = [
             { role: 'system', content: 'If you are asked to prepare an itinerary or plan a trip, you should have information about the user preferences such as journey dates, journey destination, number of members, mode of transport etc.'},
             { role: 'system', content: 'You must come back with a response immedietaley, do not respond back saying that you will come back with a resopnse.'},
-            { role: 'system', content: 'While preparing an itinerary, you should also share a short list of bookings that needs to be made and ask the user which one they want to book first.'},
             { role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             ...context,
             { role: 'user', content: instruction}
@@ -130,6 +138,10 @@ class AI {
             base_url: 'AS_PER_REGISTRY',
             bap_id: 'AS_PER_REGISTRY',
             bap_uri: 'AS_PER_REGISTRY',
+        }
+
+        if(this.action.transaction_id && this.action.transaction_id!=='' && this.action.transaction_id!==null){
+            desired_structure.transaction_id = this.action.transaction_id;
         }
 
         const openai_messages = [
@@ -270,6 +282,9 @@ class AI {
             call_to_action.select+= 'Billing details are mandatory for initiating the order. You should ask the user to share billing details such as name, email and phone to iniatie the order.';
         }
 
+        if(this.bookings.length > 0 && this.action?.action === 'confirm'){
+            call_to_action.confirm=`You should display the order id and show the succesful order confirmation message. You should also show the list of pending bookings and ask which booking would they want to do next. Bookings list : ${JSON.stringify(this.bookings)}`            
+        }
         const openai_messages = [
             {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
             {role: 'system', content: `You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
@@ -342,6 +357,86 @@ class AI {
                 message:e.message
             }
         }
+    }
+
+    async check_if_booking_collection(message, context=[]){
+        let response = false;
+        const openai_messages = [
+            { role: 'system', content: `Please check the given user message and context and identify if the given message is an instruction to book a collection of products and services. For e.g. if the assistant had shared the itinerary/plan in context and user wants to make all bookings for that plan then you should return true.` },
+            { role: 'system', content: `you must return a json object with the following structure {status: true/false}` },
+            { role: 'system', content: `Context goes here...` },
+            ...context.slice(-1),
+            { role: 'user', content: message }
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            let gpt_response = JSON.parse(completion.choices[0].message.content)            
+            response = gpt_response.status;
+        } catch (e) {
+            logger.error(e)
+            
+        }
+        return response;
+    }
+
+    async get_bookings_array_from_text(message){
+        let bookings = [];
+        const desired_output = [
+            {
+                "name": "Hotel at xyz",
+                "booked_yn": 0
+            }
+        ]
+        const openai_messages = [
+            { role: 'system', content: `You must convert the given list of bookings into the desired json array format : ${JSON.stringify(desired_output)}` },
+            { role: 'user', content: message }
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            bookings = JSON.parse(completion.choices[0].message.content)                        
+        } catch (e) {
+            logger.error(e)
+            
+        }
+        return bookings;
+    }
+
+    async get_bookings_status(bookings, context){
+        let bookings_updated = [];
+        const openai_messages = [
+            { role: 'system', content: `You must check the given list of bookings and the context history and mark the status booked_yn = 0 or 1 depending upon wether that booking has been done in the context or not.` },
+            { role: 'system', content: `A booking should be considered as done if it has been confirmed or user has indicated to not book that particular item. For e.g. if the booking name is 'Accomodation at xyz' and a booking at xyz has been done in the context, its status should be marked as 1` },
+            { role: 'system', content: `You must return a json array with the same format as bookings.` },
+            { role: 'system', content: `Context goes here...` },
+            ...context,
+            { role: 'user', content: `Bookings : ${JSON.stringify(bookings)}` }
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            bookings_updated = JSON.parse(completion.choices[0].message.content)                        
+        } catch (e) {
+            logger.error(e)
+            
+        }
+        return bookings_updated;
     }
 }
 

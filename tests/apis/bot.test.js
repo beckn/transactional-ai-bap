@@ -2,6 +2,7 @@ import { describe, it } from 'mocha'
 import app from '../../server.js'
 import request from 'supertest'
 import * as chai from 'chai'
+import logger from '../../utils/logger.js'
 const expect = chai.expect
 
 
@@ -120,5 +121,68 @@ describe('Test cases for trip planning workflow', ()=>{
 
         expect(response.status).equal(200)
         expect(response.text).to.be.a('string')
+    })
+})
+
+describe('Test cases for booking collection', ()=>{
+    it('Should return a list of bookings to be made', async ()=>{
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family.",
+        });
+
+        const itinerary = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "I'm thinking, Yellowstone tomorrow for 3 days, travelling with my family of 4 and a pet. Are you up for it?",
+        })
+
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Can you go ahead and make the bokings?",
+        })
+        logger.info(JSON.stringify(response.body, null, 2));
+        expect(itinerary.status).equal(200);
+
+    })
+    it.only('Should return a list of bookings to be made', async ()=>{
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family.",
+        });
+
+        const itinerary = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "I'm thinking, Yellowstone tomorrow for 3 days, travelling with my family of 4 and a pet. Are you up for it?",
+        })
+
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Can you go ahead and make the bokings?",
+        })
+
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Lets find the hotel first",
+        })
+
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Lets select the first one",
+        })
+
+        await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Mayur Virendra, mayurlibra@gmail.com, 9986949245",
+        })
+
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: "Lets confirm the order",
+        })
+
+        logger.info(JSON.stringify(response.text, null, 2));
+        
+        expect(itinerary.status).equal(200);
+
     })
 })

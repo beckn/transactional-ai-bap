@@ -2,6 +2,7 @@ import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
 import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
+import { v4 as uuidv4 } from 'uuid'
 
 const actionsService = new ActionsService()
 const db = new DBService();
@@ -92,7 +93,9 @@ async function process_text(req, res) {
         actions : {
             raw: [],
             formatted: []
-        }
+        },
+        bookings: [],
+        active_transaction: null
     }
     
     logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
@@ -114,13 +117,17 @@ async function process_text(req, res) {
                 ...profileResponse.data                
             };
         }
+        
+        logger.info(`\u001b[1;34m User profile : ${JSON.stringify(session.profile)}\u001b[0m`)
 
         // get action
-        ai.action = await ai.get_beckn_action_from_text(message, session.actions.formatted);
-
+        ai.action = await ai.get_beckn_action_from_text(message, [...session.text.slice(-1)], session.bookings);
+        ai.bookings = session.bookings;
+        
         // Reset actions context if action is search
         if(ai.action?.action === 'search') {
             session.actions = EMPTY_SESSION.actions;
+            session.active_transaction = ai.action.transaction_id || uuidv4();
         }
         
 
@@ -135,20 +142,38 @@ async function process_text(req, res) {
             session = EMPTY_SESSION;
             response.formatted = 'Session & profile cleared! You can start a new session now.';
         }
-        else if(ai.action=="search"){
-            session.actions = EMPTY_SESSION.actions; // clear session actions
-        }        
         else if(ai.action?.action == null) {
-            // get ai response
-            response.formatted = await ai.get_ai_response_to_query(message, session.text);
-            logger.info(`AI response: ${response.formatted}`);
+            let booking_collection_yn = await ai.check_if_booking_collection(message, session.text);
+            if(booking_collection_yn){
+                logger.info(`Booking collection detected: ${booking_collection_yn}`);
 
-            session.text.push({ role: 'user', content: message }); 
-            session.text.push({ role: 'assistant', content: response.formatted });
+                response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
+                logger.info(`AI response: ${response.formatted}`);
+                
+                ai.bookings = await ai.get_bookings_array_from_text(response.formatted);
+                ai.bookings = ai.bookings.bookings || ai.bookings;
+                ai.bookings && ai.bookings.map(booking =>{
+                    booking.transaction_id = uuidv4();
+                })
+
+                session.text.push({ role: 'user', content: message }); 
+                session.text.push({ role: 'assistant', content: response.formatted });
+            }
+            else{
+                // get ai response
+                response.formatted = await ai.get_ai_response_to_query(message, session.text);
+                logger.info(`AI response: ${response.formatted}`);
+                
+                session.text.push({ role: 'user', content: message }); 
+                session.text.push({ role: 'assistant', content: response.formatted });
+            }
         }
         else{
+
+            session.bookings = ai.bookings;
             response = await process_action(ai.action, message, session, sender);
-            
+            ai.bookings = response.bookings;
+
             // update actions
             if(ai.action?.action === 'confirm') {
                 session.actions = EMPTY_SESSION.actions;
@@ -165,7 +190,11 @@ async function process_text(req, res) {
             }
         }
 
+        // if(session.bookings && session.bookings.length>0) session.bookings = await ai.get_bookings_status(session.bookings, session.text);
+        logger.info(`\u001b[1;34m Bookings status : ${JSON.stringify(ai.bookings)}\u001b[0m`)
+
         // update session
+        session.bookings = ai.bookings;
         await db.update_session(sender, session);
         
         // Send response
@@ -184,29 +213,32 @@ async function process_text(req, res) {
 }
 
 /**
- * Function to process actions, it does not update the sessions
- * Can be reused by gpt bots if required
- * @param {*} action 
- * @param {*} text 
- * @param {*} session 
- * @returns 
- */
+* Function to process actions, it does not update the sessions
+* Can be reused by gpt bots if required
+* @param {*} action 
+* @param {*} text 
+* @param {*} session 
+* @returns 
+*/
 async function process_action(action, text, session, sender=null){
     let ai = new AI();
     let response = {
         raw: null,
-        formatted: null
+        formatted: null,
+        bookings: session.bookings
     }
     
     ai.action = action;
+    ai.bookings = session.bookings;
     
     actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
-            
+    
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
     
     // Get config
-    const beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
+    let beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
+    beckn_context.transaction_id = session.active_transaction;
     
     // Prepare request
     if(schema && beckn_context){
@@ -220,24 +252,41 @@ async function process_action(action, text, session, sender=null){
                 response.formatted = `Failed to call the API: ${api_response.error}`
             }
             else{
+
                 response.raw = request.data.body.context.action==='search' ? await ai.compress_search_results(api_response.data) : api_response.data
+                
+                // update booking status
+                if (ai.action && ai.action.action === 'confirm') {
+                    response.bookings = ai.bookings.map(booking => {
+                        if (booking.transaction_id === response.raw.context.transaction_id) {
+                            booking.booked_yn = 1;
+                        }
+                        return booking;
+                    });
+                    logger.info(`Updated bookings: ${JSON.stringify(response.bookings)}`);
+                }
+                ai.bookings = response.bookings;
+
                 const formatted_response = await ai.get_text_from_json(
                     api_response.data,
                     [...session.actions.formatted, { role: 'user', content: text }],
                     session.profile
-                );
-                response.formatted = formatted_response.message;
-            }            
+                    );
+                    response.formatted = formatted_response.message;
+                } 
+                
+                
+                
+            }
+            else{
+                response.formatted = "Could not prepare this request. Can you please try something else?"
+            }
         }
-        else{
-            response.formatted = "Could not prepare this request. Can you please try something else?"
-        }
+        
+        return response;
     }
     
-    return response;
-}
-
-export default {
-    process_wa_webhook,
-    process_text
-}
+    export default {
+        process_wa_webhook,
+        process_text
+    }
