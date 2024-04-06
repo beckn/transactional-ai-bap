@@ -81,19 +81,19 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
     });
 
     it('Should return search action when user searches after a long context', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you find some hotels near Casper ', hotel_session.data.actions);
+        const response = await ai.get_beckn_action_from_text('Can you find some hotels near Casper ', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('search');
     });
 
     it('Should return `clear_chat` action when user wishes to clear the chat', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you clear this session ', hotel_session.data.actions);
+        const response = await ai.get_beckn_action_from_text('Can you clear this session ', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_chat');
     });
 
     it('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you clear this session along with my profile.', hotel_session.data.actions);
+        const response = await ai.get_beckn_action_from_text('Can you clear this session along with my profile.', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_all');
     });
@@ -109,12 +109,7 @@ describe('Test cases for get_ai_response_to_query() function', () => {
         const profile = {
             name: 'John Doe',
             email: 'john.doe@example.com',
-            phone: '9999999999',
-            misc:{
-                family: 4,
-                pet: 'shihtzu',
-                vehicle: 'EV',
-            }
+            phone: '9999999999'
         }
         const response = await ai.get_ai_response_to_query(`Just bought a new EV that i wanted to take out for a spin. I'm thinking, Yellowstone this weekend. Are you up for it?`, [], profile);
         expect(response).to.be.an.string;
