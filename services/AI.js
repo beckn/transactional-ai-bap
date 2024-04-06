@@ -27,8 +27,9 @@ class AI {
         const openai_messages = [
             { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`},
+            { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
             { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
-            ...(context.length > 0 ? context.slice(-1) : []), // only use teh last message for context here
+            ...context, 
             { role: 'user', content: text }
         ]
         
@@ -290,17 +291,27 @@ class AI {
             status: true,
             message: "<Whastapp friendly formatted message>"
         };
+
+        let call_to_action = {
+            'search': 'You should ask which item the user wants to select to place the order. ',
+            'select': 'You should ask if the user wants to initiate the order. You should not use any links from the response.',
+            'init': 'You should ask if the user wants to confirm the order. ',
+            'confirm': 'You should display the order id and show the succesful order confirmation message. You should ask if the user wants to book something else.',
+        }
+
+        if(!(profile.phone && profile.email && profile.name)){
+            call_to_action.select+= 'Billing details are mandatory for initiating the order. You should ask the user to share billing details such as name, email and phone to iniatie the order.';
+        }
+
         const openai_messages = [
-            {role: 'system', content: `Your job is to analyse the given json object and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
-            {role: 'system', content: `User can select an item after seeing the search results. You should ask user what they want to do next.`},
-            {role: 'system', content: `If its a 'select' response you should ask if the user wants to place the order. If the user profile does not have billing details such as name, phone, email, you should also ask the user to share the billing details dot place the order.`},
-            {role: 'system', content: `If its an 'init' response, you should ask for confirmation.`},
-            {role: 'system', content: `If its a 'confirm' response, you should include the order id in your response.`},
+            {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
             {role: 'system', content: `You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
-            {role: 'system', content: `If the given json looks like an error, summarize teh error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
+            {role: 'system', content: `Use this call to action : ${call_to_action[json_response?.context?.action] || ''}`},
+            {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
             {role: 'system', content: `User pforile : ${JSON.stringify(profile)}`},
+            {role: 'system', content: `Chat history goes next ....`},
             ...context,
-            {role: 'assistant',content: `${JSON.stringify(json_response)}`},
+            {role: 'assistant',content: `input_json: ${JSON.stringify(json_response)}`},
         ]
         try {
             const completion = await openai.chat.completions.create({
