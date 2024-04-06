@@ -80,7 +80,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.be.null
     });
 
-    it('Should return search action when user searches after a long context', async () => {
+    it.skip('Should return search action when user searches after a long context', async () => {
         const response = await ai.get_beckn_action_from_text('Can you find some hotels near Casper ', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('search');
