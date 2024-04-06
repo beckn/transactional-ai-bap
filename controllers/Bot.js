@@ -143,12 +143,8 @@ async function process_text(req, res) {
         }
         else if(ai.action?.action == null) {
             // get ai response
-            response.formatted = await ai.get_ai_response_to_query(message, session.text, session.profile);
+            response.formatted = await ai.get_ai_response_to_query(message, session.text);
             logger.info(`AI response: ${response.formatted}`);
-            
-            // update session
-            session.text.push({ role: 'user', content: message }); 
-            session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
             response = await process_action(ai.action, message, session, sender);
@@ -163,6 +159,10 @@ async function process_text(req, res) {
             }
         }
         
+        // update session
+        session.text.push({ role: 'user', content: message }); 
+        session.text.push({ role: 'assistant', content: response.formatted });
+
         // update session
         await db.update_session(sender, session);
         
