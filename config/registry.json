@@ -32,7 +32,20 @@
                     ],
                     "rules": [
                         "search must have two stops for this domain.",
-                        "Supported stop.type : check-in, check-out"
+                        "Supported stop.type : check-in, check-out",
+                        "fulfillment stops should not have location for this domain."
+                    ]
+                },
+                "tourism": {
+                    "tags": [],
+                    "rules":[
+                        "Tags and fulfillment should not be used for this domain"
+                    ]
+                },
+                "retail:1.1.0": {
+                    "tags": [],
+                    "rules":[
+                        "Tags and fulfillment should not be used for this domain"
                     ]
                 }
             }            

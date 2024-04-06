@@ -145,44 +145,25 @@ describe('Test cases for booking collection', ()=>{
 
     })
     it.only('Should return a list of bookings to be made', async ()=>{
-        await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family.",
-        });
-
-        const itinerary = await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "I'm thinking, Yellowstone tomorrow for 3 days, travelling with my family of 4 and a pet. Are you up for it?",
-        })
-
-        await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Can you go ahead and make the bokings?",
-        })
-
-        await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Lets find the hotel first",
-        })
-
-        await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Lets select the first one",
-        })
-
-        await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Mayur Virendra, mayurlibra@gmail.com, 9986949245",
-        })
-
-        const response = await request(app).post('/webhook').send({
-            From: process.env.TEST_RECEPIENT_NUMBER,
-            Body: "Lets confirm the order",
-        })
-
-        logger.info(JSON.stringify(response.text, null, 2));
         
-        expect(itinerary.status).equal(200);
+        const chats = [
+            "Hey Alfred, you up? ",
+            "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family. ",
+            "I'm thinking, Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet. Are you up for it? ",
+            "Perfect, lets make the bookings!",
+            "Lets find the hotel first",
+            "Lets select the first one",
+            "Adam, 9999999999, adam@example.com",
+            "Lets confirm the order"
+        ];
 
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
     })
 })

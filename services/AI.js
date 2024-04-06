@@ -4,6 +4,7 @@ import logger from '../utils/logger.js'
 import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
 import search from '../schemas/jsons/search.js';
+import actions from '../schemas/jsons/actions.js';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
@@ -25,42 +26,85 @@ class AI {
      * @param {*} context 
      * @returns 
      */
-    async get_beckn_action_from_text(text, context=[], bookings = []){
-        let booking_context = [];
-        if(bookings.length > 0){
-            booking_context = [
-                { role: 'system', content: `In case of a 'search', the transaction_id should be taken based on which booking out of the list of bookings the user wants to make. For e.g. if the user wants to book the first booking in the list, the transaction_id should be the transaction_id of the first booking. Booking list : ${JSON.stringify(bookings)}`}
-            ];
-        }
-        const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
-            { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL', transaction_id: 'SOME_TRANSACTION_ID'}.`},
-            ...booking_context,
-            { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
-            { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
-            ...context, 
-            { role: 'user', content: text }
-        ]
+    // async get_beckn_action_from_text(text, context=[], bookings = []){
+    //     let booking_context = [
+    //         { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`}
+    //     ];
+    //     if(bookings.length > 0){
+    //         booking_context = [
+    //             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL', 'transaction_id':'TRANSACTION_ID_OF_SELECTED_BOOKING_OR_NULL'}.`},
+    //             { role: 'system', content: `In case of a 'search', the transaction_id should be taken based on which booking out of the list of bookings the user wants to make. For e.g. if the user wants to book the first booking in the list, the transaction_id should be the transaction_id of the first booking. Booking list : ${JSON.stringify(bookings)}`}
+    //         ];
+    //     }
+    //     const openai_messages = [
+    //         { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
+    //         ...booking_context,
+    //         { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
+    //         { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
+    //         ...context, 
+    //         { role: 'user', content: text }
+    //     ]
         
+    //     let response = {
+    //         action: null,
+    //         response: null
+    //     }
+    //     try{
+    //         const completion = await openai.chat.completions.create({
+    //             messages: openai_messages,
+    //             model: process.env.OPENAI_MODEL_ID,
+    //             temperature: 0,
+    //             response_format: { type: 'json_object' }
+    //         })
+    //         response = JSON.parse(completion.choices[0].message.content);
+    //     }
+    //     catch(e){
+    //         logger.error(e);
+    //     }
+
+    //     logger.info(`Got action from text : ${JSON.stringify(response)}`)
+    //     return response;
+    // }
+
+    async get_beckn_action_from_text(instruction, context=[], bookings=[]){
         let response = {
-            action: null,
-            response: null
+            action : null
         }
+        const messages = [
+            { role: 'system', content: `Supported actions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` },
+            { role: 'system', content: `Ongoing bookings : ${JSON.stringify(bookings)}` },
+            ...context,
+            { role: "user", content: instruction }
+
+        ];
+    
+        const tools = [
+            {
+                type: "function",
+                function: {
+                    name: "get_action",
+                    description: "Identify if the user wants to perform an action.", 
+                    parameters: actions
+                }
+            }
+        ];
+    
         try{
-            const completion = await openai.chat.completions.create({
-                messages: openai_messages,
+            const gpt_response = await openai.chat.completions.create({
                 model: process.env.OPENAI_MODEL_ID,
-                temperature: 0,
-                response_format: { type: 'json_object' }
-            })
-            response = JSON.parse(completion.choices[0].message.content);
+                messages: messages,
+                tools: tools,
+                tool_choice: "auto", 
+            });
+            response = JSON.parse(gpt_response.choices[0].message?.tool_calls[0]?.function?.arguments) || response;
+            if(!response.action) response.action = null;
+            logger.info(`Got the action : ${JSON.stringify(response)}`);
+            return response
         }
         catch(e){
             logger.error(e);
-        }
-
-        logger.info(`Got action from text : ${JSON.stringify(response)}`)
-        return response;
+            return response;
+        } 
     }
 
     /**
@@ -86,7 +130,8 @@ class AI {
         try{
             const completion = await openai.chat.completions.create({
                 messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID
+                model: process.env.OPENAI_MODEL_ID,
+                max_tokens: 300
             })
             response = completion.choices[0].message.content;
         }
@@ -229,7 +274,7 @@ class AI {
 
     async get_beckn_message_from_text(instruction, context=[], domain='') {
         let domain_context = [], policy_context = [];
-        if(domain_context && domain_context!='') {
+        if(domain && domain!='') {
             domain_context = [
                 { role: 'system', content: `Domain : ${domain}`}
             ]
@@ -243,7 +288,6 @@ class AI {
         const messages = [
             ...policy_context,
             ...domain_context,
-            { role: "system", content: "Context goes here..."},
             ...context,
             { role: "user", content: instruction }
 
@@ -317,14 +361,14 @@ class AI {
     }
     
     
-    async get_text_from_json(json_response, context=[], profile={}) {
+    async format_response(json_response, context=[], profile={}) {
         const desired_output = {
             status: true,
             message: "<Whastapp friendly formatted message>"
         };
 
         let call_to_action = {
-            'search': 'You should ask which item the user wants to select to place the order. ',
+            'search': 'You should ask which item the user wants to select to place the order. You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item.',
             'select': 'You should ask if the user wants to initiate the order. You should not use any links from the response.',
             'init': 'You should ask if the user wants to confirm the order. ',
             'confirm': 'You should display the order id and show the succesful order confirmation message. You should ask if the user wants to book something else.',
@@ -335,16 +379,15 @@ class AI {
         }
 
         if(this.bookings.length > 0 && this.action?.action === 'confirm'){
-            call_to_action.confirm=`You should display the order id and show the succesful order confirmation message. You should also show the list of pending bookings and ask which booking would they want to do next. Bookings list : ${JSON.stringify(this.bookings)}`            
+            call_to_action.confirm=`You should display the order id and show the succesful order confirmation message. You should also show the list of bookings with theri boooking status and ask which booking would they want to do next. Bookings list : ${JSON.stringify(this.bookings)}`            
         }
         const openai_messages = [
             {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
-            {role: 'system', content: `You should show search results in a listing format with important details mentioned such as name, price, rating, location, description or summary etc. and a call to action to select the item. `},
-            {role: 'system', content: `Use this call to action : ${call_to_action[json_response?.context?.action] || ''}`},
+            {role: 'system', content: `${call_to_action[json_response?.context?.action] || 'you should ask the user what they want to do next.'}`},
             {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
-            {role: 'system', content: `User pforile : ${JSON.stringify(profile)}`},
+            {role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             {role: 'system', content: `Chat history goes next ....`},
-            ...context,
+            ...context.slice(-1),
             {role: 'assistant',content: `input_json: ${JSON.stringify(json_response)}`},
         ]
         try {

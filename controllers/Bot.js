@@ -147,36 +147,31 @@ async function process_text(req, res) {
             session = EMPTY_SESSION;
             response.formatted = 'Session & profile cleared! You can start a new session now.';
         }
+        else if(ai.action?.action === 'booking_collection'){
+            response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
+            logger.info(`AI response: ${response.formatted}`);
+            
+            ai.bookings = await ai.get_bookings_array_from_text(response.formatted);
+            ai.bookings = ai.bookings.bookings || ai.bookings;
+            ai.bookings && ai.bookings.map(booking =>{
+                booking.transaction_id = uuidv4();
+            })
+
+            session.text.push({ role: 'user', content: message }); 
+            session.text.push({ role: 'assistant', content: response.formatted });
+        }
         else if(ai.action?.action == null) {
-            let booking_collection_yn = await ai.check_if_booking_collection(message, session.text);
-            if(booking_collection_yn){
-                logger.info(`Booking collection detected: ${booking_collection_yn}`);
-
-                response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
-                logger.info(`AI response: ${response.formatted}`);
-                
-                ai.bookings = await ai.get_bookings_array_from_text(response.formatted);
-                ai.bookings = ai.bookings.bookings || ai.bookings;
-                ai.bookings && ai.bookings.map(booking =>{
-                    booking.transaction_id = uuidv4();
-                })
-
-                session.text.push({ role: 'user', content: message }); 
-                session.text.push({ role: 'assistant', content: response.formatted });
-            }
-            else{
-                // get ai response
-                response.formatted = await ai.get_ai_response_to_query(message, session.text);
-                logger.info(`AI response: ${response.formatted}`);
-                
-                session.text.push({ role: 'user', content: message }); 
-                session.text.push({ role: 'assistant', content: response.formatted });
-            }
+            // get ai response
+            response.formatted = await ai.get_ai_response_to_query(message, session.text);
+            logger.info(`AI response: ${response.formatted}`);
+            
+            session.text.push({ role: 'user', content: message }); 
+            session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
 
             session.bookings = ai.bookings;
-            response = await process_action(ai.action, message, session, sender);
+            response = await process_action(ai.action, message, session, sender, format);
             ai.bookings = response.bookings;
 
             // update actions
@@ -225,7 +220,7 @@ async function process_text(req, res) {
 * @param {*} session 
 * @returns 
 */
-async function process_action(action, text, session, sender=null){
+async function process_action(action, text, session, sender=null, format='application/json'){
     let ai = new AI();
     let response = {
         raw: null,
@@ -236,7 +231,7 @@ async function process_action(action, text, session, sender=null){
     ai.action = action;
     ai.bookings = session.bookings;
     
-    actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
+    format!='application/json' && actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
     
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
@@ -249,7 +244,16 @@ async function process_action(action, text, session, sender=null){
     if(schema && beckn_context){
         let request=null;
         if(ai.action.action==='search'){
-            const message = await ai.get_beckn_message_from_text(text, session.text, beckn_context.domain);
+            let search_context = [
+                ...session.text.slice(-1)
+            ];
+            if(session.profile){
+                search_context=[
+                    { role: 'system', content: `User pforile: ${JSON.stringify(session.profile)}`},
+                    ...search_context
+                ]
+            }
+            const message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain);
             request = {
                 status: true,
                 data:{
@@ -263,13 +267,13 @@ async function process_action(action, text, session, sender=null){
             }
         }
         else{
-            request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
+            request = await ai.get_beckn_request_from_text(text, [...session.actions.raw.slice(-1)], beckn_context, schema);
         }
         
         if(request.status){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
-            actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
+            format!='application/json' && actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
             if(!api_response.status){
                 response.formatted = `Failed to call the API: ${api_response.error}`
             }
@@ -289,7 +293,7 @@ async function process_action(action, text, session, sender=null){
                 }
                 ai.bookings = response.bookings;
 
-                const formatted_response = await ai.get_text_from_json(
+                const formatted_response = await ai.format_response(
                     api_response.data,
                     [...session.actions.formatted, { role: 'user', content: text }],
                     session.profile
@@ -301,7 +305,7 @@ async function process_action(action, text, session, sender=null){
                 
             }
             else{
-                response.formatted = "Could not prepare this request. Can you please try something else?"
+                response.formatted = "Could not process this request. Can you please try something else?"
             }
         }
         
