@@ -320,7 +320,7 @@ describe('Test cases for services/ai/get_beckn_message_from_text()', () => {
     })
 
     it('Should return the correct message for a search by location', async () => {
-        let instruction = "I'm looking for some ev chargers near my location 30.876877, 73.868969";
+        let instruction = "I'm looking for some ev chargers. Lat: 30.876877, long: 73.868969";
         let response = await ai.get_beckn_message_from_text(instruction, [], 'uei:charging')
         expect(response).to.be.an('object');
         expect(response).to.have.property('intent');
