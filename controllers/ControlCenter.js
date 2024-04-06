@@ -80,7 +80,7 @@ export const updateCatalog = async (req, res) => {
 export const notify = async (req, res) => {
     try {
         const { userNo = TWILIO_RECEPIENT_NUMBER } = req.body;
-        const messageBody = TRIGGER_BLIZZARD_MESSAGE;
+        const messageBody = req.body.message || TRIGGER_BLIZZARD_MESSAGE;
         const sendWhatsappNotificationResponse = await action.send_message(
             userNo,
             messageBody

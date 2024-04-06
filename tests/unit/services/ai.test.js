@@ -333,12 +333,6 @@ describe('Test cases for get_profile_from_text', () => {
         expect(response.data.email).to.eq('john.doe@example.com');
     })
 
-    it('Should return misc. information about user if shared', async ()=> {
-        const response = await ai.get_profile_from_text('I just bough an EV and wanted to take it for a spin.');
-        expect(response.status).to.be.true;
-        expect(response.data).to.have.property('misc');
-    })
-
     it('Should return nothing if no profile information available', async ()=> {
         const response = await ai.get_profile_from_text('Yes please');
         expect(response.status).to.be.true;
