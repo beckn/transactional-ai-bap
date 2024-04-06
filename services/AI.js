@@ -3,6 +3,7 @@ import OpenAI from 'openai'
 import logger from '../utils/logger.js'
 import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
+import search from '../schemas/jsons/search.js';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
@@ -224,6 +225,57 @@ class AI {
         
         
         return action_response;
+    }
+
+    async get_beckn_message_from_text(instruction, context=[], domain='') {
+        let domain_context = [], policy_context = [];
+        if(domain_context && domain_context!='') {
+            domain_context = [
+                { role: 'system', content: `Domain : ${domain}`}
+            ]
+            if(registry_config[0].policies.domains[domain]){
+                policy_context = [
+                    { role: 'system', content: `Use the following policy : ${JSON.stringify(registry_config[0].policies)}` }
+                ]
+            }
+        }
+            
+        const messages = [
+            ...policy_context,
+            ...domain_context,
+            { role: "system", content: "Context goes here..."},
+            ...context,
+            { role: "user", content: instruction }
+
+        ];
+    
+        const tools = [
+            {
+                type: "function",
+                function: {
+                    name: "get_search_intent",
+                    description: "Get the correct search object based on user inputs", 
+                    parameters: search
+                }
+            }
+        ];
+    
+        try{
+            // Assuming you have a function to abstract the API call
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4-0125-preview',
+                messages: messages,
+                tools: tools,
+                tool_choice: "auto", // auto is default, but we'll be explicit
+            });
+            const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
+            logger.info(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
+            return responseMessage
+        }
+        catch(e){
+            logger.error(e);
+            return null;
+        }        
     }
     
     async compress_search_results(search_res){

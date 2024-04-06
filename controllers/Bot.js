@@ -76,7 +76,7 @@ async function process_text(req, res) {
     let ai = new AI();
     
     // inputs
-    const message = req.body.Body
+    let message = req.body.Body
     const sender = req.body.From
     const format = req.headers['content-type'] || 'text/xml';
     const raw_yn = req.body.raw_yn || false;
@@ -96,6 +96,11 @@ async function process_text(req, res) {
         },
         bookings: [],
         active_transaction: null
+    }
+
+    // Update lat, long
+    if(req.body.Latitude && req.body.Longitude){
+        message+=` lat:${req.body.Latitude} long:${req.body.Longitude}`
     }
     
     logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
@@ -242,7 +247,24 @@ async function process_action(action, text, session, sender=null){
     
     // Prepare request
     if(schema && beckn_context){
-        const request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
+        let request=null;
+        if(ai.action.action==='search'){
+            const message = await ai.get_beckn_message_from_text(text, session.text, beckn_context.domain);
+            request = {
+                status: true,
+                data:{
+                    method: 'POST',
+                    url : `${beckn_context.base_url}/${beckn_context.action}`,
+                    body: {
+                        context: beckn_context,
+                        message: message
+                    }
+                }
+            }
+        }
+        else{
+            request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
+        }
         
         if(request.status){
             // call api
