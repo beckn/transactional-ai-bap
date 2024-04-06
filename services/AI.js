@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
 })
-const openai_config = JSON.parse(readFileSync('./config/openai.json'))
+import openai_config from '../config/openai.js';
 const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 
 class AI {
@@ -171,9 +171,12 @@ class AI {
             message: null
         }        
 
+        const domain_context = openai_config.DOMAIN_TRANSLATION_CONTEXT[beckn_context?.domain] || [];
         let openai_messages = [
             { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
             ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
+            ...domain_context,
+            {"role": "system", "content": `Domain : ${beckn_context.domain}`},
             {"role": "system", "content": `This is the user profile that you can use for transactions : ${JSON.stringify(profile)}`},
             {"role": "system", "content": `Network policy: ${JSON.stringify(registry_config[0].policies)}`},
             {"role": "system", "content": `Following is the conversation history`},
