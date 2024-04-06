@@ -25,9 +25,9 @@ class AI {
      */
     async get_beckn_action_from_text(text, context=[]){
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the latest user input and check if its a valid action based on the supported actions given here : : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
+            { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`},
-            { role: 'system', content: `'action' must be null if its not from the given set of actions.` },
+            { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
             ...(context.length > 0 ? context.slice(-1) : []), // only use teh last message for context here
             { role: 'user', content: text }
         ]
@@ -61,7 +61,9 @@ class AI {
      */
     async get_ai_response_to_query(instruction, context=[], profile = {}){
         const openai_messages = [
-            { role: 'system', content: 'If you are asked to prepare an itinerary or plan a trip, you should have information about the user preferences such as journey dates, journey destination, number of members, mode of transport etc. You must check if these details are available in the user profile or not. If not, you should ask for these details before proceeding further. If the detail are available, or partial details are available you should ask for the missing details and show the details you have that wil be used for planning the trip for confirmation.'},
+            { role: 'system', content: 'If you are asked to prepare an itinerary or plan a trip, you should have information about the user preferences such as journey dates, journey destination, number of members, mode of transport etc.'},
+            { role: 'system', content: 'You must come back with a response immedietaley, do not respond back saying that you will come back with a resopnse.'},
+            { role: 'system', content: 'While preparing an itinerary, you should also share a short list of bookings that needs to be made and ask the user which one they want to book first.'},
             { role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             ...context,
             { role: 'user', content: instruction}
@@ -291,15 +293,21 @@ class AI {
             "name": "",
             "email": "",
             "phone": "",
-            "address": "",
-            "gender": "",
-            "age" : ""
+            "travel_source": "",
+            "travel_destination": "",
+            "current_location_gps": "",
+            "vehicle-type":"",
+            "connector-type": "",
+            "pet-friendly_yn":0,
+            "ev-charging-yn":0,
+            "accomodation_type":"",
+            "number_of_family_members":""
         }
 
         const openai_messages = [
             { role: 'system', content: `Please analyse the given user message and extract profile information about the user which is not already part of their profile. The desired outout format should be the following json ${JSON.stringify(desired_output)}` },
             { role: 'system', content: `You must not send any vague or incomplete information or anything that does not tell something about the user profile.` },
-            { role: 'system', content: `Any profile infromation that does not match the desired output should be sent under a key 'misc'. You are not always required to return a response, return empty json if no profile information extracted.` },
+            { role: 'system', content: `Return empty json if no profile information extracted.` },
             { role: 'system', content: `Existing profile : ${JSON.stringify(profile)}`},
             { role: 'user', content: message }
         ]
