@@ -109,12 +109,7 @@ describe('Test cases for get_ai_response_to_query() function', () => {
         const profile = {
             name: 'John Doe',
             email: 'john.doe@example.com',
-            phone: '9999999999',
-            misc:{
-                family: 4,
-                pet: 'shihtzu',
-                vehicle: 'EV',
-            }
+            phone: '9999999999'
         }
         const response = await ai.get_ai_response_to_query(`Just bought a new EV that i wanted to take out for a spin. I'm thinking, Yellowstone this weekend. Are you up for it?`, [], profile);
         expect(response).to.be.an.string;

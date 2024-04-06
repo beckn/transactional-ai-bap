@@ -86,9 +86,7 @@ async function process_text(req, res) {
     };
     
     const EMPTY_SESSION = {
-        profile:{
-            misc: {}
-        },
+        profile:{},
         sessionId: sender,
         text : [],
         actions : {
@@ -113,11 +111,7 @@ async function process_text(req, res) {
         if(profileResponse.status){
             session.profile = {
                 ...session.profile, 
-                ...profileResponse.data,
-                misc: {
-                    ...session.profile.misc,
-                    ...profileResponse.data.misc
-                }
+                ...profileResponse.data                
             };
         }
 
@@ -141,27 +135,35 @@ async function process_text(req, res) {
             session = EMPTY_SESSION;
             response.formatted = 'Session & profile cleared! You can start a new session now.';
         }
+        else if(ai.action=="search"){
+            session.actions = EMPTY_SESSION.actions; // clear session actions
+        }        
         else if(ai.action?.action == null) {
             // get ai response
             response.formatted = await ai.get_ai_response_to_query(message, session.text);
             logger.info(`AI response: ${response.formatted}`);
+
+            session.text.push({ role: 'user', content: message }); 
+            session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
             response = await process_action(ai.action, message, session, sender);
             
             // update actions
-            if(response.formatted && response.raw){
+            if(ai.action?.action === 'confirm') {
+                session.actions = EMPTY_SESSION.actions;
+            }
+            else if(response.formatted && response.raw){
                 session.actions.raw.push({ role: 'user', content: message }); 
                 session.actions.raw.push({ role: 'assistant', content: JSON.stringify(response.raw)}); 
                 
                 session.actions.formatted.push({ role: 'user', content: message }); 
                 session.actions.formatted.push({ role: 'assistant', content: response.formatted }); 
+
+                session.text.push({ role: 'user', content: message }); 
+                session.text.push({ role: 'assistant', content: response.formatted }); 
             }
         }
-        
-        // update session
-        session.text.push({ role: 'user', content: message }); 
-        session.text.push({ role: 'assistant', content: response.formatted });
 
         // update session
         await db.update_session(sender, session);
