@@ -309,6 +309,45 @@ describe('Test cases for services/ai/get_text_from_json()', () => {
     })
 })
 
+describe('Test cases for services/ai/get_beckn_message_from_text()', () => {
+    it('Should return the correct message for a search by name', async () => {
+        let instruction = "I'm looking for some raincoats";
+        let response = await ai.get_beckn_message_from_text(instruction)
+        expect(response).to.be.an('object');
+        expect(response).to.have.property('intent');
+        expect(response.intent.item).to.have.property('descriptor');
+        expect(response.intent.item.descriptor).to.have.property('name');
+    })
+
+    it('Should return the correct message for a search by location', async () => {
+        let instruction = "I'm looking for some ev chargers near my location 30.876877, 73.868969";
+        let response = await ai.get_beckn_message_from_text(instruction, [], 'uei:charging')
+        expect(response).to.be.an('object');
+        expect(response).to.have.property('intent');
+        expect(response.intent).to.have.property('fulfillment');
+        expect(response.intent.fulfillment.stops[0].location).to.have.property('gps');
+    })
+
+    it('Should return the correct message for a search by location along with tags', async () => {
+        let instruction = "I'm looking for some ev chargers near my location 30.876877, 73.868969. I'm using a 4-wheeler with CCS connector.";
+        let response = await ai.get_beckn_message_from_text(instruction, [], 'uei:charging')
+        expect(response).to.be.an('object');
+        expect(response).to.have.property('intent');
+        expect(response.intent.item).to.have.property('tags').that.is.an('array').that.is.not.empty;
+        expect(response.intent).to.have.property('fulfillment');
+        expect(response.intent.fulfillment.stops[0].location).to.have.property('gps');
+    })
+
+    it('Should return the correct message for a search by location along with tags and fulfillment timings', async () => {
+        let instruction = "I'm looking for hotels, pet-friendly near yellowstone, with ev-chargin facility. Preferrably campsite. I'm planning to stay for 2 days starting 12th April.";
+        let response = await ai.get_beckn_message_from_text(instruction, [], 'hospitality')
+        expect(response).to.be.an('object');
+        expect(response).to.have.property('intent');
+        expect(response.intent.item).to.have.property('tags').that.is.an('array').that.is.not.empty;
+        expect(response.intent).to.have.property('fulfillment');
+    })
+})
+
 
 describe('Test cases for get_profile_from_text', () => {
     it('Should return an object with billing details if billing details shared', async ()=> {
