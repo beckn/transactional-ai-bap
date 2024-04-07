@@ -368,7 +368,7 @@ describe('Test cases for get_profile_from_text', () => {
     })
 })
 
-describe.only('Test cases for services/ai/generate_search_request_from_text()', () => {
+describe('Test cases for services/ai/generate_search_request_from_text()', () => {
   it('Should return the correct message for a search by name', async () => {
       let instruction = "I'm looking for some raincoats in Yellowstone";
       let response = await ai.generate_search_request_from_text(instruction)
