@@ -130,7 +130,7 @@ describe.only('Test cases for booking collection', ()=>{
         const chats = [
             "Hey Alfred, you up? ",
             "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family. ",
-            "I'm thinking, Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet. Are you up for it? ",
+            "I'm thinking, Denver to Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet",
             "Perfect, lets make the bookings!",
             "Lets find the hotel first",
             "Lets select the first one",

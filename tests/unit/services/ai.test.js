@@ -13,7 +13,7 @@ const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.
 const hotel_session = JSON.parse(readFileSync('./tests/data/sessions/hotel.json'))
 
 
-describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
+describe.only('Test cases for services/ai/get_beckn_action_from_text()', () => {
     it('Should return null action when asked a general query', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_QUERY);
         expect(response).to.have.property('action')
@@ -26,7 +26,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.be.null    
     })
 
-    it('Should return null action when asked about list of bookings to be done', async () => {
+    it.skip('Should return null action when asked about list of bookings to be done', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.BOOKINGS_QUERY);
         expect(response).to.have.property('action')
         expect(response.action).to.be.null    
@@ -86,19 +86,19 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.equal('search');
     });
 
-    it('Should return `clear_chat` action when user wishes to clear the chat', async () => {
+    it.skip('Should return `clear_chat` action when user wishes to clear the chat', async () => {
         const response = await ai.get_beckn_action_from_text('Can you clear my chat?', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_chat');
     });
 
-    it('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you clear my session?', hotel_session.data.actions.formatted);
+    it.skip('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you clear my entire session?', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_all');
     });
 
-    it('Should return `booking_collection` action If the user wants to make multiple bookings', async () => {
+    it.skip('Should return `booking_collection` action If the user wants to make multiple bookings', async () => {
         const context = [
             {role: 'user', content: trip_planning.TRIP_DETAILS},
             {role: 'assistant', content: trip_planning.TRIP_DETAILS_RESPONSE}

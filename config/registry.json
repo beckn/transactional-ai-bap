@@ -21,7 +21,7 @@
                     ],
                     "rules": [
                         "item.descriptor should not be used in search intent for this domain",
-                        "search should have fulfillment for this domain."
+                        "search should have fulfillment for this domain. fulfillment should only contain location for this domain."
                     ]
                 },
                 "hospitality": {

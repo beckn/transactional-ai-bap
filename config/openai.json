@@ -1,12 +1,9 @@
 {
     "SUPPORTED_ACTIONS": [
-        { "action": "search", "description": "If the user intends to perform a search for a product." },
-        { "action": "select", "description": "If the user likes or selects any item, this action should be used." },
-        { "action": "init", "description": "If the user wants to place an order after search and select and has shared the billing details." },
-        { "action": "confirm", "description": "Confirm an order. This action gets called when users confirms an order." },
-        { "action": "clear_chat", "description": "If the user wants to clear the chat." },
-        { "action": "clear_all", "description": "If the user wants to clear the session." },
-        { "action": "booking_collection", "description": "If the assistant had shared a plan or initinerary and user has indicated to make the bookings for that plan." }
+        { "action": "search", "description": "If the user clearly indicates to perform a search for a specific product. Sample instructions : 'find a hotel', 'find an ev charger', 'find tickets'" },
+        { "action": "select", "description": "If the user likes or selects any item, this action should be used. This action can only be called if a search has been called before." },
+        { "action": "init", "description": "If the user wants to place an order after search and select and has shared the billing details. This action can only be called if a select has been called before." },
+        { "action": "confirm", "description": "Confirm an order. This action gets called when users confirms an order. This action can only be called if an init has been called before." }        
     ],
     "SCHEMA_TRANSLATION_CONTEXT": [
         { "role": "system", "content": "Your job is to identify the endpoint, method and request body from the given schema, based on the last user input and return the extracted details in the following JSON structure : \n\n {'url':'', 'method':'', 'body':''}'"},

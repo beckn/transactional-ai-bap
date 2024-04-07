@@ -467,10 +467,13 @@ class AI {
     async check_if_booking_collection(message, context=[]){
         let response = false;
         const openai_messages = [
-            { role: 'system', content: `Please check the given user message and context and identify if the given message is an instruction to book a collection of products and services. For e.g. if the assistant had shared the itinerary/plan in context and user wants to make all bookings for that plan then you should return true.` },
+            { role: 'system', content: `Your job is to identify if the given user input is an instruction to make multiple bookings at once.` },
             { role: 'system', content: `you must return a json object with the following structure {status: true/false}` },
+            { role: 'system', content: `Status must be true if the given user message is a request to make multiple bookings and the last assistant message is an itinerary or a plan. For e.g. if the assistant had shared the itinerary/plan in context and user says 'lets make the bookings' or 'make all bookings', or 'Can you make the bookings?', status should be true` },
+            { role: 'system', content: `Status should be false if its not a clear instrcution to make multiple bookings. For r.g. if the user shares details about the trip, its not a clear instrcution to make bookings.` },
+            { role: 'system', content: `Status should be false if the assistant has asked to select, initiate or confirm an order.` },
             { role: 'system', content: `Context goes here...` },
-            ...context.slice(-1),
+            ...context,
             { role: 'user', content: message }
         ]
 
@@ -515,6 +518,8 @@ class AI {
             logger.error(e)
             
         }
+
+        logger.info(`Got bookings array : ${JSON.stringify(bookings)}`)
         return bookings;
     }
 
