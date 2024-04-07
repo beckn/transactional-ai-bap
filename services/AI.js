@@ -1,5 +1,7 @@
 import { readFileSync } from 'fs';
+import Instructor from "@instructor-ai/instructor";
 import OpenAI from 'openai'
+import { z } from "zod"
 import logger from '../utils/logger.js'
 import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
@@ -16,6 +18,10 @@ class AI {
     constructor() {
         this.context = [];
         this.action = null;
+        this.instructorClient = Instructor({
+          client: openai,
+          mode: "TOOLS"
+        })
     }
     
     /**
@@ -215,6 +221,94 @@ class AI {
         return action_response;
     }
 
+    async generate_search_request_from_text(instruction, context=[], beckn_context={}, schema={}, profile={}) {
+      logger.info(`Getting beckn request from instruction : ${instruction}`)
+
+      const TagSchema = z.object({
+        descriptor: z.object({
+          code: z.string().describe("Standardized code of the tag. Usually the key of a key-value pair.")
+        }),
+        value: z.string().describe("The value of of a key-value pair.")
+      }).describe("Usually used to describe extended attributes as key-value pairs.")
+
+      const TagGroupSchema = z.object({
+        descriptor: z.object({
+          code: z.string().describe("Standardized code of the tag group. Usually the key of a key-value pair.")
+        }).describe("Description of the tag group. For example, when you are buying electronics, examples of tag groups are Technical Specifications, General Information, Instruction Manual, etc"),
+        list: z.array(TagSchema)
+      }).describe("Describes a group of key, value pairs")
+
+      const ItemSchema = z.object({
+        descriptor: z.object({
+          name: z.string().describe("The name of the product or service being purchased by the user")
+        }).describe("A product or a service that the consumer wants to buy or avail. In the mobility sector, it can represent a fare product like one way journey. In the logistics sector, it can represent the delivery service offering. In the retail domain it can represent a product like a grocery item."),
+        tags: z.array(TagGroupSchema)
+      })
+
+      const StopSchema = z.object({
+        type: z.enum(['check-in', 'check-out', 'pick-up', 'drop', 'charging-start', 'charging-end']).describe("Standardized code describing a specific stage of fulfillment"),
+        location: z.object({
+          gps: z.string("The gps coordinate in the form x,y where x and y are both decimal numbers").optional(),
+          address: z.string("The address of a location").optional()
+        }).describe("Describes a location in physical or virtual space in its most abstract form. It could be a GPS, address, area_code, country, city, a 3D space, a path or even an IP address etc").optional(),
+        time: z.object({
+          timestamp: z.string().describe("A fixed date or time where an fulfillment event can happen. Examples: Check-in date, Check-out date, Pickup time, Drop time, Start time, end time etc. Format in RFC3339 date-time format or date format").optional(),
+        }).describe("Time in its most abstract form. It can be a timestamp, a duration, a schedule, a range etc").optional()
+      })
+
+      const IntentSchema = z.object({
+        item: ItemSchema,
+        fulfillment: z.object({
+          stops: z.array(StopSchema).describe("Details about the various stages in the fulfillment that the request has. For example, check-in date, check-in location, check-out date, check-out location, pick up location, delivery location").optional()
+        }).describe("Describes how a an booking will be rendered/fulfilled to the end-customer. For example, in retail, this object contains the mode of fulfillment, where the delivery starts and ends. In hospitality, it contains the check-in and check-out dates.").optional()
+      })
+
+      const MessageSchema = z.object({
+        intent: z.object({
+          item: z.object({
+            descriptor: z.object({
+              name: z.string("The name of the item that needs to be purchased").optional()
+            })
+          }).describe("Detailed description of the item that needs to be discovered").optional(),
+          fulfillment: z.object({
+            stops: z.array(StopSchema).describe("The various stage or stops involved in the fulfillment of an order or a bookin. For example, in hospitality, it contains information about check-in and check-out. In retail, it contains details about pickup and drop locations. In EV-Charging, it contains details about the place and time of charding").optional()
+          }).describe("Detailed information regarding the delivery/fulfillment of the product or service. Contains location information, time information, agent information, customer information").optional()
+        })
+      }).describe("The message body")
+      
+      let action_response = {
+          status: false,
+          data: null,
+          message: null
+      }        
+
+      let openai_messages = [
+          { "role": "user", "content": instruction }
+      ]
+      
+      try{
+          const Message = await this.instructorClient.chat.completions.create({
+              messages: openai_messages,
+              model: process.env.OPENAI_MODEL_ID,
+              response_model: {
+                schema: MessageSchema,
+                name: "Message"
+              }
+          })
+
+          logger.info(JSON.stringify(Message));
+
+          action_response = {...Message}
+      }
+      catch(e){
+          logger.error(e);
+          action_response = {...action_response, message: e.message}
+      }
+      
+      
+      return action_response;
+    }
+    
     async get_beckn_message_from_text(instruction, context=[], domain='') {
         let domain_context = [], policy_context = [];
         if(domain_context && domain_context!='') {

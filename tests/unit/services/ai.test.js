@@ -367,3 +367,39 @@ describe('Test cases for get_profile_from_text', () => {
         expect(response.data).to.be.empty;
     })
 })
+
+describe('Test cases for services/ai/generate_search_request_from_text()', () => {
+  it('Should return the correct message for a search by name', async () => {
+      let instruction = "I'm looking for some raincoats in Yellowstone";
+      let response = await ai.generate_search_request_from_text(instruction)
+      expect(response).to.be.an('object');
+      expect(response).to.have.property('intent');
+      expect(response.intent.item).to.have.property('descriptor');
+      expect(response.intent.item.descriptor).to.have.property('name');
+  })
+
+  it('Should return the correct message for a search by location', async () => {
+      let instruction = "I'm looking for some ev chargers near my location 30.876877, 73.868969";
+      let response = await ai.generate_search_request_from_text(instruction)
+      expect(response).to.be.an('object');
+      expect(response).to.have.property('intent');
+      expect(response.intent).to.have.property('fulfillment');
+      expect(response.intent.fulfillment.stops[0]).to.have.property('type');
+      expect(response.intent.fulfillment.stops[0].location).to.have.property('gps');
+  })
+
+  it('Should return the correct message for a search by location', async () => {
+    let instruction = "I'm looking for hotel accomodations in Yellowstone for a 12th April 2024 check-in and 14th April 2024 check-out";
+    let response = await ai.generate_search_request_from_text(instruction)
+    expect(response).to.be.an('object');
+    expect(response).to.have.property('intent');
+    expect(response.intent).to.have.property('fulfillment');
+    expect(response.intent.fulfillment).to.have.property('stops');
+    expect(response.intent.fulfillment.stops[0]).to.have.property('type');
+    expect(response.intent.fulfillment.stops[0]).to.have.property('time');
+    expect(response.intent.fulfillment.stops[0].time).to.have.property('timestamp');
+    expect(response.intent.fulfillment.stops[1]).to.have.property('type');
+    expect(response.intent.fulfillment.stops[1]).to.have.property('time');
+    expect(response.intent.fulfillment.stops[1].time).to.have.property('timestamp');
+})
+})
