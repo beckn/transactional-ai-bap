@@ -33,7 +33,8 @@
                     "rules": [
                         "search must have two stops for this domain.",
                         "Supported stop.type : check-in, check-out",
-                        "fulfillment stops should not have location for this domain."
+                        "fulfillment stops should not have location for this domain.",
+                        "fulfillment.stops[i].time should be an object and contain timestamp"
                     ]
                 },
                 "tourism": {
