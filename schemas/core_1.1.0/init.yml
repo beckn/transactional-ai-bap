@@ -139,50 +139,12 @@ components:
         name:
           description: Name of the billable entity
           type: string
-        address:
-          description: The address of the billable entity
-          allOf:
-            - $ref: '#/components/schemas/Address'
-        state:
-          description: The state where the billable entity resides. This is important for state-level tax calculation
-          allOf:
-            - $ref: '#/components/schemas/State'
-        city:
-          description: The city where the billable entity resides.
-          allOf:
-            - $ref: '#/components/schemas/City'
         email:
           description: Email address where the bill is sent to
           type: string
           format: email
         phone:
           description: Phone number of the billable entity
-          type: string
-        tax_id:
-          description: ID of the billable entity as recognized by the taxation authority
-          type: string
-    Address:
-      description: Describes a postal address.
-      type: string
-    State:
-      description: A bounded geopolitical region of governance inside a country.
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the state
-        code:
-          type: string
-          description: State code as per country or international standards
-    City:
-      description: Describes a city
-      type: object
-      properties:
-        name:
-          description: Name of the city
-          type: string
-        code:
-          description: City code
           type: string
     ItemQuantity:
       description: Describes the count or amount of an item

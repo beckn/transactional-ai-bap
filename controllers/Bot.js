@@ -177,6 +177,7 @@ async function process_text(req, res) {
             // update actions
             if(ai.action?.action === 'confirm') {
                 session.actions = EMPTY_SESSION.actions;
+                session.text = EMPTY_SESSION.text;
             }
             else if(response.formatted && response.raw){
                 session.actions.raw.push({ role: 'user', content: message }); 
@@ -275,7 +276,8 @@ async function process_action(action, text, session, sender=null, format='applic
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
             format!='application/json' && actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
             if(!api_response.status){
-                response.formatted = `Failed to call the API: ${api_response.error}`
+                logger.error(`Failed to call the API: ${api_response.error}`)
+                response.formatted = 'Request could not be processed. Do you want to try again?'
             }
             else{
 

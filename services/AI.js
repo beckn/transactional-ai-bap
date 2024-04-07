@@ -176,26 +176,34 @@ class AI {
     async get_context_by_instruction(instruction, context=[]){
         
         const desired_structure = {
-            action: this.action?.action,
-            version: 'VERSION_AS_PER_REGISTRY',
-            domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`,
-            message_id : uuidv4(),
-            transaction_id: uuidv4(),
-            base_url: 'AS_PER_REGISTRY',
-            bap_id: 'AS_PER_REGISTRY',
-            bap_uri: 'AS_PER_REGISTRY',
+            domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`            
         }
 
+        if(this.action?.action!=='search'){
+            desired_structure.bpp_id = `<bpp_id as per the search response>`;
+            desired_structure.bpp_uri = `<bpp_uri as per the search response>`;
+        }
+
+        
+        let response = {
+            message_id : uuidv4(),
+            transaction_id: uuidv4(),
+            base_url: registry_config[0].url,
+            bap_id: registry_config[0].bap_subscriber_id,
+            bap_uri: registry_config[0].bap_subscriber_url,
+            action: this.action?.action,
+            version: registry_config[0].version,
+            
+        }
         if(this.action.transaction_id && this.action.transaction_id!=='' && this.action.transaction_id!==null){
-            desired_structure.transaction_id = this.action.transaction_id;
+            response.transaction_id = this.action.transaction_id;
         }
 
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the given instruction, action and registry details and generated a config json in the following structure : ${JSON.stringify(desired_structure)}` },
+            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generated a config json in the following structure : ${JSON.stringify(desired_structure)}` },
             { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
             { role: 'system', content: `Instruction : ${instruction}` },
-            { role: 'system', content: `Action : ${this.action?.action}` },
-            ...context.filter(c => c.role === 'user')
+            ...context
         ]
 
         try {
@@ -205,7 +213,8 @@ class AI {
                 temperature: 0,
                 response_format: { type: 'json_object' },
             })
-            let response = JSON.parse(completion.choices[0].message.content)            
+            let gpt_response = JSON.parse(completion.choices[0].message.content)
+            response = {...response, ...gpt_response};            
             logger.info(`Got context from instruction : ${JSON.stringify(response)}`);
             return response;
         } catch (e) {
@@ -273,6 +282,7 @@ class AI {
     }
 
     async get_beckn_message_from_text(instruction, context=[], domain='') {
+        logger.info(`Getting beckn message from instruction : ${instruction}, for domain : ${domain}`)
         let domain_context = [], policy_context = [];
         if(domain && domain!='') {
             domain_context = [
@@ -280,7 +290,7 @@ class AI {
             ]
             if(registry_config[0].policies.domains[domain]){
                 policy_context = [
-                    { role: 'system', content: `Use the following policy : ${JSON.stringify(registry_config[0].policies)}` }
+                    { role: 'system', content: `Use the following policy : ${JSON.stringify(registry_config[0].policies.domains[domain])}` }
                 ]
             }
         }

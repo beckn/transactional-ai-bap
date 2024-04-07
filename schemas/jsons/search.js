@@ -14,7 +14,7 @@ export default {
                             properties: {
                                 name: {
                                     type: "string",
-                                    description: "Physical description of the item"
+                                    description: "shortest search keyword for the item to be searched. For e.g. if someone is looking for tickets for yellowstone national park, search 'tickets'"
                                 }
                             }
                         },
