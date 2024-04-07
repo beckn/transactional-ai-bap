@@ -368,8 +368,8 @@ describe('Test cases for get_profile_from_text', () => {
     })
 })
 
-describe('Test cases for services/ai/generate_search_request_from_text()', () => {
-  it.only('Should return the correct message for a search by name', async () => {
+describe.only('Test cases for services/ai/generate_search_request_from_text()', () => {
+  it('Should return the correct message for a search by name', async () => {
       let instruction = "I'm looking for some raincoats in Yellowstone";
       let response = await ai.generate_search_request_from_text(instruction)
       expect(response).to.be.an('object');
@@ -378,7 +378,7 @@ describe('Test cases for services/ai/generate_search_request_from_text()', () =>
       expect(response.intent.item.descriptor).to.have.property('name');
   })
 
-  it.only('Should return the correct message for a search by location', async () => {
+  it('Should return the correct message for a search by location', async () => {
       let instruction = "I'm looking for some ev chargers near my location 30.876877, 73.868969";
       let response = await ai.generate_search_request_from_text(instruction)
       expect(response).to.be.an('object');
@@ -388,7 +388,7 @@ describe('Test cases for services/ai/generate_search_request_from_text()', () =>
       expect(response.intent.fulfillment.stops[0].location).to.have.property('gps');
   })
 
-  it.only('Should return the correct message for a search by location', async () => {
+  it('Should return the correct message for a search by location', async () => {
     let instruction = "I'm looking for hotel accomodations in Yellowstone for a 12th April 2024 check-in and 14th April 2024 check-out";
     let response = await ai.generate_search_request_from_text(instruction)
     expect(response).to.be.an('object');
