@@ -6,11 +6,13 @@ import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
 import DBService from './services/DBService.js'
+
 import {
     cancelBooking,
     updateCatalog,
     notify,
-    triggerExceptionOnLocation
+    triggerExceptionOnLocation,
+    updateStatus
 } from './controllers/ControlCenter.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -30,6 +32,7 @@ app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
+app.post('/update-status', updateStatus)
 
 // Reset all sessions
 const db = new DBService()

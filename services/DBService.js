@@ -149,6 +149,38 @@ class DBService {
         
         return sessions;
     }
+    async set_data(key, data) {
+        let response = {
+            status: false,
+        }
+        try {
+            await this.redisClient.set(key, JSON.stringify(data))
+            response.status = true
+            response.message = 'Data set successfully!'
+        } catch (err) {
+            logger.error(err)
+            response.error = err
+        }
+
+        logger.info(response)
+        return response
+    }
+    async get_data(key) {
+        let response = {
+            status: false,
+        }
+        try {
+            const data = await this.redisClient.get(key)
+            response.status = true
+            response.message = 'Data set successfully!';
+            response.data = JSON.parse(data)
+        } catch (err) {
+            logger.error(err)
+            response.error = err
+        }
+
+        logger.info(response)
+        return response}
 }
 
 export default DBService;
