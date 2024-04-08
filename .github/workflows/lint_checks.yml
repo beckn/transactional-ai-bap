@@ -25,6 +25,9 @@ jobs:
                   echo "TEST_RECEPIENT_NUMBER=${{secrets.TEST_RECEPIENT_NUMBER}}" >> .env
                   echo "STRAPI_TOURISM_TOKEN=${{secrets.STRAPI_TOURISM_TOKEN}}" >> .env
                   echo "GOOGLE_MAPS_API_KEY=${{secrets.GOOGLE_MAPS_API_KEY}}" >> .env
+                  echo "SERVER_URL=${{secrets.SERVER_URL}}" >> .env
+                  echo "DEVELOPER_MODE_ON=${{secrets.DEVELOPER_MODE_ON}}" >> .env
+                  
             - name: Set up Node.js
               uses: actions/setup-node@v2
               with:

@@ -60,7 +60,7 @@ describe('Test cases for Google maps', () => {
         expect(source_gps).to.have.property('lng');
     })
     
-    it('It should take a trip plannign input and generate static route image and directions link.', async () => {
+    it.only('It should take a trip plannign input and generate static route image and directions link.', async () => {
         const ask = "Can you plean a trip from Denver to Yellowstone national park?";
         
         // identify source and destination
@@ -90,8 +90,8 @@ describe('Test cases for Google maps', () => {
         const directions = `https://www.google.com/maps/dir/${source_gps.lat},${source_gps.lng}/${destination_gps.lat},${destination_gps.lng}/`;
         const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=enc:${routes[selected_route].overview_polyline.points}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
         
-        
-        await actionsService.send_message(process.env.TEST_RECEPIENT_NUMBER, `Here are the directions: ${directions}`); // should also pass the route image, its correctly throwing an error.
+        // const server_route_image = await actionsService.download_file(route_image);
+        await actionsService.send_message(process.env.TEST_RECEPIENT_NUMBER, `Here are the directions: ${directions}`);
         logger.info(`directions: ${directions}`);
         logger.info(`route_image: ${route_image}`);
         expect(routes).to.be.an('array').that.is.not.empty;        
