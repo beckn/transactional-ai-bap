@@ -6,7 +6,7 @@ import logger from '../../utils/logger.js'
 import DBService from '../../services/DBService.js'
 const expect = chai.expect
 
-beforeEach(async () => {
+before(async () => {
     // Reset all sessions
     const db = new DBService()
     await db.clear_all_sessions()
@@ -240,7 +240,7 @@ describe('test cases for generating routes', ()=>{
     })
 })
 
-describe('test cases for generating routes and selecting a route', ()=>{
+describe.only('test cases for generating routes and selecting a route', ()=>{
     
     it('Should share routes when asked to share routes.', async () => {
         const ask = "Can you get routes from Denver to Yellowstone national park?";
@@ -253,8 +253,8 @@ describe('test cases for generating routes and selecting a route', ()=>{
 
     })
 
-    it('Should share routes when asked to share routes.', async () => {
-        const ask = "Lets select the first one.";
+    it('should select a route and share directions.', async () => {
+        const ask = "Lets select the first route.";
         const response = await request(app).post('/webhook').send({
             "From": process.env.TEST_RECEPIENT_NUMBER,
             "Body": ask
