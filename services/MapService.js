@@ -1,5 +1,5 @@
 import {Client} from "@googlemaps/google-maps-services-js";
-import logger from "../utils/logger";
+import logger from '../utils/logger.js'
 
 
 class MapsService {

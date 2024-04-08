@@ -9,8 +9,8 @@ const mapService = new MapsService()
 const ai = new AI();
 const actionsService = new ActionService()
 
-describe('Should test the Bot controller', () => {
-    it.only('It should take a trip plannign input and generate static route image and directions link.', async () => {
+describe.only('Should test the Bot controller', () => {
+    it('It should take a trip plannign input and generate static route image and directions link.', async () => {
         const ask = "Can you plean a trip from Denver to Yellowstone national park?";
         
         // identify source and destination
