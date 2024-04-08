@@ -11,8 +11,8 @@
         "test": "NODE_ENV=test mocha tests --recursive --timeout 900000 -r dotenv/config --exit",
         "test:unit": "NODE_ENV=test mocha tests/unit --recursive --timeout 0 -r dotenv/config --exit",
         "test:apis": "NODE_ENV=test mocha tests/apis --recursive --timeout 0 -r dotenv/config --exit",
-        "start": "nodemon --env-file=.env server.js",
         "dev": "NODE_ENV=dev && npm start",
+        "start": "nodemon -r dotenv/config server.js",
         "prod": "NODE_ENV=prod && npm start",
         "prettify": "prettier --write .",
         "lint": "eslint -c .eslintrc.json .",
@@ -26,6 +26,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "app-root-path": "^3.1.0",
         "axios": "^1.6.7",
         "body-parser": "^1.20.2",
         "chai": "^5.0.0",

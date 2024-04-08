@@ -9,7 +9,8 @@ import DBService from './services/DBService.js'
 import {
     cancelBooking,
     updateCatalog,
-    notify
+    notify,
+    networkSwitch
 } from './controllers/ControlCenter.js'
 const app = express()
 app.use(cors())
@@ -25,6 +26,7 @@ app.post('/webhook', messageController.process_text)
 app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
+app.get('/toggle-network/switch', networkSwitch)
 
 
 // Reset all sessions
