@@ -172,7 +172,7 @@ class DBService {
         try {
             const data = await this.redisClient.get(key)
             response.status = true
-            response.message = 'Data set successfully!';
+            response.message = 'Data fetched successfully!';
             response.data = JSON.parse(data)
         } catch (err) {
             logger.error(err)

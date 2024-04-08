@@ -148,7 +148,7 @@ export const notify = async (req, res) => {
 
 export const updateStatus = async (req, res) => {
     try {
-        const { orderId, domain="" } = req.body
+        const { orderId, domain="", status=null } = req.body
         if(!orderId){
             return res.status(400).json({message:"Order Id is Required", status:false})
         }
@@ -162,7 +162,7 @@ export const updateStatus = async (req, res) => {
                 DOMAIN_DETAILS = {
                     url:ENERGY_STRAPI_URL,
                     token:process.env.STRAPI_ENERGY_TOKEN,
-                    message:UPDATE_STATUS_MESSAGE.ENERGY
+                    message:status || UPDATE_STATUS_MESSAGE.ENERGY
 
                 }
                 break;
@@ -170,21 +170,21 @@ export const updateStatus = async (req, res) => {
                 DOMAIN_DETAILS = {
                     url:RETAIL_STRAPI_URL,
                     token:process.env.STRAPI_RETAIL_TOKEN,
-                    message:UPDATE_STATUS_MESSAGE.RETAIL
+                    message:status || UPDATE_STATUS_MESSAGE.RETAIL
                 }
                 break;
             case DOMAINS.HOTEL:
                 DOMAIN_DETAILS = {
                     url:HOTEL_STRAPI_URL,
                     token:process.env.STRAPI_HOTEL_TOKEN,
-                    message:UPDATE_STATUS_MESSAGE.HOTEL
+                    message:status || UPDATE_STATUS_MESSAGE.HOTEL
                 }
                 break;
             case DOMAINS.TOURISM:
                 DOMAIN_DETAILS = {
                     url:TOURISM_STRAPI_URL,
                     token:process.env.STRAPI_TOURISM_TOKEN,
-                    message:UPDATE_STATUS_MESSAGE.TOURISM
+                    message: status || UPDATE_STATUS_MESSAGE.TOURISM
                 }
                 break;
         }
@@ -194,10 +194,11 @@ export const updateStatus = async (req, res) => {
             return res.status(400).send({ message: `Invalid Order Id`, status:false })
         }
         
-        const getOrderFulfillmentDetails = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments?order_id=${orderId}`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+        const getOrderFulfillmentDetails = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments?order_id=${orderId}&sort=order_id.id:desc&populate=order_id`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
         logger.info(`Order Fulfillment Details: ${JSON.stringify(getOrderFulfillmentDetails)}`)
-        if (getOrderFulfillmentDetails.data.data.length) {
-            const updateStatusResponse = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments/${getOrderFulfillmentDetails.data.data[0].id}`,'PUT',{
+        if (getOrderFulfillmentDetails.data.data.length) {  
+            const requiredOrder = getOrderFulfillmentDetails.data.data.find((order)=>order.attributes.order_id.data.id===orderId)
+            const updateStatusResponse = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments/${requiredOrder.id}`,'PUT',{
                 data: {
                     state_code: DOMAIN_DETAILS.message,
                     state_value: DOMAIN_DETAILS.message,

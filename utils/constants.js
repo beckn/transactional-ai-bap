@@ -22,102 +22,105 @@ export const UPDATE_STATUS_MESSAGE = {
     TOURISM: 'ticket-purchased',
 }
 export const ORDER_DETAILS = {
-    domain: [
-        {retail: {
-            orders: [
-                {
-                    orderId: '6',
-                    orderFulfillmentStatus: '',
+    domain: {
+        retail: {
+            orders: {
+                6:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '5',
-                    orderFulfillmentStatus: '',
+                5:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '4',
-                    orderFulfillmentStatus: '',
+                4:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '3',
-                    orderFulfillmentStatus: '',
+                3:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '2',
-                    orderFulfillmentStatus: '',
+                2:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
+                }
+            },
+        },
+        hotel: {
+            orders: {
+                89:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-            ],
-        }},
-        {hotel: {
-            orders: [
-                {
-                    orderId: '84',
-                    orderFulfillmentStatus: '',
+                88:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '85',
-                    orderFulfillmentStatus: '',
+                87:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '86',
-                    orderFulfillmentStatus: '',
+                86:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '87',
-                    orderFulfillmentStatus: '',
+                85:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
+                }
+            },
+        },
+        tourism: {
+            orders:{
+                19:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '88',
-                    orderFulfillmentStatus: '',
+                18:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-            ],
-        }},
-        {tourism: {
-            orders: [
-                {
-                    orderId: '19',
-                    orderFulfillmentStatus: '',
+                17:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '18',
-                    orderFulfillmentStatus: '',
+                16:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '17',
-                    orderFulfillmentStatus: '',
+                15:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
+                }
+            },
+        },
+        energy: {
+            orders: {
+                34:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '16',
-                    orderFulfillmentStatus: '',
+                33:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '15',
-                    orderFulfillmentStatus: '',
+                32:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-            ],
-        }},
-        {energy: {
-            orders: [
-                {
-                    orderId: '27',
-                    orderFulfillmentStatus: '',
+                31:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
                 },
-                {
-                    orderId: '28',
-                    orderFulfillmentStatus: '',
-                },
-                {
-                    orderId: '29',
-                    orderFulfillmentStatus: '',
-                },
-                {
-                    orderId: '30',
-                    orderFulfillmentStatus: '',
-                },
-                {
-                    orderId: '31',
-                    orderFulfillmentStatus: '',
-                },
-            ],
-        }}
-    ]
+                30:{
+                    orderFulfillmentStatus: 'IN_PROGRESS',
+                }
+            }
+        }
+    }
 }
+
+
+export const BECKN_STATUS_CALL =  {
+        "context": {
+            "domain": "",
+            "location": {
+                "country": {
+                    "code": "DE"
+                }
+            },
+            "action": "status",
+            "version": "1.1.0",
+            "bap_uri": "",
+            "bap_id": "",
+            "bpp_id": "",
+            "bpp_uri": "",
+            "timestamp": "2023-05-25T05:23:03.443Z",
+            "ttl": "P30M"
+        },
+        "message": {
+            "order_id": ""
+        }
+    }
