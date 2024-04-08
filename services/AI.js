@@ -324,15 +324,19 @@ class AI {
             });
             const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
             logger.info(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
-            if(this.action?.action=='search' && polygon && responseMessage?.intent?.fulfillment?.stops[0]?.location){
-                responseMessage.intent.fulfillment.stops[0].location.polygon = polygon;
-                const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=color:%231d3b65|weight:5|enc:${polygon}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-                logger.info(`Map url for request : ${route_image}`)
-                // temp
-                delete responseMessage.intent.fulfillment.stops[0].location.gps;
+            if(this.action?.action=='search' &&  responseMessage?.intent?.fulfillment?.stops[0]?.location){
+                if(polygon){
+                    responseMessage.intent.fulfillment.stops[0].location.polygon = polygon;
+                    const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=color:%231d3b65|weight:5|enc:${polygon}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                    logger.info(`Map url for request : ${route_image}`)
+                    // temp
+                    delete responseMessage.intent.fulfillment.stops[0].location.gps;
+                }
+                else delete responseMessage.intent.fulfillment.stops[0].location.polygon;
+                
             }
             else{
-                delete responseMessage.intent.fulfillment.stops[0].location.polygon
+                
             }
 
             return responseMessage
