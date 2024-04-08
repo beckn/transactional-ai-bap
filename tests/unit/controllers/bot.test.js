@@ -4,19 +4,12 @@ import AI from '../../../services/AI.js'
 import MapsService from '../../../services/MapService.js'
 import logger from '../../../utils/logger.js'
 import ActionService from '../../../services/Actions.js'
-import { readFileSync } from 'fs';
 const expect = chai.expect
 const mapService = new MapsService()
 const ai = new AI();
 const actionsService = new ActionService()
-const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
-const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
-const on_select = JSON.parse(readFileSync('./tests/data/api_responses/on_select.json'))
-const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json'))
-const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confirm.json'))
-const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 
-describe('Test cases for AI', () => {
+describe.only('Test cases for AI', () => {
     it('Should return message with location polygon', async () => {
 
         const source_gps = await mapService.lookupGps('Denver');
@@ -41,7 +34,7 @@ describe('Test cases for AI', () => {
 })
 
 
-describe('Test cases for Google maps', () => {
+describe.only('Test cases for Google maps', () => {
     it.skip('Should Render a static map image based on source and destination', async ()=>{
         
         const source ='37.422391,-122.084845';
@@ -114,6 +107,48 @@ describe('Test cases for Google maps', () => {
         })
         logger.info(`Summary of routes: ${summary}`);
         expect(summary).to.be.a('string');
+    })
+
+    it('Should generate a static image with multiple routes for a given source and destination', async ()=>{
+        const source = await mapService.lookupGps('Denver');
+        const destination = await mapService.lookupGps('Yelllowstone national park');
+
+        let routes = await mapService.getRoutes(source, destination);
+        let polygon_path = '';
+        routes.forEach((route, index) => {
+            polygon_path+=`&path=color:${mapService.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
+        })
+
+        const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+        logger.info(`route_image: ${route_image}`);
+        expect(routes).to.be.an('array');
+    })
+
+    it('Should generate a static image with selected route and multiple', async ()=>{
+        const source = await mapService.lookupGps('Denver');
+        const destination = await mapService.lookupGps('Yelllowstone national park');
+        const items=[
+            {name: 'Weld county - charging station', gps: '41.142558,-104.839765'},
+            {name: 'Natrony county - EV', gps: '42.958550,-106.651372'},
+        ]
+
+        // gerenate routes
+        let routes = await mapService.getRoutes(source, destination);
+        let selected_route = routes[0];
+        let polygon_path = `&path=color:${mapService.get_random_color()}|enc:${selected_route.overview_polyline.points}`;;
+        
+        // get markers
+        let markers_path = '';
+        items.forEach((item) => {
+            markers_path+=`&markers=color:blue|label:${encodeURIComponent(item.name)}|${item.gps}`;
+        })
+
+        markers_path=`&markers=color:red|label:LABEL1|41.142558,-104.839765
+        &markers=color:blue|label:LABEL2|42.958550,-106.651372`
+
+        const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}${markers_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+        logger.info(`route_image: ${route_image}`);
+        expect(routes).to.be.an('array');
     })
 })
 

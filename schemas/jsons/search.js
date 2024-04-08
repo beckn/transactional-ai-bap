@@ -67,8 +67,12 @@ export default {
                                         properties: {
                                             gps: {
                                                 type: "string",
-                                                description: "Describes a GPS coordinate",
+                                                description: "Describes a GPS coordinate.",
                                                 pattern: '^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$'
+                                            },
+                                            polygon: {
+                                                type: "string",
+                                                description: "This describes the route on which the item needs to be searched. This should be used if the request is to search along a route"
                                             }
                                         },
                                         required: ['gps']
@@ -87,7 +91,7 @@ export default {
                                     type:{
                                         type: "string",
                                         description: "The type of stop. Allowed values of this property can be defined by the network policy.",
-                                    }
+                                    }                                    
                                 }
                             }
                         }

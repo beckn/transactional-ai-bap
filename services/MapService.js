@@ -13,7 +13,8 @@ class MapsService {
                 params: {
                     origin: source,
                     destination: destination,
-                    key: process.env.GOOGLE_MAPS_API_KEY
+                    key: process.env.GOOGLE_MAPS_API_KEY,
+                    alternatives: true
                 }
             });
             return response.data.routes;
@@ -40,6 +41,17 @@ class MapsService {
             logger.error(error);
             return null;
         }
+    }
+
+    get_random_color() {
+        const red = Math.floor(Math.random() * 256);   // Generate a random integer between 0 and 255 for red
+        const green = Math.floor(Math.random() * 256); // Generate a random integer between 0 and 255 for green
+        const blue = Math.floor(Math.random() * 256);  // Generate a random integer between 0 and 255 for blue
+    
+        // Convert to a hex color code
+        const color = `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+    
+        return encodeURIComponent(color);
     }
 }
 
