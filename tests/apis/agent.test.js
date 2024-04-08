@@ -3,8 +3,14 @@ import app from '../../server.js'
 import request from 'supertest'
 import * as chai from 'chai'
 import logger from '../../utils/logger.js'
+import DBService from '../../services/DBService.js'
 const expect = chai.expect
 
+beforeEach(async () => {
+    // Reset all sessions
+    const db = new DBService()
+    await db.clear_all_sessions()
+})
 
 describe.skip('API tests for /webhook endpoint for an end to end search > select > init > confirm use case', () => {
     it('Should test succesful search response using /webhook endpoint', async () => {
@@ -208,4 +214,55 @@ describe.skip('Test cases for booking collection', ()=>{
             expect(response.status).equal(200);
         } 
     })
+})
+
+describe('test cases for generating routes', ()=>{
+    it('Should share routes when asked to share routes.', async () => {
+        const ask = "Can you get routes from Denver to Yellowstone national park?";
+        const response = await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask
+        })        
+        logger.info(JSON.stringify(response.text, null, 2));
+        expect(response.status).to.be.eq(200)
+
+    })
+
+    it('Should come back asking for more details.', async () => {
+        const ask = "Can you get routes to Yellowstone national park?";
+        const response = await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask
+        })        
+        logger.info(response.text);
+        expect(response.status).to.be.eq(200)
+
+    })
+})
+
+describe('test cases for generating routes and selecting a route', ()=>{
+    
+    it('Should share routes when asked to share routes.', async () => {
+        const ask = "Can you get routes from Denver to Yellowstone national park?";
+        const response = await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask
+        })        
+        logger.info(JSON.stringify(response.text, null, 2));
+        expect(response.status).to.be.eq(200)
+
+    })
+
+    it('Should share routes when asked to share routes.', async () => {
+        const ask = "Lets select the first one.";
+        const response = await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask
+        })        
+        logger.info(JSON.stringify(response.text, null, 2));
+        expect(response.status).to.be.eq(200)
+
+    })
+
+    
 })

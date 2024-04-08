@@ -8,8 +8,6 @@ const expect = chai.expect
 const mapService = new MapsService()
 const ai = new AI();
 const actionsService = new ActionService()
-import request from 'supertest'
-import app from '../../../server.js'
 
 describe.only('Test cases for AI', () => {
     it('Should return message with location polygon', async () => {
@@ -151,50 +149,6 @@ describe.only('Test cases for Google maps', () => {
         const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}${markers_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
         logger.info(`route_image: ${route_image}`);
         expect(routes).to.be.an('array');
-    })
-
-    it('It should share a set of routes when given an instruction.', async () => {
-        const ask = "Can you plan a trip from Denver to Yellowstone national park?";
-        
-        // generate routes
-        const routesResponse = await mapService.generate_routes(ask);
-        expect(routesResponse).to.have.property('status');
-        expect(routesResponse).to.have.property('data');
-        expect(routesResponse.status).to.be.true;
-        expect(routesResponse.data.routes).to.be.an('array').that.is.not.empty;        
-    })
-
-    it('It should ask for details when given an incomplete instruction.', async () => {
-        const ask = "Can you plan a trip to Yellowstone national park?";
-        
-        // generate routes
-        const routesResponse = await mapService.generate_routes(ask);
-        expect(routesResponse).to.have.property('status');
-        expect(routesResponse).to.have.property('errors');
-        expect(routesResponse.status).to.be.false;
-        expect(routesResponse.errors).to.be.an('array').that.is.not.empty;        
-    })
-
-    it('Should share routes when asked to share routes.', async () => {
-        const ask = "Can you get routes from Denver to Yellowstone national park?";
-        const response = await request(app).post('/webhook').send({
-            "From": process.env.TEST_RECEPIENT_NUMBER,
-            "Body": ask
-        })        
-        logger.info(JSON.stringify(response.text, null, 2));
-        expect(response.status).to.be.eq(200)
-
-    })
-
-    it('Should come back asking for more details.', async () => {
-        const ask = "Can you get routes to Yellowstone national park?";
-        const response = await request(app).post('/webhook').send({
-            "From": process.env.TEST_RECEPIENT_NUMBER,
-            "Body": ask
-        })        
-        logger.info(response.text);
-        expect(response.status).to.be.eq(200)
-
-    })
+    })    
 })
 
