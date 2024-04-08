@@ -182,6 +182,25 @@ async function process_text(req, res) {
                 session.text.push({ role: 'user', content: message }); 
                 session.text.push({ role: 'assistant', content: response.formatted });
             }
+            else if(ai.action?.action === 'select_route'){
+                const details_response = await ai.get_details_by_description(`Get the index of selected item based this input from user : ${message}`, [], `{index:1}`);
+                let route_response = {
+                    message: ''
+                }
+                if(details_response && details_response.index){
+                    session.selected_route = session.routes[details_response.index];
+                    const url = `https://www.google.com/maps/dir/${session.selected_route.source_gps.lat},${session.selected_route.source_gps.lng}/${session.selected_route.destination_gps.lat},${session.selected_route.destination_gps.lng}/`;
+                    route_response.message = `Your route has been actived. Here is the link to navigate : ${url}. What do you want to do next?`;
+                
+                }
+                const formatting_response = await ai.format_response(route_response, [{ role: 'user', content: message },...session.text]);
+                response.formatted = formatting_response.message;
+
+                logger.info(`AI response: ${response.formatted}`);
+                
+                session.text.push({ role: 'user', content: message }); 
+                session.text.push({ role: 'assistant', content: response.formatted });
+            }
             else if(ai.action?.action == null) {
                 
                 // get ai response

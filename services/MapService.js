@@ -94,7 +94,14 @@ class MapsService {
             }
             else{
                 // generate routes
-                response.data.routes = await this.getRoutes(source_gps, destination_gps);
+                const routes = await this.getRoutes(source_gps, destination_gps);
+                response.data.routes = routes.map(route=>{
+                    return {
+                        ...route,
+                        source_gps: source_gps,
+                        destination_gps: destination_gps
+                    }
+                })
                 response.data.routes_formatted = {
                     "description": `these are the various routes that you can take. Which one would you like to select:`,
                     "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
