@@ -25,7 +25,7 @@ jobs:
                 echo "TWILIO_NUMBER=${{secrets.TWILIO_NUMBER}}" >> .env
                 echo "TEST_RECEPIENT_NUMBER=${{secrets.TEST_RECEPIENT_NUMBER}}" >> .env
                 echo "STRAPI_TOURISM_TOKEN=${{secrets.STRAPI_TOURISM_TOKEN}}" >> .env
-                echo "GOOGLE_MAPS_API_KEY=${{secrets.GOOGLE_MAPS_API_KEY}}" >> .
+                echo "GOOGLE_MAPS_API_KEY=${{secrets.GOOGLE_MAPS_API_KEY}}" >> .env
             - name: Create SSH key file
               run: echo -e "${{ secrets.EC2_SSH_KEY }}" > ~/ec2_key
               env:
