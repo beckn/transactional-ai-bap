@@ -1,6 +1,6 @@
 {
     "SUPPORTED_ACTIONS": [
-        { "action": "get_routes", "description": "If the user has requested for routes for a travel plan between two places or asked to plan a trip." },
+        { "action": "get_routes", "description": "If the user has requested for routes for a travel plan between two places or asked to plan a trip. If the assistant has suggested to re-route in the last message and asked user to share current location, it should be a get_routes." },
         { "action": "select_route", "description": "If the user selects one of the routes from the routes shared by the assistant." },
         { "action": "search", "description": "If the user clearly indicates to perform a search for a specific product. Sample instructions : 'find a hotel', 'find an ev charger', 'find tickets'" },
         { "action": "select", "description": "If the user likes or selects any item, this action should be used. This action can only be called if a search has been called before." },

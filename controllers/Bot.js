@@ -173,7 +173,7 @@ async function process_text(req, res) {
                 response.formatted = 'Session & profile cleared! You can start a new session now.';
             }
             else if(ai.action?.action === 'get_routes'){
-                const routes = await mapService.generate_routes(message, session.text);
+                const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
                 const formatting_response = await ai.format_response(routes.data?.routes_formatted || routes.errors, [{ role: 'user', content: message },...session.text]);
                 response.formatted = formatting_response.message;
                 session.routes = routes.data?.routes || session.routes;

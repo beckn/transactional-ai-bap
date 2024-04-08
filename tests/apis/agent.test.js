@@ -240,7 +240,7 @@ describe('test cases for generating routes', ()=>{
     })
 })
 
-describe.only('test cases for generating routes and selecting a route', ()=>{
+describe('test cases for generating routes and selecting a route', ()=>{
     
     it('Should share routes when asked to share routes.', async () => {
         const ask = "Can you get routes from Denver to Yellowstone national park?";
