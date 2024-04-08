@@ -85,7 +85,8 @@ async function process_text(req, res) {
     
     let response= {
         raw: null,
-        formatted: null
+        formatted: null,
+        media:null
     };
     
     const EMPTY_SESSION = {
@@ -192,7 +193,12 @@ async function process_text(req, res) {
                     session.selected_route = session.routes[index];
                     const url = `https://www.google.com/maps/dir/${session.selected_route.source_gps.lat},${session.selected_route.source_gps.lng}/${session.selected_route.destination_gps.lat},${session.selected_route.destination_gps.lng}/`;
                     route_response.message = `Your route has been actived. Here is the link to navigate : ${url}. What do you want to do next?`;
-                
+                    const map_image_url = await mapService.get_static_image_path([session.selected_route]);
+                    if(map_image_url){
+                        const map_image_url_server = await actionsService.download_file(map_image_url);
+                        logger.info(`Image url : ${map_image_url_server}`)
+                        if(map_image_url_server) response.media=[map_image_url_server]
+                    }
                 }
                 const formatting_response = await ai.format_response(route_response, [{ role: 'user', content: message },...session.text]);
                 response.formatted = formatting_response.message;
@@ -246,7 +252,7 @@ async function process_text(req, res) {
         
         // Send response
         if(format!='application/json'){
-            await actionsService.send_message(sender, response.formatted)
+            await actionsService.send_message(sender, response.formatted, response.media || [])
             res.send("Done!")
         }
         else (raw_yn && response.raw) ? res.send(response.raw) : res.send(response.formatted)
@@ -376,23 +382,7 @@ async function process_action(action, text, session, sender=null, format='applic
         
         return response;
     }
-    async function downloadFile (req, res) {
-        try{
-            const url = "https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=enc:yrpqF`|x_SoFxgCwfApWyeBqkCa`Cq\_pHk`@qiLji@iuUo|@qoZaHwiRdFmgS|g@_dQn^eoXzy@ynO}AicKao@swPwjCo}U{vGofLceCwsEwzAuhFmdF{tNqoAg`PoKgoVngEgzLrm@}`FppB_mJgGsqD_zAanK{hDiyDshAqaEqdAwzBrf@izHao@ksAmjEikCeQmzHh_JocFnwEefDjeGswFtuCk|Tz~AavDllBosEfiAefInk@sfOd`FqlDhv@{yGwFivKuMmwM{{A}tEE{jF|m@guNpbTqoEncKibGpyIkqCh~K}hAhiKul@buAa`Bd`BwlBl~BsLz`JiwAlpTmoBnkOcu@h}N{oBb}YsNv}x@o~A`}VecAnrArf@zyImoDfnMacCtsGoyJpw^}nEjsGcwCxpIs^dzM|u@haQi}AjcP{vA|cNuiCdz_@ahGzyMwbCpjPpHh}b@gmCh}Ocn@d_R{aDthRwnCjrHsQl}IeyAlaPo|C|a@i{B`iAouFtJgjGuz@urAfdBwnEtiG{mBxLswEic@swBcFa`BmbA}dAxiAut@trAwcA}r@alB`eAm}@`rBeuD`t@sfI|o@{K{w@_o@`OjC|aBnc@jxB_o@`rAawBfr@{bDnpHamG`dNc{E`zJihJjr@i_Dm^}qCpk@swD`bCcdExjI}fHteM}vC`jIg|D|uDusIbuLefDvsFoqDdwH_y@`mBk_EsX_jFc`GcyAfd@eu@xyCctDhiEg_FrcHseFdxC{uEdeBiiBjqC_tDts@srLroAct@b{AcThpAiiBt]sx@viAkjHznHcjEjfDgpJ|bIs_F~_C}jBl`@|qAb{Ajy@zzI{w@zl@hHxy@az@o@r\le@n_@h|AWxzAeeA~`Eg`Dji@toAv[ay@~Pl^pGmi@vn@q^tFnc@duBqvAeXcIfw@uUbb@ayA}@}hC`~Bg_CdoCk{BjuDafAxcC`~@jaDlm@`eDyNr}Cyr@j{E}_CpoAqfDdxCw`CpcFqiCfhLasE~uJaaEdaD{hBtkDjQlmDjwBdoMb@|{Hv`MlqFfwDnoEdsEh~IeJftD{fDdzEksBpmHxAx}EnVlhIgz@f`DbZfwA|p@kmAfsB_`BpbAmc@~}AzmAoUdtAtjAl[xyAbqC~gA~eAxnBsHzfBuDldBnwAlk@kOfj@v{@pqAxzBrbEzdBhxBdYhmGmhGlhDm}BzaCo_G|[krBp_DuWp~DjgFreC~yBdrAquBpqE`_CxlAlpDd{AhtE_mCpcD~YdkDh_Cbx@~cC~`C&key=AIzaSyD1nA0k1OsFbmIAqD7N1nYrAI6CqkZbHDc"
-            const download_file_resp = await actionsService.download_file(url,path.join(__dirname,'../public'))
-            return res.status(200).json({
-                status:true,
-                message:download_file_resp.message
-            })
-        }catch(error){
-            return res.status(400).json({
-                status:false,
-                message:'Some Error Occured'
-            })
-        }
-    }
     export default {
         process_wa_webhook,
-        process_text,
-        downloadFile
+        process_text
     }

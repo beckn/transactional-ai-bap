@@ -19,10 +19,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express()
 app.use(cors())
-// parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use('/static', express.static(path.join(__dirname, 'public')));
-// parse application/json
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json())
 
 // Define endpoints here
@@ -32,7 +30,6 @@ app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
-app.get('/download', messageController.downloadFile);
 
 // Reset all sessions
 const db = new DBService()
