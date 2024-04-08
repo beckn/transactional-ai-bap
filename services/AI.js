@@ -335,9 +335,6 @@ class AI {
                 else delete responseMessage.intent.fulfillment.stops[0].location.polygon;
                 
             }
-            else{
-                
-            }
 
             return responseMessage
         }

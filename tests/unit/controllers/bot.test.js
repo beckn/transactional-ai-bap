@@ -163,7 +163,7 @@ describe('Test cases for Google maps', () => {
             polygon: polygon
         })
 
-        const get_polygon = await db.get_session('123')
+        await db.get_session('123')
     })
 })
 
