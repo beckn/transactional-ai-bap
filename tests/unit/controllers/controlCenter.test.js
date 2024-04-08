@@ -110,7 +110,7 @@ describe('API tests for triggering a roadblock', ()=>{
         
         const response = await request(app).post('/trigger-exception').send({
             "point":[39.7408351, -104.9874105],
-            "message": "Roadblock ahead due to an accident!"
+            "message": "There is a roadblock on your selected route due to an accident!"
         })
       
         expect(response.status).equal(200)
