@@ -21,7 +21,8 @@
                     ],
                     "rules": [
                         "item.descriptor should not be used in search intent for this domain",
-                        "search should have fulfillment for this domain. fulfillment should only contain location for this domain."
+                        "search should have fulfillment for this domain. fulfillment should only contain location for this domain.",
+                        "If a route polygon has been shared, fulfillment.stops[i].location should have the polygon field."
                     ]
                 },
                 "hospitality": {
@@ -31,6 +32,7 @@
                         { "accomodation-type“": { "enum": ["campsite", "hotel", "independent-house"]}}
                     ],
                     "rules": [
+                        "item.descriptor should not be used in search intent for this domain",
                         "search must have two stops for this domain.",
                         "Supported stop.type : check-in, check-out",
                         "fulfillment stops should not have location for this domain.",
