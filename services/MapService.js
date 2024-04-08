@@ -10,7 +10,7 @@ class MapsService {
         this.client = new Client({});
     }
 
-    async getRoutes(source, destination) {
+    async getRoutes(source, destination, avoidPoint=[]) {
         try {
             const response = await this.client.directions({
                 params: {
@@ -20,7 +20,17 @@ class MapsService {
                     alternatives: true
                 }
             });
-            return response.data.routes;
+            let routes= [];
+            for(const route of response.data.routes){
+                const status = await this.checkGpsOnPolygon(avoidPoint, route.overview_polyline.points)
+                if(!status) routes.push(route)
+            }
+            
+            const path = this.get_static_image_path(routes);
+            logger.info(`Static image path for routes: ${path}`);
+
+            
+            return routes;
         } catch (error) {
             logger.error(error);
             return [];
@@ -105,14 +115,10 @@ class MapsService {
                     }
                 })
 
-                let polygon_path = '';
-                routes.forEach((route, index) => {
-                    polygon_path+=`&path=color:${this.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
-                })
+                // print path
+                const path = this.get_static_image_path(routes)
+                logger.info(`Route image path : ${path}`)
 
-                const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-                logger.info(`Map url :${route_image}`)
-                
                 response.data.routes_formatted = {
                     "description": `these are the various routes that you can take. Which one would you like to select:`,
                     "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
@@ -180,6 +186,17 @@ class MapsService {
         const deltaXt = Math.asin(Math.sin(delta13 / R) * Math.sin(theta13 - theta12)) * R;
     
         return Math.abs(deltaXt) < tolerance;
+    }
+
+    get_static_image_path(routes){
+        let polygon_path = '';
+        routes.forEach((route, index) => {
+            polygon_path+=`&path=color:${this.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
+        })
+        
+        const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+        return route_image;
+                
     }
 }
 

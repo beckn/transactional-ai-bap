@@ -16,7 +16,7 @@ describe('Should test the map service', () => {
     
     it('should return GPS coordinates for a valid address', async () => {
         
-        const gpsCoordinates = await mapService.lookupGps('1600 Amphitheatre Parkway, Mountain View, CA');
+        const gpsCoordinates = await mapService.lookupGps('Yellowstone national park');
         expect(gpsCoordinates).to.be.an('object');
         expect(gpsCoordinates).to.have.property('lat');
         expect(gpsCoordinates).to.have.property('lng');
@@ -34,6 +34,12 @@ describe('Should test the map service', () => {
         expect(status).to.be.true;
     })
     
+    it('Should return path avoiding certail points', async ()=>{
+        const source ='39.7392358,-104.990251';
+        const destination = '44.427963, -110.588455';
+        const pointBeforeCasper = [42.839531, -106.136404];
+        await mapService.getRoutes(source, destination, pointBeforeCasper);
+    })
     
 });
 

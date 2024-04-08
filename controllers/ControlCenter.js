@@ -118,14 +118,15 @@ export const notify = async (req, res) => {
                     // send whatsapp and add to context
                     if(status){
                         try{
-                            const reply_message = `${message}. Do you want to find alternate routes?`
+                            const reply_message = `${message}. Please share your current location and I'll try to find some alternate routes?`
                             await action.send_message(session.key, reply_message);
                             
                             // update session
+                            session.data.avoid_point = point;
                             if(!session.data.text) session.data.text=[]
                             session.data.text.push({role: 'assistant', content: reply_message});
     
-                            await db.update_session(session.key, session);
+                            await db.update_session(session.key, session.data);
                         }
                         catch(e){
                             logger.error(e);
@@ -133,6 +134,7 @@ export const notify = async (req, res) => {
                     }
                 }
             }
+            res.send("Triggered!")
         }
         else res.status(400).send('Point and message are required in the body.')
     }
