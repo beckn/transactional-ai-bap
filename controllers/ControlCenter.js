@@ -213,3 +213,53 @@ export const updateStatus = async (req, res) => {
         return res.status(400).send({ message: error.message, status:false })
     }
 }
+
+export const unpublishItem = async (req, res) => {
+    try{
+        const {domain="", itemId=""} = req.body
+        let DOMAIN_DETAILS = {
+            url:"",
+            token:""
+        }
+
+        switch(domain){
+            case DOMAINS.ENERGY:
+                DOMAIN_DETAILS = {
+                    url:ENERGY_STRAPI_URL,
+                    token:process.env.STRAPI_ENERGY_TOKEN,
+
+                }
+                break;
+            case DOMAINS.RETAIL:
+                DOMAIN_DETAILS = {
+                    url:RETAIL_STRAPI_URL,
+                    token:process.env.STRAPI_RETAIL_TOKEN,
+                }
+                break;
+            case DOMAINS.HOTEL:
+                DOMAIN_DETAILS = {
+                    url:HOTEL_STRAPI_URL,
+                    token:process.env.STRAPI_HOTEL_TOKEN,
+                }
+                break;
+            case DOMAINS.TOURISM:
+                DOMAIN_DETAILS = {
+                    url:TOURISM_STRAPI_URL,
+                    token:process.env.STRAPI_TOURISM_TOKEN,
+                }
+                break;
+        }
+        const unpublishItemResp = await action.call_api(`${DOMAIN_DETAILS.url}/items/${itemId}`,'PUT',{
+            "data":{"publishedAt": null}
+          },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+        return res.status(200).json({
+            status:unpublishItemResp.status,
+            message: unpublishItemResp.error || 'Item Unpublished'
+        })
+    }catch(error){
+        return res.status(400).json({
+            status:false,
+            message:error.message
+        })
+    }
+}

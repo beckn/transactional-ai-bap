@@ -12,7 +12,8 @@ import {
     updateCatalog,
     notify,
     triggerExceptionOnLocation,
-    updateStatus
+    updateStatus,
+    unpublishItem
 } from './controllers/ControlCenter.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -33,7 +34,7 @@ app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
 app.post('/update-status', updateStatus)
-
+app.post('/unpublish-item', unpublishItem)
 // Reset all sessions
 export const db = new DBService()
 
