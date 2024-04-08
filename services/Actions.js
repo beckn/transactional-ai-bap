@@ -89,11 +89,11 @@ class Actions {
 
                     // Format the response
                     logger.info(`Formatting response...`);
-                    const get_text_from_json_response = await this.ai.get_text_from_json(
+                    const format_response_response = await this.ai.format_response(
                         call_api_response.data,
                         [...context, { role: 'user', content: message }]
                     )
-                    response.formatted = get_text_from_json_response.message
+                    response.formatted = format_response_response.message
                 }                
             }            
         } catch (error) {

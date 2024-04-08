@@ -2,6 +2,7 @@ import { describe, it } from 'mocha'
 import app from '../../server.js'
 import request from 'supertest'
 import * as chai from 'chai'
+import logger from '../../utils/logger.js'
 const expect = chai.expect
 
 
@@ -120,5 +121,91 @@ describe('Test cases for trip planning workflow', ()=>{
 
         expect(response.status).equal(200)
         expect(response.text).to.be.a('string')
+    })
+})
+
+describe.skip('Test cases for booking collection', ()=>{
+    it('Should make the hotel bookings', async ()=>{
+        
+        const chats = [
+            "Hey Alfred, you up? ",
+            "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family. ",
+            "I'm thinking, Denver to Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet",
+            "Perfect, lets make the bookings!",
+            "Lets find the hotel first",
+            "Lets select the first one",
+            "Adam, 9999999999, adam@example.com",
+            "Lets confirm the order"
+
+        ];
+
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
+    })
+
+    it('Should make the ticket bookings', async ()=>{
+        
+        const chats = [
+            "lets find tickets for yellowstone national park",
+            "4 of the first one please",
+            "Sure, go ahead and place the order",
+            "Lets confirm the order",
+
+        ];
+
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
+    })
+
+    it('Should find and book ev chargers', async ()=>{
+        
+        const chats = [
+            "Can you find ev charging stations near me? lat: 48.9762, long: -117.7012",
+            "I've selected the first one",
+            "Sure, go ahead",
+            "Lets confirm the order",
+
+        ];
+
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
+    })
+
+    it('Should Place the order for raincoats', async ()=>{
+        
+        const chats = [
+            "Can you find some raincoats near Yellwostone national park?",
+            "Lets get the first one",
+            "Sure, go ahead and place the order",
+            "Lets confirm the order",
+
+        ];
+
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
     })
 })

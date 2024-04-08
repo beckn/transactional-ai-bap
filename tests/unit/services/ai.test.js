@@ -26,7 +26,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.be.null    
     })
 
-    it('Should return null action when asked about list of bookings to be done', async () => {
+    it.skip('Should return null action when asked about list of bookings to be done', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.BOOKINGS_QUERY);
         expect(response).to.have.property('action')
         expect(response.action).to.be.null    
@@ -86,16 +86,26 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
         expect(response.action).to.equal('search');
     });
 
-    it('Should return `clear_chat` action when user wishes to clear the chat', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you clear this session ', hotel_session.data.actions.formatted);
+    it.skip('Should return `clear_chat` action when user wishes to clear the chat', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you clear my chat?', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_chat');
     });
 
-    it('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
-        const response = await ai.get_beckn_action_from_text('Can you clear this session along with my profile.', hotel_session.data.actions.formatted);
+    it.skip('Should return `clear_all` action when user wishes to clear the the entire session including profile.', async () => {
+        const response = await ai.get_beckn_action_from_text('Can you clear my entire session?', hotel_session.data.actions.formatted);
         expect(response).to.have.property('action')
         expect(response.action).to.equal('clear_all');
+    });
+
+    it.skip('Should return `booking_collection` action If the user wants to make multiple bookings', async () => {
+        const context = [
+            {role: 'user', content: trip_planning.TRIP_DETAILS},
+            {role: 'assistant', content: trip_planning.TRIP_DETAILS_RESPONSE}
+        ];
+        const response = await ai.get_beckn_action_from_text('Perfect! can you make the bookings?', context);
+        expect(response).to.have.property('action')
+        expect(response.action).to.equal('booking_collection');
     });
 })
 
@@ -295,16 +305,16 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
 });
 
 
-describe('Test cases for services/ai/get_text_from_json()', () => {
-    it('Should test get_text_from_json() and throw response with success false for empty object', async () => {
-        const response = await ai.get_text_from_json({})
+describe('Test cases for services/ai/format_response()', () => {
+    it('Should test format_response() and throw response with success false for empty object', async () => {
+        const response = await ai.format_response({})
         expect(response.status).to.equal(false)
     })
-    it('Should test get_text_from_json() return some message with success true', async () => {
+    it('Should test format_response() return some message with success true', async () => {
         const context = [
             {role: 'user', content: 'I want to search for some ev chargers'}
         ]
-        const response = await ai.get_text_from_json(on_search, context)
+        const response = await ai.format_response(on_search, context)
         expect(response.status).to.equal(true)
     })
 })

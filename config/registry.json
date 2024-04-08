@@ -8,7 +8,7 @@
             "dhp:consultation:0.1.0",
             "tourism"
         ],
-        "description": "This network supports multiple domains e.g. uei:charging for ev chargers, retail:1.1.0 for retail stores including grocceries, rain wear, rain cpats, umbrellas and pet supplies, hospitality for hotels/stays/accomodations, dhp:consultation:0.1.0 for doctors or healthcare, tourism for tickets and tours",
+        "description": "This network supports multiple domains e.g. 'uei:charging' for ev chargers. 'retail:1.1.0' for retail items such as grocceries, rain wear, raincoats, umbrellas and pet supplie. 'hospitality' for hotels/stays/accomodations. 'tourism' for tickets",
         "bap_subscriber_id": "mit-ps-bap.becknprotocol.io",
         "bap_subscriber_url": "https://mit-ps-bap.becknprotocol.io",
         "version": "1.1.0",
@@ -20,8 +20,8 @@
                         { "connector-type": { "enum": ["CCS", "CHAdeMo"]}}
                     ],
                     "rules": [
-                        "intent is not needed for this domain",
-                        "search should have fulfillment for this domain."
+                        "item.descriptor should not be used in search intent for this domain",
+                        "search should have fulfillment for this domain. fulfillment should only contain location for this domain."
                     ]
                 },
                 "hospitality": {
@@ -32,7 +32,23 @@
                     ],
                     "rules": [
                         "search must have two stops for this domain.",
-                        "Supported stop.type : check-in, check-out"
+                        "Supported stop.type : check-in, check-out",
+                        "fulfillment stops should not have location for this domain.",
+                        "fulfillment.stops[i].time should be an object and contain timestamp"
+                    ]
+                },
+                "tourism": {
+                    "tags": [],
+                    "rules":[
+                        "item.tags should not be used in search intent for this domain",
+                        "fulfillment should not be used in search intent for this domain"
+                    ]
+                },
+                "retail:1.1.0": {
+                    "tags": [],
+                    "rules":[
+                        "item.tags should not be used in search intent for this domain",
+                        "fulfillment should not be used in search intent for this domain"
                     ]
                 }
             }            

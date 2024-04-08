@@ -14,7 +14,7 @@ export default {
                             properties: {
                                 name: {
                                     type: "string",
-                                    description: "Physical description of the item"
+                                    description: "shortest search keyword for the item to be searched. For e.g. if someone is looking for tickets for yellowstone national park, search 'tickets'"
                                 }
                             }
                         },
@@ -70,7 +70,8 @@ export default {
                                                 description: "Describes a GPS coordinate",
                                                 pattern: '^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$'
                                             }
-                                        }
+                                        },
+                                        required: ['gps']
                                     },
                                     time: {
                                         type: "object",
@@ -80,7 +81,8 @@ export default {
                                                 description: "Time of the stop",
                                                 format: 'date-time'
                                             }
-                                        }
+                                        },
+                                        required: ['timestamp']
                                     },
                                     type:{
                                         type: "string",

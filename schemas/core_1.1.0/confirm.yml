@@ -107,23 +107,6 @@ components:
         - billing
         - fulfillments
       properties:
-        id:
-          type: string
-          description: Human-readable ID of the order. This is generated at the BPP layer. The BPP can either generate order id within its system or forward the order ID created at the provider level.
-        status:
-          description: Status of the order. Allowed values can be defined by the network policy
-          type: string
-          enum:
-            - ACTIVE
-            - COMPLETE
-            - CANCELLED
-        type:
-          description: 'This is used to indicate the type of order being created to BPPs. Sometimes orders can be linked to previous orders, like a replacement order in a retail domain. A follow-up consultation in healthcare domain. A single order part of a subscription order. The list of order types can be standardized at the network level.'
-          type: string
-          default: DEFAULT
-          enum:
-            - DRAFT
-            - DEFAULT
         items:
           description: The items purchased / availed in this order. This should be based on what was used in the `select` call.
           type: array
@@ -146,21 +129,6 @@ components:
           type: string
         code:
           type: string
-        short_desc:
-          type: string
-        long_desc:
-          type: string
-        additional_desc:
-          type: object
-          properties:
-            url:
-              type: string
-            content_type:
-              type: string
-              enum:
-                - text/plain
-                - text/html
-                - application/json
     FulfillmentState:
       description: Describes the state of fulfillment
       type: object
@@ -268,50 +236,12 @@ components:
         name:
           description: Name of the billable entity
           type: string
-        address:
-          description: The address of the billable entity
-          allOf:
-            - $ref: '#/components/schemas/Address'
-        state:
-          description: The state where the billable entity resides. This is important for state-level tax calculation
-          allOf:
-            - $ref: '#/components/schemas/State'
-        city:
-          description: The city where the billable entity resides.
-          allOf:
-            - $ref: '#/components/schemas/City'
         email:
           description: Email address where the bill is sent to
           type: string
           format: email
         phone:
           description: Phone number of the billable entity
-          type: string
-        tax_id:
-          description: ID of the billable entity as recognized by the taxation authority
-          type: string
-    Address:
-      description: Describes a postal address.
-      type: string
-    State:
-      description: A bounded geopolitical region of governance inside a country.
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the state
-        code:
-          type: string
-          description: State code as per country or international standards
-    City:
-      description: Describes a city
-      type: object
-      properties:
-        name:
-          description: Name of the city
-          type: string
-        code:
-          description: City code
           type: string
     ItemQuantity:
       description: Describes the count or amount of an item

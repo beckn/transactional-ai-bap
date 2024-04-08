@@ -2,6 +2,7 @@ import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
 import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
+import { v4 as uuidv4 } from 'uuid'
 
 const actionsService = new ActionsService()
 const db = new DBService();
@@ -53,7 +54,7 @@ async function process_wa_webhook(req, res) {
         logger.info(`Sending formatted response to ${sender}: ${process_response.formatted}`)
         if(format!='application/json'){
             // res.type('text/xml').send(twiml.toString())
-            actionsService.send_message(sender, process_response.formatted)
+            await actionsService.send_message(sender, process_response.formatted)
             res.send("Done!")
         }
         else{
@@ -67,10 +68,10 @@ async function process_wa_webhook(req, res) {
 }
 
 /**
- * Function to process any text message received by the bot
- * @param {*} req 
- * @param {*} res 
- */
+* Function to process any text message received by the bot
+* @param {*} req 
+* @param {*} res 
+*/
 async function process_text(req, res) {
     let ai = new AI();
     
@@ -92,9 +93,11 @@ async function process_text(req, res) {
         actions : {
             raw: [],
             formatted: []
-        }
+        },
+        bookings: [],
+        active_transaction: null
     }
-
+    
     // Update lat, long
     if(req.body.Latitude && req.body.Longitude){
         message+=` lat:${req.body.Latitude} long:${req.body.Longitude}`
@@ -110,7 +113,7 @@ async function process_text(req, res) {
     }
     
     try{
-
+        
         // Get profile
         const profileResponse = await ai.get_profile_from_text(message, session.profile);
         if(profileResponse.status){
@@ -119,63 +122,97 @@ async function process_text(req, res) {
                 ...profileResponse.data                
             };
         }
-
-        // get action
-        ai.action = await ai.get_beckn_action_from_text(message, session.actions.formatted);
-
-        // Reset actions context if action is search
-        if(ai.action?.action === 'search') {
-            session.actions = EMPTY_SESSION.actions;
-        }
         
-
-        if(ai.action?.action === 'clear_chat'){
-            session = {
-                ...EMPTY_SESSION,
-                profile: session.profile
-            };
-            response.formatted = 'Session cleared! You can start a new session now.';
-        }
-        else if(ai.action?.action === 'clear_all'){
-            session = EMPTY_SESSION;
-            response.formatted = 'Session & profile cleared! You can start a new session now.';
-        }
-        else if(ai.action=="search"){
-            session.actions = EMPTY_SESSION.actions; // clear session actions
-        }        
-        else if(ai.action?.action == null) {
-            // get ai response
-            response.formatted = await ai.get_ai_response_to_query(message, session.text);
+        logger.info(`\u001b[1;34m User profile : ${JSON.stringify(session.profile)}\u001b[0m`)
+        
+        
+        ai.bookings = session.bookings;
+        
+        // check for booking collection
+        
+        let booking_collection = false; // await ai.check_if_booking_collection(message, [...session.text.slice(-1)]);
+        if(booking_collection){
+            logger.info(`Booking collection found!`);
+            response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
             logger.info(`AI response: ${response.formatted}`);
-
+            
+            ai.bookings = await ai.get_bookings_array_from_text(response.formatted);
+            ai.bookings = ai.bookings.bookings || ai.bookings;
+            ai.bookings && ai.bookings.map(booking =>{
+                booking.transaction_id = uuidv4();
+            })
+            
             session.text.push({ role: 'user', content: message }); 
             session.text.push({ role: 'assistant', content: response.formatted });
         }
         else{
-            response = await process_action(ai.action, message, session, sender);
             
-            // update actions
-            if(ai.action?.action === 'confirm') {
+            // get action
+            ai.action = await ai.get_beckn_action_from_text(message, session.text, session.bookings);
+            
+            // Reset actions context if action is search
+            if(ai.action?.action === 'search') {
                 session.actions = EMPTY_SESSION.actions;
+                session.active_transaction = ai.action.transaction_id || uuidv4();
             }
-            else if(response.formatted && response.raw){
-                session.actions.raw.push({ role: 'user', content: message }); 
-                session.actions.raw.push({ role: 'assistant', content: JSON.stringify(response.raw)}); 
+            
+            
+            if(ai.action?.action === 'clear_chat'){
+                session = {
+                    ...EMPTY_SESSION,
+                    profile: session.profile
+                };
+                response.formatted = 'Session cleared! You can start a new session now.';
+            }
+            else if(ai.action?.action === 'clear_all'){
+                session = EMPTY_SESSION;
+                response.formatted = 'Session & profile cleared! You can start a new session now.';
+            }
+            else if(ai.action?.action == null) {
                 
-                session.actions.formatted.push({ role: 'user', content: message }); 
-                session.actions.formatted.push({ role: 'assistant', content: response.formatted }); 
-
+                // get ai response
+                response.formatted = await ai.get_ai_response_to_query(message, session.text);
+                logger.info(`AI response: ${response.formatted}`);
+                
                 session.text.push({ role: 'user', content: message }); 
-                session.text.push({ role: 'assistant', content: response.formatted }); 
+                session.text.push({ role: 'assistant', content: response.formatted });
+                
             }
+            else{
+                
+                session.bookings = ai.bookings;
+                response = await process_action(ai.action, message, session, sender, format);
+                ai.bookings = response.bookings;
+                
+                // update actions
+                if(ai.action?.action === 'confirm') {
+                    session.actions = EMPTY_SESSION.actions;
+                    session.text = EMPTY_SESSION.text;
+                }
+                else if(response.formatted && response.raw){
+                    session.actions.raw.push({ role: 'user', content: message }); 
+                    session.actions.raw.push({ role: 'assistant', content: JSON.stringify(response.raw)}); 
+                    
+                    session.actions.formatted.push({ role: 'user', content: message }); 
+                    session.actions.formatted.push({ role: 'assistant', content: response.formatted }); 
+                    
+                    session.text.push({ role: 'user', content: message }); 
+                    session.text.push({ role: 'assistant', content: response.formatted }); 
+                }
+            }
+            
         }
-
+        
+        // if(session.bookings && session.bookings.length>0) session.bookings = await ai.get_bookings_status(session.bookings, session.text);
+        logger.info(`\u001b[1;34m Bookings status : ${JSON.stringify(ai.bookings)}\u001b[0m`)
+        
         // update session
+        session.bookings = ai.bookings;
         await db.update_session(sender, session);
         
         // Send response
         if(format!='application/json'){
-            actionsService.send_message(sender, response.formatted)
+            await actionsService.send_message(sender, response.formatted)
             res.send("Done!")
         }
         else (raw_yn && response.raw) ? res.send(response.raw) : res.send(response.formatted)
@@ -189,35 +226,45 @@ async function process_text(req, res) {
 }
 
 /**
- * Function to process actions, it does not update the sessions
- * Can be reused by gpt bots if required
- * @param {*} action 
- * @param {*} text 
- * @param {*} session 
- * @returns 
- */
-async function process_action(action, text, session, sender=null){
+* Function to process actions, it does not update the sessions
+* Can be reused by gpt bots if required
+* @param {*} action 
+* @param {*} text 
+* @param {*} session 
+* @returns 
+*/
+async function process_action(action, text, session, sender=null, format='application/json'){
     let ai = new AI();
     let response = {
         raw: null,
-        formatted: null
+        formatted: null,
+        bookings: session.bookings
     }
     
     ai.action = action;
+    ai.bookings = session.bookings;
     
-    actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
-            
+    format!='application/json' && await actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
+    
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
     
     // Get config
-    const beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
+    let beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
+    beckn_context.transaction_id = session.active_transaction;
     
     // Prepare request
     if(schema && beckn_context){
         let request=null;
         if(ai.action.action==='search'){
-            const message = await ai.get_beckn_message_from_text(text, session.text, beckn_context.domain);
+            let search_context = session.text;
+            if(session.profile){
+                search_context=[
+                    { role: 'system', content: `User pforile: ${JSON.stringify(session.profile)}`},
+                    ...search_context
+                ]
+            }
+            const message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain);
             request = {
                 status: true,
                 data:{
@@ -231,35 +278,53 @@ async function process_action(action, text, session, sender=null){
             }
         }
         else{
-            request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema);
+            request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema, session.profile);
         }
         
         if(request.status){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
-            actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
+            format!='application/json' && await actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
             if(!api_response.status){
-                response.formatted = `Failed to call the API: ${api_response.error}`
+                logger.error(`Failed to call the API: ${api_response.error}`)
+                response.formatted = 'Request could not be processed. Do you want to try again?'
             }
             else{
+                
                 response.raw = request.data.body.context.action==='search' ? await ai.compress_search_results(api_response.data) : api_response.data
-                const formatted_response = await ai.get_text_from_json(
+                
+                // update booking status
+                if (ai.action && ai.action.action === 'confirm') {
+                    response.bookings = ai.bookings.map(booking => {
+                        if (booking.transaction_id === response.raw.context.transaction_id) {
+                            booking.booked_yn = 1;
+                        }
+                        return booking;
+                    });
+                    logger.info(`Updated bookings: ${JSON.stringify(response.bookings)}`);
+                }
+                ai.bookings = response.bookings;
+                
+                const formatted_response = await ai.format_response(
                     api_response.data,
                     [...session.actions.formatted, { role: 'user', content: text }],
                     session.profile
-                );
-                response.formatted = formatted_response.message;
-            }            
+                    );
+                    response.formatted = formatted_response.message;
+                } 
+                
+                
+                
+            }
+            else{
+                response.formatted = "Could not process this request. Can you please try something else?"
+            }
         }
-        else{
-            response.formatted = "Could not prepare this request. Can you please try something else?"
-        }
+        
+        return response;
     }
     
-    return response;
-}
-
-export default {
-    process_wa_webhook,
-    process_text
-}
+    export default {
+        process_wa_webhook,
+        process_text
+    }
