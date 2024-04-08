@@ -104,13 +104,19 @@ class Actions {
         return response;
     }
     
-    async send_message(recipient, message) {
+    async send_message(recipient, message, media_url=null) {
         try {
-            const data = await client.messages.create({
+            let body = {
                 body: message,
                 from: `whatsapp:${twilioNumber}`,
                 to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
-            })
+            }
+
+            // Doenst corrently work with the static map image
+            // if(media_url){
+            //     body.mediaUrl = [media_url];
+            // }
+            let data = await client.messages.create(body)
             const status = await client.messages(data.sid).fetch()
             return { deliveryStatus: status.status }
         } catch (error) {
