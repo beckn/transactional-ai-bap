@@ -549,10 +549,11 @@ class AI {
         return bookings_updated;
     }
 
-    async get_details_by_description(message, desired_output){
+    async get_details_by_description(message, context=[], desired_output){
         
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the given user input and extract details in the json format given : ${JSON.stringify(desired_output)}` },
+            { role: 'system', content: `Your job is to analyse the given user input and extract details in the json format given : ${desired_output}` },
+            ...context,
             { role: 'user', content: message }
         ]
 

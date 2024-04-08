@@ -3,6 +3,8 @@ import AI from '../services/AI.js'
 import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
 import { v4 as uuidv4 } from 'uuid'
+import MapsService from '../services/MapService.js'
+const mapService = new MapsService()
 
 const actionsService = new ActionsService()
 const db = new DBService();
@@ -78,7 +80,7 @@ async function process_text(req, res) {
     // inputs
     let message = req.body.Body
     const sender = req.body.From
-    const format = req.headers['content-type'] || 'text/xml';
+    const format = (req?.headers && req.headers['content-type']) || 'text/xml';
     const raw_yn = req.body.raw_yn || false;
     
     let response= {
@@ -95,7 +97,9 @@ async function process_text(req, res) {
             formatted: []
         },
         bookings: [],
-        active_transaction: null
+        active_transaction: null,
+        routes:[],
+        selected_route:null
     }
     
     // Update lat, long
@@ -167,6 +171,16 @@ async function process_text(req, res) {
             else if(ai.action?.action === 'clear_all'){
                 session = EMPTY_SESSION;
                 response.formatted = 'Session & profile cleared! You can start a new session now.';
+            }
+            else if(ai.action?.action === 'get_routes'){
+                const routes = await mapService.generate_routes(message, session.text);
+                const formatting_response = await ai.format_response(routes.data?.routes_formatted || routes.errors, [...session.actions.formatted, { role: 'user', content: message },...session.text]);
+                response.formatted = formatting_response.message;
+                session.routes = routes.data?.routes || session.routes;
+                logger.info(`AI response: ${response.formatted}`);
+                
+                session.text.push({ role: 'user', content: message }); 
+                session.text.push({ role: 'assistant', content: response.formatted });
             }
             else if(ai.action?.action == null) {
                 

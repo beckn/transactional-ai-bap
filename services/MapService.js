@@ -1,5 +1,7 @@
 import {Client} from "@googlemaps/google-maps-services-js";
 import logger from '../utils/logger.js'
+import AI from './AI.js'
+const ai = new AI();
 
 
 class MapsService {
@@ -52,6 +54,57 @@ class MapsService {
         const color = `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
     
         return encodeURIComponent(color);
+    }
+
+    async generate_routes(message, context=[]) {
+        let response = {
+            status:false,
+            data: {},
+            errors: []
+        };
+
+        // identify source and destination
+        const format = {
+            'source': 'SOURCE_LOCATION',
+            'destination': 'DESTINATION_LOCATION'
+        }
+
+        const details = await ai.get_details_by_description(message, context, JSON.stringify(format));
+        logger.info(JSON.stringify(details, null, 2));
+        if(!details.source || !details.destination) {
+            if (!details.source ) {
+                response.errors.push("Can you please specify the source location?");            
+            }
+            if (!details.destination) {
+                response.errors.push("Can you please specify the destination location?");
+            }
+        }
+        else{
+            // Get gps for source and destination                    
+            const source_gps = await this.lookupGps(details.source);
+            const destination_gps = await this.lookupGps(details.destination);
+
+            if(!source_gps || !destination_gps) {
+                if(!source_gps) {
+                    response.errors.push("Can you please specify the source location?");
+                }
+                if(!destination_gps) {
+                    response.errors.push("Can you please specify the destination location?");
+                }
+            }
+            else{
+                // generate routes
+                response.data.routes = await this.getRoutes(source_gps, destination_gps);
+                response.data.routes_formatted = {
+                    "description": `these are the various routes that you can take. Which one would you like to select:`,
+                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
+                }
+                response.status = true;
+            }            
+        }
+
+        logger.info(`Generated routes response : ${JSON.stringify(response, null, 2)}`);
+        return response;
     }
 }
 
