@@ -117,6 +117,38 @@ class DBService {
         logger.info(response)
         return response
     }
+    
+    async get_all_sessions(){
+        const sessions = [];
+        let cursor = '0';
+        
+        try{
+            do {
+                // Use the SCAN command to iteratively retrieve keys that match the "session:*" pattern.
+                const reply = await this.redisClient.scan(cursor, {
+                    MATCH: '*',
+                    COUNT: 100, // Adjust based on your expected load
+                });
+        
+                cursor = reply.cursor;
+                const keys = reply.keys;
+        
+                // For each key, get the session data and add it to the sessions array.
+                for (let key of keys) {
+                    const sessionData = await this.redisClient.get(key);
+                    sessions.push({
+                        key,
+                        data: JSON.parse(sessionData),
+                    });
+                }
+            } while (cursor !== 0);
+        }
+        catch(e){
+            logger.error(e);
+        }
+        
+        return sessions;
+    }
 }
 
 export default DBService;

@@ -21,6 +21,18 @@ describe('Should test the map service', () => {
         expect(gpsCoordinates).to.have.property('lat');
         expect(gpsCoordinates).to.have.property('lng');
     })
+
+    it('Sould return true if a given gps location falls on a selected polygon', async()=>{
+
+        const source ='37.422391,-122.084845';
+        const destination = '37.411991,-122.079414';
+        
+        const point = [37.422391, -122.084845];
+        let routes = await mapService.getRoutes(source, destination);
+
+        const status = await mapService.checkGpsOnPolygon(point, routes[0].overview_polyline.points);
+        expect(status).to.be.true;
+    })
     
     
 });

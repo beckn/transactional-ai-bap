@@ -93,3 +93,26 @@ describe('API tests for /update-catalog endpoint for an end to end Notify Messag
         expect(response._body.message).equal('Catalog Updated')
     })
 })
+
+describe('API tests for triggering a roadblock', ()=>{    
+    it.only('Should trigger a roadblock on a selected route', async ()=>{
+        const ask1 = "Can you get routes from Denver to Yellowstone national park?";
+        await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask1
+        }) 
+        
+        const ask2 = "Lets select the first route.";
+        await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask2
+        }) 
+        
+        const response = await request(app).post('/trigger-exception').send({
+            "point":[39.7408351, -104.9874105],
+            "message": "Roadblock ahead due to an accident!"
+        })
+      
+        expect(response.status).equal(200)
+    })
+})

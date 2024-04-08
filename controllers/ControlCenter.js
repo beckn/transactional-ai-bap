@@ -9,6 +9,8 @@ import {
     CANCEL_BOOKING_MESSAGE,
     TOURISM_STRAPI_URL
 } from '../utils/constants.js'
+import DBService from '../services/DBService.js'
+import MapsService from '../services/MapService.js'
 
 const action = new Actions()
 
@@ -46,7 +48,7 @@ export const cancelBooking = async (req, res) => {
             }
             return res.status(200).send({ message: `Notification ${statusMessage}`, status:true })
         }
-
+        
         return res.status(200).send({ message: 'Cancel Booking Failed', status:false })
     } catch (error) {
         logger.error(error.message)
@@ -65,7 +67,7 @@ export const updateCatalog = async (req, res) => {
             },
         },{ Authorization: `Bearer ${process.env.STRAPI_TOURISM_TOKEN}`})
         const notifyResponse = await action.send_message(userNo, messageBody)
-
+        
         if(!notifyResponse || notifyResponse.deliveryStatus === "failed"){
             throw new Error('Notification Failed')
         }
@@ -84,14 +86,53 @@ export const notify = async (req, res) => {
         const sendWhatsappNotificationResponse = await action.send_message(
             userNo,
             messageBody
-        )
-        if(sendWhatsappNotificationResponse.deliveryStatus === "failed"){
-            return res.status(400).json({...sendWhatsappNotificationResponse, status:false})
+            )
+            if(sendWhatsappNotificationResponse.deliveryStatus === "failed"){
+                return res.status(400).json({...sendWhatsappNotificationResponse, status:false})
+            }
+            sendWhatsappNotificationResponse.deliveryStatus = 'delivered'
+            return res.status(200).json({...sendWhatsappNotificationResponse, status:true})
+        } catch (error) {
+            logger.error(error.message)
+            return res.status(400).send({ message: error.message, status:false })
         }
-        sendWhatsappNotificationResponse.deliveryStatus = 'delivered'
-        return res.status(200).json({...sendWhatsappNotificationResponse, status:true})
-    } catch (error) {
-        logger.error(error.message)
-        return res.status(400).send({ message: error.message, status:false })
     }
-}
+    
+    export const triggerExceptionOnLocation = async (req, res) => {
+        const {point, message} = req.body; // needs to be an array with 2 numbers [lat, long]
+        const db = new DBService();
+        const mapService = new MapsService();
+        
+        if(point && message){
+            // get all active sessions
+            const sessions = await db.get_all_sessions();
+            logger.info(`Got ${sessions.length} sessions.`)
+            
+            // check if point exists on route
+            for(let session of sessions){
+                const selected_route = session.data.selected_route;
+                if(selected_route?.overview_polyline?.points) {
+                    const status = await mapService.checkGpsOnPolygon(point, selected_route?.overview_polyline?.points)
+
+                    logger.info(`Status of gps point ${JSON.stringify(point)} on route ${selected_route.summary} is ${status}`)
+                    // send whatsapp and add to context
+                    if(status){
+                        try{
+                            const reply_message = `${message}. Do you want to find alternate routes?`
+                            await action.send_message(session.key, reply_message);
+                            
+                            // update session
+                            if(!session.data.text) session.data.text=[]
+                            session.data.text.push({role: 'assistant', content: reply_message});
+    
+                            await db.update_session(session.key, session);
+                        }
+                        catch(e){
+                            logger.error(e);
+                        }
+                    }
+                }
+            }
+        }
+        else res.status(400).send('Point and message are required in the body.')
+    }
