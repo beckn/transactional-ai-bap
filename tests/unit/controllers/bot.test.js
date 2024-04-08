@@ -6,7 +6,7 @@ const expect = chai.expect
 const mapService = new MapsService()
 const ai = new AI();
 
-describe.only('Should test the Bot controller', () => {
+describe('Should test the Bot controller', () => {
     it('Should a trip planning use case', async () => {
         const ask = "Can you plean a trip from Denver to Yellowstone national park?";
         const format = {
