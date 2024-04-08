@@ -23,6 +23,8 @@ describe.only('Should test the Bot controller', () => {
         expect(details).to.have.property('source');
         expect(details).to.have.property('destination');
         
+        logger.info(details);
+        
         // Get gps for source and destination
         
         const source_gps = await mapService.lookupGps(details.source);
