@@ -264,5 +264,16 @@ describe.only('test cases for generating routes and selecting a route', ()=>{
 
     })
 
+    it('should search along a route.', async () => {
+        const ask = "I'm looking for some ev chargers along my route. Im' currently near Casper.";
+        const response = await request(app).post('/webhook').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": ask
+        })        
+        logger.info(JSON.stringify(response.text, null, 2));
+        expect(response.status).to.be.eq(200)
+
+    })
+
     
 })

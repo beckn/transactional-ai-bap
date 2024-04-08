@@ -14,23 +14,15 @@
         "version": "1.1.0",
         "policies": {
             "domains": {
-                "uei:charging": {
-                    "tags": [
-                        { "vehicle-type": { "enum": ["2-wheeler", "4-wheeler"]}},
-                        { "connector-type": { "enum": ["CCS", "CHAdeMo"]}}
-                    ],
+                "uei:charging": {                    
                     "rules": [
                         "item.descriptor should not be used in search intent for this domain",
                         "search should have fulfillment for this domain. fulfillment should only contain location for this domain.",
+                        "fulfillment should contain only 1 stop for this domain",
                         "If a route polygon has been shared, fulfillment.stops[i].location should have the polygon field."
                     ]
                 },
                 "hospitality": {
-                    "tags": [
-                        { "pet-friendly": { "enum": ["yes", "no"]}},
-                        { "ev-charging": { "enum": ["yes", "no"]}},
-                        { "accomodation-type“": { "enum": ["campsite", "hotel", "independent-house"]}}
-                    ],
                     "rules": [
                         "item.descriptor should not be used in search intent for this domain",
                         "search must have two stops for this domain.",

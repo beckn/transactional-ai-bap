@@ -281,7 +281,7 @@ class AI {
         return action_response;
     }
 
-    async get_beckn_message_from_text(instruction, context=[], domain='') {
+    async get_beckn_message_from_text(instruction, context=[], domain='', polygon=null) {
         logger.info(`Getting beckn message from instruction : ${instruction}, for domain : ${domain}`)
         let domain_context = [], policy_context = [];
         if(domain && domain!='') {
@@ -294,7 +294,7 @@ class AI {
                 ]
             }
         }
-            
+
         const messages = [
             ...policy_context,
             ...domain_context,
@@ -324,6 +324,18 @@ class AI {
             });
             const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
             logger.info(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
+            if(this.action?.action=='search' &&  responseMessage?.intent?.fulfillment?.stops[0]?.location){
+                if(polygon){
+                    responseMessage.intent.fulfillment.stops[0].location.polygon = polygon;
+                    const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=color:%231d3b65|weight:5|enc:${polygon}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                    logger.info(`Map url for request : ${route_image}`)
+                    // temp
+                    delete responseMessage.intent.fulfillment.stops[0].location.gps;
+                }
+                else delete responseMessage.intent.fulfillment.stops[0].location.polygon;
+                
+            }
+
             return responseMessage
         }
         catch(e){

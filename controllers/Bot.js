@@ -104,7 +104,7 @@ async function process_text(req, res) {
     
     // Update lat, long
     if(req.body.Latitude && req.body.Longitude){
-        message+=` lat:${req.body.Latitude} long:${req.body.Longitude}`
+        message+=`Current location is:  lat:${req.body.Latitude} long:${req.body.Longitude}`
     }
     
     logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
@@ -188,7 +188,8 @@ async function process_text(req, res) {
                     message: ''
                 }
                 if(details_response && details_response.index){
-                    session.selected_route = session.routes[details_response.index];
+                    const index= Math.max(1-details_response.index,0);
+                    session.selected_route = session.routes[index];
                     const url = `https://www.google.com/maps/dir/${session.selected_route.source_gps.lat},${session.selected_route.source_gps.lng}/${session.selected_route.destination_gps.lat},${session.selected_route.destination_gps.lng}/`;
                     route_response.message = `Your route has been actived. Here is the link to navigate : ${url}. What do you want to do next?`;
                 
@@ -293,11 +294,30 @@ async function process_action(action, text, session, sender=null, format='applic
             let search_context = session.text;
             if(session.profile){
                 search_context=[
-                    { role: 'system', content: `User pforile: ${JSON.stringify(session.profile)}`},
+                    { role: 'system', content: `User profile: ${JSON.stringify(session.profile)}`},
                     ...search_context
                 ]
             }
-            const message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain);
+
+            // check if user trying to search along the route
+            const desired_struture = {
+                search_on_route_yn: 'boolean depending upon whether user is trying to search along a route.',
+                current_location: 'some location'
+            }
+            const details_response = await ai.get_details_by_description(`Find if user is trying to search along a route : ${text}`, session.text, JSON.stringify(desired_struture));
+            if(details_response.search_on_route_yn){
+                if(details_response.current_location){
+                    const gps = await mapService.lookupGps(details_response.current_location);
+                    if(gps)
+                        text+= `\nMy current location is : ${JSON.stringify(gps)}`
+                }
+                else{
+                    // ask for location.
+                }
+                
+            }
+
+            const message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
             request = {
                 status: true,
                 data:{

@@ -94,14 +94,24 @@ class MapsService {
             }
             else{
                 // generate routes
-                const routes = await this.getRoutes(source_gps, destination_gps);
+                const routes = await this.getRoutes(`${source_gps.lat},${source_gps.lng}`, `${destination_gps.lat},${destination_gps.lng}`);
                 response.data.routes = routes.map(route=>{
                     return {
-                        ...route,
+                        overview_polyline: route.overview_polyline,
+                        summary: route.summary,
                         source_gps: source_gps,
                         destination_gps: destination_gps
                     }
                 })
+
+                let polygon_path = '';
+                routes.forEach((route, index) => {
+                    polygon_path+=`&path=color:${this.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
+                })
+
+                const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                logger.info(`Map url :${route_image}`)
+                
                 response.data.routes_formatted = {
                     "description": `these are the various routes that you can take. Which one would you like to select:`,
                     "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
@@ -110,7 +120,7 @@ class MapsService {
             }            
         }
 
-        logger.info(`Generated routes response : ${JSON.stringify(response, null, 2)}`);
+        // logger.info(`Generated routes response : ${JSON.stringify(response, null, 2)}`);
         return response;
     }
 }

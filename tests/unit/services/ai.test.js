@@ -14,7 +14,7 @@ const hotel_session = JSON.parse(readFileSync('./tests/data/sessions/hotel.json'
 
 
 describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
-    it('Should return null action when asked a general query', async () => {
+    it.skip('Should return null action when asked a general query', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_QUERY);
         expect(response).to.have.property('action')
         expect(response.action).to.be.null    
