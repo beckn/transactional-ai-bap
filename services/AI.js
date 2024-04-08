@@ -548,6 +548,28 @@ class AI {
         }
         return bookings_updated;
     }
+
+    async get_details_by_description(message, desired_output){
+        
+        const openai_messages = [
+            { role: 'system', content: `Your job is to analyse the given user input and extract details in the json format given : ${JSON.stringify(desired_output)}` },
+            { role: 'user', content: message }
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            let response = JSON.parse(completion.choices[0].message.content)            
+            return response;
+        } catch (e) {
+            logger.error(e)
+            return {};
+        }
+    }
 }
 
 export default AI;
