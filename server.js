@@ -1,5 +1,7 @@
 import dotenv from 'dotenv'
 import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url';
 dotenv.config()
 import express from 'express'
 import bodyParser from 'body-parser'
@@ -13,7 +15,7 @@ import {
     notify,
     triggerExceptionOnLocation,
     updateStatus,
-    unpublishItem
+    unpublishItem,
 } from './controllers/ControlCenter.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -25,7 +27,7 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json())
-
+app.use('/static', express.static(path.join(__dirname, 'public')));
 // Define endpoints here
 // app.post('/act', actions.act)
 app.post('/webhook', messageController.process_text)
@@ -35,10 +37,12 @@ app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
 app.post('/update-status', updateStatus)
 app.post('/unpublish-item', unpublishItem)
+app.post('/webhook-ps', messageController.webhookControl)
+app.get('/download', messageController.downloadFile);
 // Reset all sessions
 export const db = new DBService()
 
-await db.clear_all_sessions()
+// await db.clear_all_sessions()
 await db.set_data('orderDetails', ORDER_DETAILS)
 
 // Start the Express server

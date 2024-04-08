@@ -6,9 +6,12 @@ import {db} from '../server.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
+import { fileURLToPath } from 'url';
+import path from 'path'
 const mapService = new MapsService()
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import CronService from '../services/CronService.js'
 const actionsService = new ActionsService()
 
