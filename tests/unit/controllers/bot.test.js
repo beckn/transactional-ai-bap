@@ -9,6 +9,8 @@ const ai = new AI();
 describe('Should test the Bot controller', () => {
     it('Should a trip planning use case', async () => {
         const ask = "Can you plean a trip from Denver to Yellowstone national park?";
+        
+        // identify source and destination
         const format = {
             'source': 'SOURCE_LOCATION',
             'destination': 'DESTINATION_LOCATION'
@@ -17,12 +19,15 @@ describe('Should test the Bot controller', () => {
         const details = await ai.get_details_by_description(ask, format);
         expect(details).to.have.property('source');
         expect(details).to.have.property('destination');
-
+        
+        // Get gps for source and destination
+        
         const source_gps = await mapService.lookupGps(details.source);
         const destination_gps = await mapService.lookupGps(details.destination);
 
+        // generate routes
         const routes = await mapService.getRoutes(source_gps, destination_gps);
-        expect(routes).to.be.an('array').that.is.not.empty;
+        expect(routes).to.be.an('array').that.is.not.empty;        
     })
 })
 
