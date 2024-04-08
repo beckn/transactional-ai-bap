@@ -8,7 +8,6 @@ import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
 const mapService = new MapsService()
 
-import {ORDER_DETAILS} from '../utils/constants.js'
 
 import CronService from '../services/CronService.js'
 const actionsService = new ActionsService()
