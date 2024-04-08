@@ -2,7 +2,8 @@ import twilio from 'twilio'
 import logger from '../utils/logger.js'
 import axios from 'axios'
 import AI from './AI.js'
-
+import {writeFileSync} from 'fs'
+import path from 'path'
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const twilioNumber = process.env.TWILIO_NUMBER
@@ -118,6 +119,28 @@ class Actions {
             let data = await client.messages.create(body)
             const status = await client.messages(data.sid).fetch()
             return { deliveryStatus: status.status }
+        } catch (error) {
+            logger.error(`Error sending message: ${error.message}`)           
+            return false;
+        }
+    }
+
+    async download_file(url, destination_path) {
+        try {
+            const response = await axios.get(url, 'GET',{responseType:'arraybuffer'});
+           
+            const filePath = path.join(destination_path, 'downloaded-image.png');
+            // const writer = createWriteStream(filePath);
+            console.log(Buffer.from(response.data));
+            writeFileSync(filePath, response.data);
+            // response.data.pipe(writer);
+            // return new Promise((resolve, reject) => {
+            //     writer.on('finish', resolve);
+            //     writer.on('error', reject);
+            //   });
+            return {
+                message:'File downloaded successfully and saved at ' + filePath
+            }
         } catch (error) {
             logger.error(`Error sending message: ${error.message}`)           
             return false;
