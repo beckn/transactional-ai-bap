@@ -112,10 +112,9 @@ class Actions {
                 to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
             }
 
-            // Doenst corrently work with the static map image
-            // if(media_url){
-            //     body.mediaUrl = [media_url];
-            // }
+            if(media_url){
+                body.mediaUrl = [media_url];
+            }
             let data = await client.messages.create(body)
             const status = await client.messages(data.sid).fetch()
             return { deliveryStatus: status.status }

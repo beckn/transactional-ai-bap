@@ -1,4 +1,5 @@
 import {Client} from "@googlemaps/google-maps-services-js";
+import logger from "../utils/logger";
 
 
 class MapsService {
@@ -17,7 +18,7 @@ class MapsService {
             });
             return response.data.routes;
         } catch (error) {
-            console.error(error);
+            logger.error(error);
             return [];
         }
     }
@@ -36,7 +37,7 @@ class MapsService {
                 return null;
             }
         } catch (error) {
-            console.error(error);
+            logger.error(error);
             return null;
         }
     }
