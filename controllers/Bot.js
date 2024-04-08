@@ -130,7 +130,7 @@ async function process_text(req, res) {
         
         // check for booking collection
         
-        let booking_collection = await ai.check_if_booking_collection(message, [...session.text.slice(-1)]);
+        let booking_collection = false; // await ai.check_if_booking_collection(message, [...session.text.slice(-1)]);
         if(booking_collection){
             logger.info(`Booking collection found!`);
             response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
