@@ -1,88 +1,74 @@
 {
-    "FULFILLMENT_STATUS_CODES":{
-        "order-picked-up":{
-            "message": "Your order has been picked up"
+    "FULFILLMENT_STATUS_CODES": {
+        "order-picked-up": {
+            "message": "Your order's on its way!"
         },
         "order-on-the-way": {
-            "message": "Your order is on the way"
+            "message": "Hang tight! Your order's cruising over to you."
         },
-        "order-delivered":{
-            "message": "Your order has been delivered"
+        "order-delivered": {
+            "message": "Package alert! Your order's been delivered."
         },
-        "ticket-issued":{
-            "message": "Your ticket has been issued"
-        }, 
-        "ticket-validated":{
-            "message": "Your ticket has been validated"
+        "ticket-issued": {
+            "message": "All set! Your ticket's ready to go."
+        },
+        "ticket-validated": {
+            "message": "You're all good! Your ticket's been validated."
         },
         "charging-started": {
-            "message": "Your charging has started"
-        }, 
-        "charging-stopped":{
-            "message": "Your charging has stopped"
-        }, 
-        "charger-not-working":{
-            "message": "Hi, it looks likes your charger is not working. DO you want to find other chargin stations?"
-        }, 
-        "charging-completed":{
-            "message": "Hi, your chargin is complete!"
+            "message": "Juice up! Your charging session's begun."
+        },
+        "charging-stopped": {
+            "message": "Heads up! Your charging session's been paused."
+        },
+        "charger-not-working": {
+            "message": "Uh-oh, looks like there's a glitch with your charger ⚡😓. Need help finding another spot? 📍🔍"
+        },
+        "charging-completed": {
+            "message": "Charged and ready! Your battery's full."
         },
         "checked-in": {
-            "message": "You have succesfully checked-in to your stay!"
-        }, 
-        "checked-out":{
-            "message": "You have succesfully checked-out from your stay!"
+            "message": "Welcome! You've successfully checked in."
+        },
+        "checked-out": {
+            "message": "Safe travels! You've checked out."
         }
     },
     "ALL_MESSAGES": {
         "session_cleared": "Your session has been cleared! You're all set to start a new one.",
         "session_and_profile_cleared": "Both your session and profile have been cleared! You're ready to start fresh.",
         "route_selected": "Your route is all set! Here's your navigation link: ${url}. What's next on your agenda?",
-        "request_in_progress": "Hang tight! We're currently processing your request...",
-        "request_processed": "All done! Your request has been processed and we're getting your response ready...",
-        "request_failed": "Oops, we hit a snag processing your request. Want to give it another shot?",
-        "request_to_beckn_failed": "Looks like we couldn't get that request through. How about we try something different?",
+        "request_in_progress": "Hang tight! I'm currently processing your request...",
+        "request_processed": "All done! Your request has been processed and I'm getting your response ready...",
+        "request_failed": "Oops, hit a snag processing your request. Want to give it another shot?",
+        "request_to_beckn_failed": "Looks like I couldn't get that request through. How about we try something different?",
         "incident_on_road": "Heads up: ${message}. Could you share your current location so I can find some alternative routes for you?",
-        "formatting_failed": "We had trouble understanding that instruction.",
-        "api_call_failed": "Oops, we ran into an issue calling the API.",
-        "failed_to_process_instruction": "We had trouble processing that instruction.",
+        "formatting_failed": "I had trouble understanding that instruction.",
+        "api_call_failed": "Oops, I ran into an issue calling the API.",
+        "failed_to_process_instruction": "I had trouble processing that instruction.",
         "missing_source": "Mind sharing the starting point for your journey?",
         "missing_destination": "Could you let us know your destination?",
         "route_list_description": "Here are some route options for you. Which one do you prefer?"
     },
     "TEST_MESSAGES_USER": [
         "---Days before the travel---",
-        "Adam: Hi Alfred",
-        "Alfred(Agent): <Responds back>",
-        "Adam: I'm planning a trip to Yellowstone national park on April 12th. Can you find some hotels for me to stay?",
-        "Alfred(Agent): <Responds back with the list of hotels>",
-        "Adam: Lets select the first one",
-        "Alfred(Agent): <Responds back asking for billing details to initate the order>",
-        "Adam: Sure, John A. Smith, john.smith@example.com, (555) 123-4567",
-        "Alfred(Agent): <Responds back asking for confirmation>",
+        "Adam: Hey Alfred, you around?",
+        "Adam: I’m hitting Yellowstone National Park on April 12th for 2 days. Got any places to stay?",
+        "Adam: First one sounds awesome. Lets go with that",
+        "Adam: You got it - John A. Smith, john.smith@example.com, (555) 123-4567.",
         "Adam: Sure, lets confirm!",
-        "Alfred(Agent): <Confirms the order and shares the order id>",
-        
-        "---on the date of travel---",
-        "Adam: Can you find the best route from Denver?",
-        "Alfred(Agent): <Responds back with a list of route options. Asks which one to select>",
-        "Adam: ⁠Lets go with route 1",
-        "Alfred(Agent): <Shows the selected route on map and shares a navigation link>",
-        "Adam: Can you find some ev chargin stations along the way?",
-        "Alfred(Agent): <Shares a list of EV chargins stations and asks to select one>",
+
+        "---On the date of travel---",
+        "Adam: Alfred, can you find the best route to Yellowstone national park from Denver?",
+        "Adam: lets go with Route 1",
+        "Adam: Can you find ev chargers on the route?",
         "Adam: Lets go with Tesla Supercharger",
-        "Alfred(Agent): <resonds backn asking to initate the order>",
-        "Adam: Sure, lets initate the order",
-        "Alfred(Agent): <responds backn asking for confirmation>",
-        "Adam: Sure, lets confirm",
-        "Alfred(Agent): <Confirms the order and shares the order id>",
+        
 
         "---Charging stopped due to an error---",
-        "Alfred(Agent): <Sends message stating that the charger has some issue, asks to find another one?>",
-        "Adam: Yes, please!",
-        "Alfred(Agent): <Shares a list of EV chargins stations and asks to select one>",
-        "Adam: Lets go with ChargePoint"
-                
-        
+        "Adam: Yeah, let’s find another charger",
+        "Adam: Let’s go with the second one.",
+        "Adam: Sure thing, lets book it",
+        "Adam: Yeah, let’s do it."
     ]
 }

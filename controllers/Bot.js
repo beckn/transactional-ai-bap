@@ -121,7 +121,7 @@ async function process_text(req, res) {
     }
     
     try{
-        
+
         // Get profile
         const profileResponse = await ai.get_profile_from_text(message, session.profile);
         if(profileResponse.status){
@@ -139,7 +139,11 @@ async function process_text(req, res) {
         // check for booking collection
         
         let booking_collection = false; // await ai.check_if_booking_collection(message, [...session.text.slice(-1)]);
-        if(booking_collection){
+        if(message === 'clearall'){
+            session = EMPTY_SESSION;
+            response.formatted = get_text_by_key('session_and_profile_cleared');
+        }
+        else if(booking_collection){
             logger.info(`Booking collection found!`);
             response.formatted = await ai.get_ai_response_to_query('Share the list of bookings to be made? Please include only hotels and tickets to be booked. It should be a short list with just names of bookings to be made. For e.g. Here is a list of bookings you need to make:  \n1. hotel at xyz \n2. Tickets for abc \nWhich one do you want to search first?', session.text);
             logger.info(`AI response: ${response.formatted}`);
@@ -156,7 +160,7 @@ async function process_text(req, res) {
         else{
             
             // get action
-            ai.action = await ai.get_beckn_action_from_text(message, session.text, session.bookings);
+            ai.action = await ai.get_beckn_action_from_text(message, session.text.slice(-3), session.bookings);
             
             // Reset actions context if action is search
             if(ai.action?.action === 'search') {
@@ -171,10 +175,6 @@ async function process_text(req, res) {
                     profile: session.profile
                 };
                 response.formatted = get_text_by_key('session_cleared');
-            }
-            else if(ai.action?.action === 'clear_all'){
-                session = EMPTY_SESSION;
-                response.formatted = get_text_by_key('session_and_profile_cleared');
             }
             else if(ai.action?.action === 'get_routes'){
                 const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
@@ -202,6 +202,7 @@ async function process_text(req, res) {
                         logger.info(`Image url : ${map_image_url_server}`)
                         if(map_image_url_server) response.media=[map_image_url_server]
                     }
+                    session.routes=[]; // reset routes                    
                 }
                 const formatting_response = await ai.format_response(route_response, [{ role: 'user', content: message },...session.text]);
                 response.formatted = formatting_response.message;
@@ -248,10 +249,10 @@ async function process_text(req, res) {
         }
         
         // if(session.bookings && session.bookings.length>0) session.bookings = await ai.get_bookings_status(session.bookings, session.text);
-        logger.info(`\u001b[1;34m Bookings status : ${JSON.stringify(ai.bookings)}\u001b[0m`)
+        // logger.info(`\u001b[1;34m Bookings status : ${JSON.stringify(ai.bookings)}\u001b[0m`)
         
         // update session
-        session.bookings = ai.bookings;
+        // session.bookings = ai.bookings;
         await db.update_session(sender, session);
         
         // Send response
@@ -327,7 +328,13 @@ async function process_action(action, text, session, sender=null, format='applic
                 
             }
 
-            const message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
+            let message = null;
+            message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
+            if(!message){
+                logger.error(`Failed to get message from text: ${text}. Retrying...`)
+                message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
+            }
+
             request = {
                 status: true,
                 data:{
@@ -344,7 +351,7 @@ async function process_action(action, text, session, sender=null, format='applic
             request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema, session.profile);
         }
         
-        if(request.status){
+        if(request.status && request?.data?.body?.message){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
             format!='application/json' && await actionsService.send_message(sender, get_text_by_key('request_processed'))

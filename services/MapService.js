@@ -122,7 +122,7 @@ class MapsService {
 
                 response.data.routes_formatted = {
                     "description": get_text_by_key('route_list_description'),
-                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
+                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}\n`)
                 }
                 response.status = true;
             }            

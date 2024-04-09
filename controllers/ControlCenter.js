@@ -148,10 +148,11 @@ export const notify = async (req, res) => {
 
 export const updateStatus = async (req, res) => {
     try {
-        const { orderId, domain="", status=null } = req.body
+        let { orderId, domain="", status=null } = req.body
         if(!orderId){
             return res.status(400).json({message:"Order Id is Required", status:false})
         }
+        orderId = parseInt(orderId);
         let DOMAIN_DETAILS = {
             url:"",
             token:"",
