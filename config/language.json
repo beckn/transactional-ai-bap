@@ -35,19 +35,19 @@
         }
     },
     "ALL_MESSAGES": {
-        "session_cleared": "Session cleared! You can start a new session now.",
-        "session_and_profile_cleared": "Session & profile cleared! You can start a new session now.",
-        "route_selected" : "Your route has been actived. Here is the link to navigate : ${url}. What do you want to do next?",
-        "request_in_progress": "_Please wait while we process your request through open networks..._",
-        "request_processed": "_Your request is processed, generating a response..._",
-        "request_failed": "Request could not be processed. Do you want to try again?",
-        "request_to_beckn_failed": "Could not process this request. Can you please try something else?",
-        "incident_on_road" : "${message}. Please share your current location and I'll try to find some alternate routes?",
-        "formatting_failed": "Failed to process the instruction",
-        "api_call_failed": "Failed to call the API",
-        "failed_to_process_instruction" : "Failed to process the instruction",
-        "missing_source": "Can you please specify the source location?",
-        "missing_destination": "Can you please specify the destination location?",
-        "route_list_description": "These are the various routes that you can take. Which one would you like to select?"
-    }
+        "session_cleared": "Your session has been cleared! You're all set to start a new one.",
+        "session_and_profile_cleared": "Both your session and profile have been cleared! You're ready to start fresh.",
+        "route_selected": "Your route is all set! Here's your navigation link: ${url}. What's next on your agenda?",
+        "request_in_progress": "Hang tight! We're currently processing your request...",
+        "request_processed": "All done! Your request has been processed and we're getting your response ready...",
+        "request_failed": "Oops, we hit a snag processing your request. Want to give it another shot?",
+        "request_to_beckn_failed": "Looks like we couldn't get that request through. How about we try something different?",
+        "incident_on_road": "Heads up: ${message}. Could you share your current location so I can find some alternative routes for you?",
+        "formatting_failed": "We had trouble understanding that instruction.",
+        "api_call_failed": "Oops, we ran into an issue calling the API.",
+        "failed_to_process_instruction": "We had trouble processing that instruction.",
+        "missing_source": "Mind sharing the starting point for your journey?",
+        "missing_destination": "Could you let us know your destination?",
+        "route_list_description": "Here are some route options for you. Which one do you prefer?"
+    }    
 }
