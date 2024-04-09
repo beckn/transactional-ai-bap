@@ -87,5 +87,13 @@ describe('should test send_message()', () => {
       expect(error).to.be.an.instanceOf(Error);
     }
   });
+
+  it('Should test sending a message with media', async () => {
+    const recipient = process.env.TEST_RECEPIENT_NUMBER;
+    const message = 'This is an image';
+    const media_url = 'https://becknprotocol.io/wp-content/uploads/2022/03/logo.png';
+    let status = await actionsService.send_message(recipient, message, media_url);
+    expect(status.deliveryStatus).to.not.equal('failed')
+  });
 });
 

@@ -60,7 +60,7 @@ describe('Test cases for Google maps', () => {
         expect(source_gps).to.have.property('lng');
     })
     
-    it.only('It should take a trip plannign input and generate static route image and directions link.', async () => {
+    it('It should take a trip plannign input and generate static route image and directions link.', async () => {
         const ask = "Can you plean a trip from Denver to Yellowstone national park?";
         
         // identify source and destination

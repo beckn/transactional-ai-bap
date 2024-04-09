@@ -118,7 +118,7 @@ class Actions {
                     to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
                 }
                 
-                if(media_url && !process.env.DEVELOPER_MODE_ON){
+                if(media_url && !parseInt(process.env.DEVELOPER_MODE_ON)){
                     body.mediaUrl = [media_url];
                 }
                 let data = await client.messages.create(body)
