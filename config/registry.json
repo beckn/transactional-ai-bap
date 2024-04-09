@@ -27,8 +27,8 @@
                         "item.descriptor should not be used in search intent for this domain",
                         "search must have two stops for this domain.",
                         "Supported stop.type : check-in, check-out",
-                        "fulfillment stops should not have location for this domain.",
-                        "fulfillment.stops[i].time should be an object and contain timestamp"
+                        "fulfillment.stops[i].time should be an object and contain timestamp",
+                        "fulfillment.stops[i].time should only be used if explicity shared by the user"
                     ]
                 },
                 "tourism": {

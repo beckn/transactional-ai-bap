@@ -1,0 +1,53 @@
+{
+    "FULFILLMENT_STATUS_CODES":{
+        "order-picked-up":{
+            "message": "Your order has been picked up"
+        },
+        "order-on-the-way": {
+            "message": "Your order is on the way"
+        },
+        "order-delivered":{
+            "message": "Your order has been delivered"
+        },
+        "ticket-issued":{
+            "message": "Your ticket has been issued"
+        }, 
+        "ticket-validated":{
+            "message": "Your ticket has been validated"
+        },
+        "charging-started": {
+            "message": "Your charging has started"
+        }, 
+        "charging-stopped":{
+            "message": "Your charging has stopped"
+        }, 
+        "charger-not-working":{
+            "message": "Hi, it looks likes your charger is not working. DO you want to find other chargin stations?"
+        }, 
+        "charging-completed":{
+            "message": "Hi, your chargin is complete!"
+        },
+        "checked-in": {
+            "message": "You have succesfully checked-in to your stay!"
+        }, 
+        "checked-out":{
+            "message": "You have succesfully checked-out from your stay!"
+        }
+    },
+    "ALL_MESSAGES": {
+        "session_cleared": "Your session has been cleared! You're all set to start a new one.",
+        "session_and_profile_cleared": "Both your session and profile have been cleared! You're ready to start fresh.",
+        "route_selected": "Your route is all set! Here's your navigation link: ${url}. What's next on your agenda?",
+        "request_in_progress": "Hang tight! We're currently processing your request...",
+        "request_processed": "All done! Your request has been processed and we're getting your response ready...",
+        "request_failed": "Oops, we hit a snag processing your request. Want to give it another shot?",
+        "request_to_beckn_failed": "Looks like we couldn't get that request through. How about we try something different?",
+        "incident_on_road": "Heads up: ${message}. Could you share your current location so I can find some alternative routes for you?",
+        "formatting_failed": "We had trouble understanding that instruction.",
+        "api_call_failed": "Oops, we ran into an issue calling the API.",
+        "failed_to_process_instruction": "We had trouble processing that instruction.",
+        "missing_source": "Mind sharing the starting point for your journey?",
+        "missing_destination": "Could you let us know your destination?",
+        "route_list_description": "Here are some route options for you. Which one do you prefer?"
+    }    
+}

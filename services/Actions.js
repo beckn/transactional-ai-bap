@@ -6,6 +6,7 @@ import {createWriteStream} from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url';
+import get_text_by_key from '../utils/language.js'
 const __filename = fileURLToPath(import.meta.url);
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -64,7 +65,7 @@ class Actions {
     async process_instruction(message, context=[]) {
         let response = {
             status: false,
-            formatted: 'Failed to process the instruction',
+            formatted: get_text_by_key('formatting_failed'),
         }
         try {
 
@@ -82,7 +83,7 @@ class Actions {
                 logger.info(`Making api call...`)
                 const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
                 if(!call_api_response.status){
-                    response.formatted = `Failed to call the API: ${call_api_response.error}`
+                    response.formatted = get_text_by_key('api_call_failed')
                     response.data = call_api_response.data              
                 }
                 else{
@@ -104,7 +105,7 @@ class Actions {
                 }            
             } catch (error) {
                 logger.error(`Error processing instruction: ${error.message}`)
-                response.formatted = `Failed to process the instruction: ${error.message}`
+                response.formatted = get_text_by_key('failed_to_process_instruction')
             }
             
             return response;
