@@ -401,7 +401,6 @@ async function process_action(action, text, session, sender=null, format='applic
                             orders[index].message.order.fulfillments[0].state.descriptor.name = req.body.data.data.attributes.state_code
                             let reply_message = '';
                             if(req.body.data.data.attributes.state_code === "charger-not-working"){
-                                console.log('here3', session.data.orders);
                                 reply_message ="Hey, looks like the charger is not working, do you want to look for other chargers on the route?"
                                 await actionsService.send_message(session.key, reply_message);
                                 if(!session.data.text) session.data.text=[]
