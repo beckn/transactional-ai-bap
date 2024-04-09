@@ -1,0 +1,37 @@
+{
+    "FULFILLMENT_STATUS_CODES":{
+        "order-picked-up":{
+            "message": "Your order has been picked up"
+        },
+        "order-on-the-way": {
+            "message": "Your order is on the way"
+        },
+        "order-delivered":{
+            "message": "Your order has been delivered"
+        },
+        "ticket-issued":{
+            "message": "Your ticket has been issued"
+        }, 
+        "ticket-validated":{
+            "message": "Your ticket has been validated"
+        },
+        "charging-started": {
+            "message": "Your charging has started"
+        }, 
+        "charging-stopped":{
+            "message": "Your charging has stopped"
+        }, 
+        "charger-not-working":{
+            "message": "Hi, it looks likes your charger is not working. DO you want to find other chargin stations?"
+        }, 
+        "charging-completed":{
+            "message": "Hi, your chargin is complete!"
+        },
+        "checked-in": {
+            "message": "You have succesfully checked-in to your stay!"
+        }, 
+        "checked-out":{
+            "message": "You have succesfully checked-out from your stay!"
+        }
+    }
+}

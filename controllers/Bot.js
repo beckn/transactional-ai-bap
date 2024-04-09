@@ -1,15 +1,16 @@
 import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
-import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
+import DBService from '../services/DBService.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
+import {readFileSync} from 'fs'
 const mapService = new MapsService()
-
+const db = new DBService()
 const actionsService = new ActionsService()
-const db = new DBService();
 
+const message_config = JSON.parse(readFileSync('./config/message.json'))
 /**
 * @deprecated
 * @param {*} req 
@@ -101,6 +102,7 @@ async function process_text(req, res) {
         bookings: [],
         active_transaction: null,
         routes:[],
+        orders:[],
         selected_route:null
     }
     
@@ -224,9 +226,10 @@ async function process_text(req, res) {
                 session.bookings = ai.bookings;
                 response = await process_action(ai.action, message, session, sender, format);
                 ai.bookings = response.bookings;
-                
+             
                 // update actions
                 if(ai.action?.action === 'confirm') {
+                    session.orders.push(response.raw.responses[0]);
                     session.actions = EMPTY_SESSION.actions;
                     session.text = EMPTY_SESSION.text;
                 }
@@ -383,7 +386,71 @@ async function process_action(action, text, session, sender=null, format='applic
         
         return response;
     }
+
+    async function webhookControl (req, res) {
+        try{
+           const sessions = await db.get_all_sessions();
+            logger.info(`Got ${sessions.length} sessions.`)
+            
+          
+            for(let session of sessions){
+                const orders = session.data.orders;
+                const index = orders ? orders.findIndex((order)=>order.message.order.id == req.body.orderId) : null;
+                if(index!==null && index>=0 && (!orders[index].message.order.fulfillments[0].state||orders[index].message.order.fulfillments[0].state.descriptor.code !== req.body.data.data.attributes.state_code )) {
+                    // send whatsapp and add to context
+                        try{
+                            // update session
+                            orders[index].message.order.fulfillments[0] = {
+                                ...orders[index].message.order.fulfillments[0],
+                                state:{
+                                    descriptor:{
+                                        code:req.body.data.data.attributes.state_code,
+                                        short_desc:req.body.data.data.attributes.state_value
+                                    },
+                                    updated_at:req.body.data.data.attributes.updatedAt
+                                }
+                            }
+                            let reply_message = `Hey the status of your order is updated to ${req.body.data.data.attributes.state_code}`
+                            if(Object.keys(message_config.FULFILLMENT_STATUS_CODES).includes(req.body.data.data.attributes.state_code)){
+                                reply_message = message_config.FULFILLMENT_STATUS_CODES[req.body.data.data.attributes.state_code].message
+                            }
+                                await actionsService.send_message(
+                                    session.key,
+                                    reply_message
+                                )
+                                if (!session.data.text) session.data.text = []
+                                session.data.text.push({
+                                    role: 'assistant',
+                                    content: reply_message,
+                                })
+                                await db.update_session(
+                                    session.key,
+                                    session.data
+                                )
+                        }
+                        catch(e){
+                            logger.error(e);
+                            throw new Error(e.message)
+                        }
+                    
+                }
+            }
+            return res.status(200).json({
+                status:true,
+                message:'Notification Sent'
+            })
+        }catch(error){
+            return res.status(400).json({
+                status:false,
+                message:'Some Error Occured'
+            })
+        }
+    }
+
+   
+
     export default {
         process_wa_webhook,
-        process_text
+        process_text,  
+        webhookControl,
     }
