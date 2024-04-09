@@ -172,7 +172,7 @@ async function process_text(req, res) {
             }
             else if(ai.action?.action === 'clear_all'){
                 session = EMPTY_SESSION;
-                response.formatted = get_text_by_key(session_and_profile_cleared);
+                response.formatted = get_text_by_key('session_and_profile_cleared');
             }
             else if(ai.action?.action === 'get_routes'){
                 const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
