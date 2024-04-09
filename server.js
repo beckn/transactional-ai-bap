@@ -6,7 +6,6 @@ import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
 import DBService from './services/DBService.js'
-import {ORDER_DETAILS} from './utils/constants.js'
 import {
     cancelBooking,
     updateCatalog,
@@ -41,7 +40,6 @@ export const db = new DBService()
 
 await db.clear_all_sessions()
 
-await db.set_data('orderDetails', ORDER_DETAILS)
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {
