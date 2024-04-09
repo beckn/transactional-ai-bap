@@ -149,6 +149,7 @@ class DBService {
         
         return sessions;
     }
+    
 }
 
 export default DBService;

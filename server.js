@@ -10,7 +10,9 @@ import {
     cancelBooking,
     updateCatalog,
     notify,
-    triggerExceptionOnLocation
+    triggerExceptionOnLocation,
+    updateStatus,
+    unpublishItem,
 } from './controllers/ControlCenter.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -30,10 +32,14 @@ app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
-
+app.post('/update-status', updateStatus)
+app.post('/unpublish-item', unpublishItem)
+app.post('/webhook-ps', messageController.webhookControl)
 // Reset all sessions
-const db = new DBService()
+export const db = new DBService()
+
 await db.clear_all_sessions()
+
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {

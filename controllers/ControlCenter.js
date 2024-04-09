@@ -7,7 +7,12 @@ import {
     NEW_CATALOG_AVAILABLE,
     TRIGGER_BLIZZARD_MESSAGE,
     CANCEL_BOOKING_MESSAGE,
-    TOURISM_STRAPI_URL
+    TOURISM_STRAPI_URL,
+    HOTEL_STRAPI_URL,
+    RETAIL_STRAPI_URL,
+    ENERGY_STRAPI_URL,
+    DOMAINS,
+    UPDATE_STATUS_MESSAGE
 } from '../utils/constants.js'
 import DBService from '../services/DBService.js'
 import MapsService from '../services/MapService.js'
@@ -139,3 +144,124 @@ export const notify = async (req, res) => {
         }
         else res.status(400).send('Point and message are required in the body.')
     }
+
+
+export const updateStatus = async (req, res) => {
+    try {
+        const { orderId, domain="", status=null } = req.body
+        if(!orderId){
+            return res.status(400).json({message:"Order Id is Required", status:false})
+        }
+        let DOMAIN_DETAILS = {
+            url:"",
+            token:"",
+            message:""
+        }
+        switch(domain){
+            case DOMAINS.ENERGY:
+                DOMAIN_DETAILS = {
+                    url:ENERGY_STRAPI_URL,
+                    token:process.env.STRAPI_ENERGY_TOKEN,
+                    message:status || UPDATE_STATUS_MESSAGE.ENERGY
+
+                }
+                break;
+            case DOMAINS.RETAIL:
+                DOMAIN_DETAILS = {
+                    url:RETAIL_STRAPI_URL,
+                    token:process.env.STRAPI_RETAIL_TOKEN,
+                    message:status || UPDATE_STATUS_MESSAGE.RETAIL
+                }
+                break;
+            case DOMAINS.HOTEL:
+                DOMAIN_DETAILS = {
+                    url:HOTEL_STRAPI_URL,
+                    token:process.env.STRAPI_HOTEL_TOKEN,
+                    message:status || UPDATE_STATUS_MESSAGE.HOTEL
+                }
+                break;
+            case DOMAINS.TOURISM:
+                DOMAIN_DETAILS = {
+                    url:TOURISM_STRAPI_URL,
+                    token:process.env.STRAPI_TOURISM_TOKEN,
+                    message: status || UPDATE_STATUS_MESSAGE.TOURISM
+                }
+                break;
+        }
+        const validOrderId = await action.call_api(`${DOMAIN_DETAILS.url}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+        logger.info(`OrderDetails: ${JSON.stringify(validOrderId)}`)
+        if(!validOrderId.status){
+            return res.status(400).send({ message: `Invalid Order Id`, status:false })
+        }
+        
+        const getOrderFulfillmentDetails = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments?order_id=${orderId}&sort=order_id.id:desc&populate=order_id`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+        logger.info(`Order Fulfillment Details: ${JSON.stringify(getOrderFulfillmentDetails)}`)
+        if (getOrderFulfillmentDetails.data.data.length) {  
+            const requiredOrder = getOrderFulfillmentDetails.data.data.find((order)=>order.attributes.order_id.data.id===orderId)
+            const updateStatusResponse = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments/${requiredOrder.id}`,'PUT',{
+                data: {
+                    state_code: DOMAIN_DETAILS.message,
+                    state_value: DOMAIN_DETAILS.message,
+                },
+            },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+            const webhookResponse = await action.call_api(`${process.env.SERVER_URL}/webhook-ps`, 'POST',{...updateStatusResponse, orderId:orderId});
+            logger.info(JSON.stringify(webhookResponse));
+            return res.status(200).send({ message: `Status Updated to: ${updateStatusResponse.data.data.attributes.state_value}`, status:true })
+        }
+
+        return res.status(400).send({ message: 'Order Status Update Failed', status:false })
+    } catch (error) {
+        logger.error(error.message)
+        return res.status(400).send({ message: error.message, status:false })
+    }
+}
+
+export const unpublishItem = async (req, res) => {
+    try{
+        const {domain="", itemId=""} = req.body
+        let DOMAIN_DETAILS = {
+            url:"",
+            token:""
+        }
+
+        switch(domain){
+            case DOMAINS.ENERGY:
+                DOMAIN_DETAILS = {
+                    url:ENERGY_STRAPI_URL,
+                    token:process.env.STRAPI_ENERGY_TOKEN,
+
+                }
+                break;
+            case DOMAINS.RETAIL:
+                DOMAIN_DETAILS = {
+                    url:RETAIL_STRAPI_URL,
+                    token:process.env.STRAPI_RETAIL_TOKEN,
+                }
+                break;
+            case DOMAINS.HOTEL:
+                DOMAIN_DETAILS = {
+                    url:HOTEL_STRAPI_URL,
+                    token:process.env.STRAPI_HOTEL_TOKEN,
+                }
+                break;
+            case DOMAINS.TOURISM:
+                DOMAIN_DETAILS = {
+                    url:TOURISM_STRAPI_URL,
+                    token:process.env.STRAPI_TOURISM_TOKEN,
+                }
+                break;
+        }
+        const unpublishItemResp = await action.call_api(`${DOMAIN_DETAILS.url}/items/${itemId}`,'PUT',{
+            "data":{"publishedAt": null}
+          },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+        return res.status(200).json({
+            status:unpublishItemResp.status,
+            message: unpublishItemResp.error || 'Item Unpublished'
+        })
+    }catch(error){
+        return res.status(400).json({
+            status:false,
+            message:error.message
+        })
+    }
+}

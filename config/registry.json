@@ -28,7 +28,8 @@
                         "search must have two stops for this domain.",
                         "Supported stop.type : check-in, check-out",
                         "fulfillment.stops[i].time should be an object and contain timestamp",
-                        "fulfillment.stops[i].time should only be used if explicity shared by the user"
+                        "fulfillment.stops[i].time should only be used if explicity shared by the user",
+                        "fulfillment.stops[i].location should be used if user has shared a location for search"
                     ]
                 },
                 "tourism": {
