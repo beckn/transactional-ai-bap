@@ -49,5 +49,40 @@
         "missing_source": "Mind sharing the starting point for your journey?",
         "missing_destination": "Could you let us know your destination?",
         "route_list_description": "Here are some route options for you. Which one do you prefer?"
-    }    
+    },
+    "TEST_MESSAGES_USER": [
+        "---Days before the travel---",
+        "Adam: Hi Alfred",
+        "Alfred(Agent): <Responds back>",
+        "Adam: I'm planning a trip to Yellowstone national park on April 12th. Can you find some hotels for me to stay?",
+        "Alfred(Agent): <Responds back with the list of hotels>",
+        "Adam: Lets select the first one",
+        "Alfred(Agent): <Responds back asking for billing details to initate the order>",
+        "Adam: Sure, John A. Smith, john.smith@example.com, (555) 123-4567",
+        "Alfred(Agent): <Responds back asking for confirmation>",
+        "Adam: Sure, lets confirm!",
+        "Alfred(Agent): <Confirms the order and shares the order id>",
+        
+        "---on the date of travel---",
+        "Adam: Can you find the best route from Denver?",
+        "Alfred(Agent): <Responds back with a list of route options. Asks which one to select>",
+        "Adam: ⁠Lets go with route 1",
+        "Alfred(Agent): <Shows the selected route on map and shares a navigation link>",
+        "Adam: Can you find some ev chargin stations along the way?",
+        "Alfred(Agent): <Shares a list of EV chargins stations and asks to select one>",
+        "Adam: Lets go with Tesla Supercharger",
+        "Alfred(Agent): <resonds backn asking to initate the order>",
+        "Adam: Sure, lets initate the order",
+        "Alfred(Agent): <responds backn asking for confirmation>",
+        "Adam: Sure, lets confirm",
+        "Alfred(Agent): <Confirms the order and shares the order id>",
+
+        "---Charging stopped due to an error---",
+        "Alfred(Agent): <Sends message stating that the charger has some issue, asks to find another one?>",
+        "Adam: Yes, please!",
+        "Alfred(Agent): <Shares a list of EV chargins stations and asks to select one>",
+        "Adam: Lets go with ChargePoint"
+                
+        
+    ]
 }
