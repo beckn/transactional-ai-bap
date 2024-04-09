@@ -1,12 +1,12 @@
 import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
 import logger from '../utils/logger.js'
-import {db} from '../server.js'
+import DBService from '../services/DBService.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
 const mapService = new MapsService()
-
+const db = new DBService()
 const actionsService = new ActionsService()
 
 /**
