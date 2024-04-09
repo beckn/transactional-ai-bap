@@ -112,6 +112,8 @@ class Actions {
         
         async send_message(recipient, message, media_url=null) {
             try {
+
+                logger.info(`Sending message to ${recipient} with media : ${media_url}| Developer mode : ${process.env.DEVELOPER_MODE_ON}`);
                 let body = {
                     body: message,
                     from: `whatsapp:${twilioNumber}`,

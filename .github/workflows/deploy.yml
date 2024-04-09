@@ -2,7 +2,7 @@ name: Docker Build, Push and Deploy
 
 on:
     push:
-        branches:
+        branches-ignore:
             - main
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
                 echo "GOOGLE_MAPS_API_KEY=${{secrets.GOOGLE_MAPS_API_KEY}}" >> .env
                 echo "SERVER_URL=${{secrets.SERVER_URL}}" >> .env
                 echo "DEVELOPER_MODE_ON=${{secrets.DEVELOPER_MODE_ON}}" >> .env
-                
+
             - name: Create SSH key file
               run: echo -e "${{ secrets.EC2_SSH_KEY }}" > ~/ec2_key
               env:
