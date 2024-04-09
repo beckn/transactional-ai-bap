@@ -5,6 +5,7 @@ import DBService from '../services/DBService.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
+import {readFileSync} from 'fs'
 const mapService = new MapsService()
 const db = new DBService()
 const actionsService = new ActionsService()
