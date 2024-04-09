@@ -335,6 +335,13 @@ class AI {
                 else delete responseMessage.intent.fulfillment.stops[0].location.polygon;
                 
             }
+            if(this.action?.action=='search' &&  responseMessage?.intent?.fulfillment?.stops && responseMessage?.intent?.fulfillment?.stops.length>0){
+                responseMessage?.intent?.fulfillment?.stops.map(stop=>{
+                    if(stop?.time?.timestamp){
+                        stop.time.timestamp = new Date('2024-04-12T12:00:00Z').toISOString();
+                    }
+                })
+            }
 
             return responseMessage
         }
