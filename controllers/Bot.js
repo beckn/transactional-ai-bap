@@ -9,6 +9,7 @@ const mapService = new MapsService()
 const db = new DBService()
 const actionsService = new ActionsService()
 
+const message_config = JSON.parse(readFileSync('./config/message.json'))
 /**
 * @deprecated
 * @param {*} req 
@@ -394,22 +395,41 @@ async function process_action(action, text, session, sender=null, format='applic
             for(let session of sessions){
                 const orders = session.data.orders;
                 const index = orders ? orders.findIndex((order)=>order.message.order.id == req.body.orderId) : null;
-                if(index!==null && orders[index].message.order.fulfillments[0].state.descriptor.name !== req.body.data.data.attributes.state_code) {
+                if(index!==null && index>=0 && (!orders[index].message.order.fulfillments[0].state||orders[index].message.order.fulfillments[0].state.descriptor.code !== req.body.data.data.attributes.state_code )) {
                     // send whatsapp and add to context
                         try{
                             // update session
-                            orders[index].message.order.fulfillments[0].state.descriptor.name = req.body.data.data.attributes.state_code
-                            let reply_message = '';
-                            if(req.body.data.data.attributes.state_code === "charger-not-working"){
-                                reply_message ="Hey, looks like the charger is not working, do you want to look for other chargers on the route?"
-                                await actionsService.send_message(session.key, reply_message);
-                                if(!session.data.text) session.data.text=[]
-                                session.data.text.push({role: 'assistant', content: reply_message});
-                                await db.update_session(session.key, session.data);
+                            orders[index].message.order.fulfillments[0] = {
+                                ...orders[index].message.order.fulfillments[0],
+                                state:{
+                                    descriptor:{
+                                        code:req.body.data.data.attributes.state_code,
+                                        short_desc:req.body.data.data.attributes.state_value
+                                    },
+                                    updated_at:req.body.data.data.attributes.updatedAt
+                                }
                             }
+                            let reply_message = `Hey the status of your order is updated to ${req.body.data.data.attributes.state_code}`
+                            if(Object.keys(message_config.FULFILLMENT_STATUS_CODES).includes(req.body.data.data.attributes.state_code)){
+                                reply_message = message_config.FULFILLMENT_STATUS_CODES[req.body.data.data.attributes.state_code].message
+                            }
+                                await actionsService.send_message(
+                                    session.key,
+                                    reply_message
+                                )
+                                if (!session.data.text) session.data.text = []
+                                session.data.text.push({
+                                    role: 'assistant',
+                                    content: reply_message,
+                                })
+                                await db.update_session(
+                                    session.key,
+                                    session.data
+                                )
                         }
                         catch(e){
                             logger.error(e);
+                            throw new Error(e.message)
                         }
                     
                 }
