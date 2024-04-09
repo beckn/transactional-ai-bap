@@ -1,18 +1,12 @@
 import ActionsService from '../services/Actions.js'
 import AI from '../services/AI.js'
-
 import logger from '../utils/logger.js'
 import {db} from '../server.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
-import { fileURLToPath } from 'url';
-import path from 'path'
 const mapService = new MapsService()
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-import CronService from '../services/CronService.js'
 const actionsService = new ActionsService()
 
 /**
@@ -106,6 +100,7 @@ async function process_text(req, res) {
         bookings: [],
         active_transaction: null,
         routes:[],
+        orders:[],
         selected_route:null
     }
     
@@ -229,9 +224,10 @@ async function process_text(req, res) {
                 session.bookings = ai.bookings;
                 response = await process_action(ai.action, message, session, sender, format);
                 ai.bookings = response.bookings;
-                
+             
                 // update actions
                 if(ai.action?.action === 'confirm') {
+                    session.orders.push(response.raw.responses[0]);
                     session.actions = EMPTY_SESSION.actions;
                     session.text = EMPTY_SESSION.text;
                 }
@@ -388,7 +384,53 @@ async function process_action(action, text, session, sender=null, format='applic
         
         return response;
     }
+
+    async function webhookControl (req, res) {
+        try{
+           const sessions = await db.get_all_sessions();
+            logger.info(`Got ${sessions.length} sessions.`)
+            
+          
+            for(let session of sessions){
+                const orders = session.data.orders;
+                const index = orders ? orders.findIndex((order)=>order.message.order.id == req.body.orderId) : null;
+                if(index!==null && orders[index].message.order.fulfillments[0].state.descriptor.name !== req.body.data.data.attributes.state_code) {
+                    // send whatsapp and add to context
+                        try{
+                            // update session
+                            orders[index].message.order.fulfillments[0].state.descriptor.name = req.body.data.data.attributes.state_code
+                            let reply_message = '';
+                            if(req.body.data.data.attributes.state_code === "charger-not-working"){
+                                console.log('here3', session.data.orders);
+                                reply_message ="Hey, looks like the charger is not working, do you want to look for other chargers on the route?"
+                                await actionsService.send_message(session.key, reply_message);
+                                if(!session.data.text) session.data.text=[]
+                                session.data.text.push({role: 'assistant', content: reply_message});
+                                await db.update_session(session.key, session.data);
+                            }
+                        }
+                        catch(e){
+                            logger.error(e);
+                        }
+                    
+                }
+            }
+            return res.status(200).json({
+                status:true,
+                message:'Notification Sent'
+            })
+        }catch(error){
+            return res.status(400).json({
+                status:false,
+                message:'Some Error Occured'
+            })
+        }
+    }
+
+   
+
     export default {
         process_wa_webhook,
-        process_text,
+        process_text,  
+        webhookControl,
     }

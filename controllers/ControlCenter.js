@@ -204,6 +204,8 @@ export const updateStatus = async (req, res) => {
                     state_value: DOMAIN_DETAILS.message,
                 },
             },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+            const webhookResponse = await action.call_api(`${process.env.BASE_URL}/webhook-ps`, 'POST',{...updateStatusResponse, orderId:orderId});
+            logger.info(JSON.stringify(webhookResponse));
             return res.status(200).send({ message: `Status Updated to: ${updateStatusResponse.data.data.attributes.state_value}`, status:true })
         }
 
