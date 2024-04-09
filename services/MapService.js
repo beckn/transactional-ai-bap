@@ -3,6 +3,7 @@ import logger from '../utils/logger.js'
 import AI from './AI.js'
 const ai = new AI();
 import polyline from '@mapbox/polyline';
+import get_text_by_key from "../utils/language.js";
 
 
 class MapsService {
@@ -84,10 +85,10 @@ class MapsService {
         logger.info(JSON.stringify(details, null, 2));
         if(!details.source || !details.destination) {
             if (!details.source ) {
-                response.errors.push("Can you please specify the source location?");            
+                response.errors.push(get_text_by_key('missing_source'));
             }
             if (!details.destination) {
-                response.errors.push("Can you please specify the destination location?");
+                response.errors.push(get_text_by_key('missing_destination'));
             }
         }
         else{
@@ -97,10 +98,10 @@ class MapsService {
 
             if(!source_gps || !destination_gps) {
                 if(!source_gps) {
-                    response.errors.push("Can you please specify the source location?");
+                    response.errors.push(get_text_by_key('missing_source'));
                 }
                 if(!destination_gps) {
-                    response.errors.push("Can you please specify the destination location?");
+                    response.errors.push(get_text_by_key('missing_destination'));
                 }
             }
             else{
@@ -120,7 +121,7 @@ class MapsService {
                 logger.info(`Route image path : ${path}`)
 
                 response.data.routes_formatted = {
-                    "description": `these are the various routes that you can take. Which one would you like to select:`,
+                    "description": get_text_by_key('route_list_description'),
                     "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
                 }
                 response.status = true;

@@ -4,6 +4,7 @@ import DBService from '../services/DBService.js'
 import logger from '../utils/logger.js'
 import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
+import get_text_by_key from '../utils/language.js'
 const mapService = new MapsService()
 
 const actionsService = new ActionsService()
@@ -167,11 +168,11 @@ async function process_text(req, res) {
                     ...EMPTY_SESSION,
                     profile: session.profile
                 };
-                response.formatted = 'Session cleared! You can start a new session now.';
+                response.formatted = get_text_by_key('session_cleared');
             }
             else if(ai.action?.action === 'clear_all'){
                 session = EMPTY_SESSION;
-                response.formatted = 'Session & profile cleared! You can start a new session now.';
+                response.formatted = get_text_by_key(session_and_profile_cleared);
             }
             else if(ai.action?.action === 'get_routes'){
                 const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
@@ -192,7 +193,7 @@ async function process_text(req, res) {
                     const index= Math.max(1-details_response.index,0);
                     session.selected_route = session.routes[index];
                     const url = `https://www.google.com/maps/dir/${session.selected_route.source_gps.lat},${session.selected_route.source_gps.lng}/${session.selected_route.destination_gps.lat},${session.selected_route.destination_gps.lng}/`;
-                    route_response.message = `Your route has been actived. Here is the link to navigate : ${url}. What do you want to do next?`;
+                    route_response.message = get_text_by_key('route_selected', {url: url});
                     const map_image_url = await mapService.get_static_image_path([session.selected_route]);
                     if(map_image_url){
                         const map_image_url_server = await actionsService.download_file(map_image_url);
@@ -284,7 +285,7 @@ async function process_action(action, text, session, sender=null, format='applic
     ai.action = action;
     ai.bookings = session.bookings;
     
-    format!='application/json' && await actionsService.send_message(sender, `_Please wait while we process your request through open networks..._`)
+    format!='application/json' && await actionsService.send_message(sender, get_text_by_key('request_in_progress'))
     
     // Get schema
     const schema = await ai.get_schema_by_action(action.action);
@@ -343,10 +344,10 @@ async function process_action(action, text, session, sender=null, format='applic
         if(request.status){
             // call api
             const api_response = await actionsService.call_api(request.data.url, request.data.method, request.data.body, request.data.headers)
-            format!='application/json' && await actionsService.send_message(sender, `_Your request is processed, generating a response..._`)
+            format!='application/json' && await actionsService.send_message(sender, get_text_by_key('request_processed'))
             if(!api_response.status){
                 logger.error(`Failed to call the API: ${api_response.error}`)
-                response.formatted = 'Request could not be processed. Do you want to try again?'
+                response.formatted = get_text_by_key('request_failed')
             }
             else{
                 
@@ -376,7 +377,7 @@ async function process_action(action, text, session, sender=null, format='applic
                 
             }
             else{
-                response.formatted = "Could not process this request. Can you please try something else?"
+                response.formatted = get_text_by_key('request_to_beckn_failed')
             }
         }
         

@@ -11,6 +11,7 @@ import {
 } from '../utils/constants.js'
 import DBService from '../services/DBService.js'
 import MapsService from '../services/MapService.js'
+import get_text_by_key from '../utils/language.js'
 
 const action = new Actions()
 
@@ -118,7 +119,7 @@ export const notify = async (req, res) => {
                     // send whatsapp and add to context
                     if(status){
                         try{
-                            const reply_message = `${message}. Please share your current location and I'll try to find some alternate routes?`
+                            const reply_message = get_text_by_key('incident_on_road', {message: message})
                             await action.send_message(session.key, reply_message);
                             
                             // update session
