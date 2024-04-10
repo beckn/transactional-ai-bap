@@ -23,23 +23,51 @@ export const UPDATE_STATUS_MESSAGE = {
 }
 
 export const BECKN_STATUS_CALL =  {
-        "context": {
-            "domain": "",
-            "location": {
-                "country": {
-                    "code": "DE"
-                }
-            },
-            "action": "status",
-            "version": "1.1.0",
-            "bap_uri": "",
-            "bap_id": "",
-            "bpp_id": "",
-            "bpp_uri": "",
-            "timestamp": "2023-05-25T05:23:03.443Z",
-            "ttl": "P30M"
+    "context": {
+        "domain": "",
+        "location": {
+            "country": {
+                "code": "DE"
+            }
         },
-        "message": {
-            "order_id": ""
-        }
+        "action": "status",
+        "version": "1.1.0",
+        "bap_uri": "",
+        "bap_id": "",
+        "bpp_id": "",
+        "bpp_uri": "",
+        "timestamp": "2023-05-25T05:23:03.443Z",
+        "ttl": "P30M"
+    },
+    "message": {
+        "order_id": ""
     }
+}
+
+export const EMPTY_BECKN_TRANSACTION = { 
+    id: false,
+    responses: {
+        on_search: {},
+        on_select: {},
+        on_init: {},
+        on_confirm: {}
+    }
+}
+
+export const EMPTY_SESSION = {
+    profile:{
+        selected_route:null
+    },
+    text : [],
+    actions : {
+        raw: [],
+        formatted: []
+    },
+    bookings: [],
+    routes:[],
+    orders:[],
+    last_action:false,
+    beckn_transaction : EMPTY_BECKN_TRANSACTION
+}
+
+

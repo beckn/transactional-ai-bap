@@ -127,17 +127,24 @@ class AI {
      * @param {*} context 
      * @returns 
      */
-    async get_context_by_instruction(instruction, context=[]){
+    async get_context_by_instruction(instruction, session){
         
         const desired_structure = {
             domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`            
         }
 
+        let last_action_context=[];
         if(this.action?.action!=='search'){
-            desired_structure.bpp_id = `<bpp_id as per the search response>`;
-            desired_structure.bpp_uri = `<bpp_uri as per the search response>`;
-        }
+            desired_structure.bpp_id = `<bpp_id as per user selection and last response>`;
+            desired_structure.bpp_uri = `<bpp_uri as per user selection and last response>`;
 
+            // last action context
+            if(session?.profile?.last_action && session.beckn_transaction?.responses[`on_${session.profile.last_action}`]){
+                last_action_context = [
+                    {role: 'system', content: `Response of last action '${session.profile.last_action}' is : ${JSON.stringify(session.beckn_transaction?.responses[`on_${session.profile.last_action}`])}`},
+                ]
+            }            
+        }
         
         let response = {
             message_id : uuidv4(),
@@ -154,10 +161,10 @@ class AI {
         }
 
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generated a config json in the following structure : ${JSON.stringify(desired_structure)}` },
+            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generate a config json in the following structure : ${JSON.stringify(desired_structure)}` },
             { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
             { role: 'system', content: `Instruction : ${instruction}` },
-            ...context
+            ...last_action_context,
         ]
 
         try {
@@ -185,7 +192,7 @@ class AI {
      * @param {*} schema 
      * @returns 
      */
-    async get_beckn_request_from_text(instruction, context=[], beckn_context={}, schema={}, profile={}){
+    async get_beckn_request_from_text(instruction, beckn_context={}, schema={}, session={}){
 
         logger.info(`Getting beckn request from instruction : ${instruction}`)
         let action_response = {
@@ -194,17 +201,25 @@ class AI {
             message: null
         }        
 
+        // last action context
+        let last_action_context = [];
+        if(session?.profile?.last_action && session.beckn_transaction?.responses[`on_${session.profile.last_action}`]){
+            last_action_context = [
+                {role: 'system', content: `Response of last action '${session.profile.last_action}' is : ${JSON.stringify(session.beckn_transaction?.responses[`on_${session.profile.last_action}`])}`},
+            ]
+        }
         let openai_messages = [
-            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
             ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
-            {"role": "system", "content": `This is the user profile that you can use for transactions : ${JSON.stringify(profile)}`},
+            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
+            {"role": "system", "content": `User profile : ${JSON.stringify(session.profile)}`},
+            ...last_action_context,
             {"role": "system", "content": `Following is the conversation history`},
-            ...context,
+            ...session?.text?.slice(-3),
             { "role": "user", "content": instruction }
         ]
         
         try{
-            const completion = await openai.chat.completions.create({
+            const completion =await openai.chat.completions.create({
                 messages: openai_messages,
                 model: 'gpt-4-0125-preview',
                 response_format: { type: 'json_object' },

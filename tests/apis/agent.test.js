@@ -131,7 +131,7 @@ describe('Test cases for trip planning workflow', ()=>{
 })
 
 describe.only('Test cases for booking collection', ()=>{
-    it.only('Should make the hotel bookings', async ()=>{
+    it('Should make the hotel bookings', async ()=>{
         
         const chats = [
             "Hey Alfred, you up? ",
@@ -152,7 +152,32 @@ describe.only('Test cases for booking collection', ()=>{
         } 
     })
 
-    it('Should make the ticket bookings', async ()=>{
+    it.only('Should find and book ev chargers', async ()=>{
+        
+        const chats = [
+            "Can you share the best routes from Denver to Yellowstone national park?",
+            "Lets go with Route 1",
+            "Can you find some ev chargers along the way?",
+            "Lets go with the first one",
+            "go ahead and initiate! John A. Smith, john.smith@example.com, (555) 123-4567",
+            "Sure, lets confirm",
+            "Yeah, let’s find another charger",
+            "Second charger",
+            "Sure thing, go ahead and initiate!",
+            "Yeah, let’s confirm!"
+        ];
+
+        for(const chat of chats){
+            const response = await request(app).post('/webhook').send({
+                From: process.env.TEST_RECEPIENT_NUMBER,
+                Body: chat,
+            });
+            logger.info(JSON.stringify(response.text, null, 2));
+            expect(response.status).equal(200);
+        } 
+    })
+
+    it.skip('Should make the ticket bookings', async ()=>{
         
         const chats = [
             "lets find tickets for yellowstone national park",
@@ -172,27 +197,9 @@ describe.only('Test cases for booking collection', ()=>{
         } 
     })
 
-    it('Should find and book ev chargers', async ()=>{
-        
-        const chats = [
-            "Can you find ev charging stations near me? lat: 48.9762, long: -117.7012",
-            "I've selected the first one",
-            "Sure, go ahead",
-            "Lets confirm the order",
+    
 
-        ];
-
-        for(const chat of chats){
-            const response = await request(app).post('/webhook').send({
-                From: process.env.TEST_RECEPIENT_NUMBER,
-                Body: chat,
-            });
-            logger.info(JSON.stringify(response.text, null, 2));
-            expect(response.status).equal(200);
-        } 
-    })
-
-    it('Should Place the order for raincoats', async ()=>{
+    it.skip('Should Place the order for raincoats', async ()=>{
         
         const chats = [
             "Can you find some raincoats near Yellwostone national park?",

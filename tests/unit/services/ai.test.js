@@ -2,6 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 import AI from '../../../services/AI.js'
 import { readFileSync } from 'fs';
+import { EMPTY_SESSION } from '../../../config/constants.js';
 const ai = new AI();
 const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
 const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
@@ -12,7 +13,7 @@ const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
 
 
-describe.only('Test cases for services/ai/get_beckn_action_from_text()', () => {
+describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
     it('Should return null action when shared details about a trip', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_DETAILS);
         expect(response).to.have.property('action')
@@ -158,16 +159,21 @@ describe('Test cases for services/ai/compress_search_results()', () => {
 })
 
 describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
+    let session = EMPTY_SESSION;
+
     it('Should test get_beckn_request_from_text() succesfully for a `search` intent', async () => {
 
         ai.action = {action: 'search'};
         const schema = await ai.get_schema_by_action();
-        const response = await ai.get_beckn_request_from_text("I'm looking for some ev chargers.", [], on_search.context, schema);
+        const response = await ai.get_beckn_request_from_text(trip_planning.FIND_HOTEL, on_search.context, schema, session);
         expect(response.status).to.be.eq(true);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('search')
         expect(response.data.body.message.intent.descriptor).to.have.property('name')
+        session.profile.last_action = ai.action.action;
+        session.beckn_transaction.responses[`on_${session.profile.last_action}`] = response.data;
+        
     })
 
     it('Should test get_beckn_request_from_text() succesfully for a `select`', async () => {
@@ -175,11 +181,9 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         ai.action = {action: 'select'};
         const schema = await ai.get_schema_by_action();
         
-        const context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)}            
-        ]
-        const response = await ai.get_beckn_request_from_text("Lets select the first item", context, on_select.context, schema);
+        session.text.push({"role": "user", "content": trip_planning.FIND_HOTEL});
+        session.text.push({"role": "assistant", "content": trip_planning.FIND_HOTEL_RESPONSE})
+        const response = await ai.get_beckn_request_from_text(trip_planning.SELECT_HOTEL, on_select.context, schema, session);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('select')
@@ -188,20 +192,16 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.context).to.have.property('bpp_uri')
         expect(response.data.body.message).to.have.property('order')
         expect(response.data.body.message.order).to.have.property('items')
-        expect(response.data.body.message.order.items[0]).to.have.property('id')
+        expect(response.data.body.message.order.items[0]).to.have.property('id');
+        session.last_action = ai.action.action;
+        session.beckn_transaction.responses[`on_${session.last_action}`] = response.data;
     })
 
     it('Should test get_beckn_request_from_text() succesfully for a `init`', async () => {
-        let context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
-            {"role": "user", "content": "I want to select the first item"},
-            {"role": "assistant", "content": JSON.stringify(on_select)}
-        ]
         ai.action = {action: 'init'};
         const schema = await ai.get_schema_by_action();        
 
-        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999", context, on_init.context, schema);
+        const response = await ai.get_beckn_request_from_text("Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999", on_init.context, schema, session);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('init')
@@ -214,19 +214,15 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.message.order).to.have.property('billing')
         expect(response.data.body.message.order.billing).to.have.property('name')
         expect(response.data.body.message.order.billing).to.have.property('email')
-        expect(response.data.body.message.order.billing).to.have.property('phone')
+        expect(response.data.body.message.order.billing).to.have.property('phone');
+        session.last_action = ai.action.action;
+        session.beckn_transaction.responses[`on_${session.last_action}`] = response.data
     });
 
 
     it('Should test get_beckn_request_from_text() succesfully for a `init` if billing details shared earlier', async () => {
-        let context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
-            {"role": "user", "content": "I want to select the first item"},
-            {"role": "assistant", "content": JSON.stringify(on_select)}
-        ]
-
-        const profile = {
+        session.profile = {
+            ...session.profile,
             "name": "John Doe",
             "email": "john.doe@example.com",
             "phone": "9999999999"
@@ -234,29 +230,23 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         ai.action = {action: 'init'};
         const schema = await ai.get_schema_by_action();        
 
-        const response = await ai.get_beckn_request_from_text("Lets place the order", context, on_init.context, schema, profile);
+        const response = await ai.get_beckn_request_from_text("Lets place the order", on_init.context, schema, session);
         expect(response.data.body.message.order.billing).to.have.property('name')
-        expect(response.data.body.message.order.billing.name).to.eq(profile.name);
+        expect(response.data.body.message.order.billing.name).to.eq(session.profile.name);
         expect(response.data.body.message.order.billing).to.have.property('email')
-        expect(response.data.body.message.order.billing.email).to.eq(profile.email);
+        expect(response.data.body.message.order.billing.email).to.eq(session.profile.email);
         expect(response.data.body.message.order.billing).to.have.property('phone')
-        expect(response.data.body.message.order.billing.phone).to.eq(profile.phone);
+        expect(response.data.body.message.order.billing.phone).to.eq(session.profile.phone);
+        session.last_action = ai.action.action;
+        session.beckn_transaction.responses[`on_${session.last_action}`] = response.data
     });
     
     it('Should test get_beckn_request_from_text() succesfully for a `confirm`', async () => {
-        let context = [
-            {"role": "user", "content": "I'm looking for some ev chargers"},
-            {"role": "assistant", "content": JSON.stringify(on_search_compressed)},
-            {"role": "user", "content": "I want to select the first item"},
-            {"role": "assistant", "content": JSON.stringify(on_select)},
-            {"role": "user", "content": "Lets place the order. My details are : John Doe, john.doe@example.com, 9999999999"},
-            {"role": "assistant", "content": JSON.stringify(on_init)}
-        ]
-
+        
         ai.action = {action: 'confirm'};
         const schema = await ai.get_schema_by_action();
         
-        const response = await ai.get_beckn_request_from_text("Lets confirm the order!", context, on_confirm.context, schema);
+        const response = await ai.get_beckn_request_from_text("Lets confirm the order!", on_confirm.context, schema, session);
         expect(response.data).to.be.an('object')
         expect(response.data.method.toUpperCase()).to.be.eq('POST')
         expect(response.data.url).to.contain('confirm')
@@ -265,7 +255,9 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
         expect(response.data.body.context).to.have.property('bpp_uri')
         expect(response.data.body.message).to.have.property('order')
         expect(response.data.body.message.order).to.have.property('items')
-        expect(response.data.body.message.order.items[0]).to.have.property('id')        
+        expect(response.data.body.message.order.items[0]).to.have.property('id')  
+        session.last_action = ai.action.action;
+        session.beckn_transaction.responses[`on_${session.last_action}`] = response.data      
     });
 });
 

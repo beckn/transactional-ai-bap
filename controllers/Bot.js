@@ -6,6 +6,10 @@ import { v4 as uuidv4 } from 'uuid'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
 import {readFileSync} from 'fs'
+import {
+    EMPTY_BECKN_TRANSACTION,
+    EMPTY_SESSION
+} from '../config/constants.js';
 const mapService = new MapsService()
 const db = new DBService()
 const actionsService = new ActionsService()
@@ -31,22 +35,6 @@ async function process_text(req, res) {
         formatted: null,
         media:null
     };
-    
-    const EMPTY_SESSION = {
-        profile:{},
-        sessionId: sender,
-        text : [],
-        actions : {
-            raw: [],
-            formatted: []
-        },
-        bookings: [],
-        active_transaction: null,
-        routes:[],
-        orders:[],
-        selected_route:null,
-        last_action:""
-    }
     
     // Update lat, long
     if(req.body.Latitude && req.body.Longitude){
@@ -102,24 +90,16 @@ async function process_text(req, res) {
         else{
             
             // get action
-            ai.action = await ai.get_beckn_action_from_text(message, session.text.slice(-3), ai.action?.action);
-            session.last_action = ai.action?.action;
+            ai.action = await ai.get_beckn_action_from_text(message, session.text.slice(-3), session?.profile?.last_action);
 
             // Reset actions context if action is search
             if(ai.action?.action === 'search') {
                 session.actions = EMPTY_SESSION.actions;
-                session.active_transaction = ai.action.transaction_id || uuidv4();
+                session.beckn_transaction.id = ai.action.transaction_id || uuidv4();
             }
             
             
-            if(ai.action?.action === 'clear_chat'){
-                session = {
-                    ...EMPTY_SESSION,
-                    profile: session.profile
-                };
-                response.formatted = get_text_by_key('session_cleared');
-            }
-            else if(ai.action?.action === 'get_routes'){
+            if(ai.action?.action === 'get_routes'){
                 const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
                 const formatting_response = await ai.format_response(routes.data?.routes_formatted || routes.errors, [{ role: 'user', content: message },...session.text]);
                 response.formatted = formatting_response.message;
@@ -136,10 +116,10 @@ async function process_text(req, res) {
                 }
                 if(details_response && details_response.index){
                     const index= Math.max(1-details_response.index,0);
-                    session.selected_route = session.routes[index];
-                    const url = `https://www.google.com/maps/dir/${session.selected_route.source_gps.lat},${session.selected_route.source_gps.lng}/${session.selected_route.destination_gps.lat},${session.selected_route.destination_gps.lng}/`;
+                    session.profile.selected_route = session.routes[index];
+                    const url = `https://www.google.com/maps/dir/${session.profile.selected_route.source_gps.lat},${session.profile.selected_route.source_gps.lng}/${session.profile.selected_route.destination_gps.lat},${session.profile.selected_route.destination_gps.lng}/`;
                     route_response.message = get_text_by_key('route_selected', {url: url});
-                    const map_image_url = await mapService.get_static_image_path([session.selected_route]);
+                    const map_image_url = await mapService.get_static_image_path([session.profile.selected_route]);
                     if(map_image_url){
                         const map_image_url_server = await actionsService.download_file(map_image_url);
                         logger.info(`Image url : ${map_image_url_server}`)
@@ -175,6 +155,7 @@ async function process_text(req, res) {
                     session.orders.push(response.raw.responses[0]);
                     session.actions = EMPTY_SESSION.actions;
                     session.text = EMPTY_SESSION.text;
+                    session.beckn_transaction = EMPTY_BECKN_TRANSACTION;
                 }
                 else if(response.formatted && response.raw){
                     session.actions.raw.push({ role: 'user', content: message }); 
@@ -190,11 +171,9 @@ async function process_text(req, res) {
             
         }
         
-        // if(session.bookings && session.bookings.length>0) session.bookings = await ai.get_bookings_status(session.bookings, session.text);
-        // logger.info(`\u001b[1;34m Bookings status : ${JSON.stringify(ai.bookings)}\u001b[0m`)
-        
-        // update session
-        // session.bookings = ai.bookings;
+        if(ai.action?.action){
+            session.profile.last_action = ai.action?.action;
+        }
         await db.update_session(sender, session);
         
         // Send response
@@ -233,8 +212,8 @@ async function process_action(ai, action, text, session, sender=null, format='ap
     const schema = await ai.get_schema_by_action(action.action);
     
     // Get config
-    let beckn_context = await ai.get_context_by_instruction(text, session.actions.raw);
-    beckn_context.transaction_id = session.active_transaction;
+    let beckn_context = await ai.get_context_by_instruction(text, session);
+    beckn_context.transaction_id = session.beckn_transaction.id;
     
     // Prepare request
     if(schema && beckn_context){
@@ -267,10 +246,10 @@ async function process_action(ai, action, text, session, sender=null, format='ap
             }
 
             let message = null;
-            message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
+            message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.profile.selected_route?.overview_polyline?.points);
             if(!message){
                 logger.error(`Failed to get message from text: ${text}. Retrying...`)
-                message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.selected_route?.overview_polyline?.points);
+                message = await ai.get_beckn_message_from_text(text, search_context, beckn_context.domain, session.profile.selected_route?.overview_polyline?.points);
             }
 
             request = {
@@ -286,7 +265,7 @@ async function process_action(ai, action, text, session, sender=null, format='ap
             }
         }
         else{
-            request = await ai.get_beckn_request_from_text(text, session.actions.raw, beckn_context, schema, session.profile);
+            request = await ai.get_beckn_request_from_text(text, beckn_context, schema, session);
         }
         
         if(request.status && request?.data?.body?.message){
@@ -299,19 +278,9 @@ async function process_action(ai, action, text, session, sender=null, format='ap
             }
             else{
                 
+                // update response on session
                 response.raw = request.data.body.context.action==='search' ? await ai.compress_search_results(api_response.data) : api_response.data
-                
-                // update booking status
-                if (ai.action && ai.action.action === 'confirm') {
-                    response.bookings = ai.bookings.map(booking => {
-                        if (booking.transaction_id === response.raw.context.transaction_id) {
-                            booking.booked_yn = 1;
-                        }
-                        return booking;
-                    });
-                    logger.info(`Updated bookings: ${JSON.stringify(response.bookings)}`);
-                }
-                ai.bookings = response.bookings;
+                session.beckn_transaction.responses[`on_${ai.action?.action}`] = response.raw;
                 
                 const formatted_response = await ai.format_response(
                     api_response.data,
