@@ -130,20 +130,17 @@ describe('Test cases for trip planning workflow', ()=>{
     })
 })
 
-describe.skip('Test cases for booking collection', ()=>{
-    it('Should make the hotel bookings', async ()=>{
+describe.only('Test cases for booking collection', ()=>{
+    it.only('Should make the hotel bookings', async ()=>{
         
         const chats = [
             "Hey Alfred, you up? ",
-            "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family. ",
-            "I'm thinking, Denver to Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet",
-            "Perfect, lets make the bookings!",
-            "Lets find the hotel first",
-            "Lets select the first one",
-            "Adam, 9999999999, adam@example.com",
-            "Lets confirm the order"
-
+            "I’m hitting Yellowstone National Park on April 12th for 2 days. Got any places to stay?",
+            "First one sounds awesome. Lets go with that",
+            "Sure, John A. Smith, john.smith@example.com, (555) 123-4567",
+            "Sure, lets confirm!"
         ];
+        
 
         for(const chat of chats){
             const response = await request(app).post('/webhook').send({

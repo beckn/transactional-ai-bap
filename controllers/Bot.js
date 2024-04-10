@@ -225,8 +225,7 @@ async function process_text(req, res) {
             else{
                 
                 session.bookings = ai.bookings;
-                response = await process_action(ai.action, message, session, sender, format);
-                ai.bookings = response.bookings;
+                response = await process_action(ai, ai.action, message, session, sender, format);
              
                 // update actions
                 if(ai.action?.action === 'confirm') {
@@ -278,16 +277,12 @@ async function process_text(req, res) {
 * @param {*} session 
 * @returns 
 */
-async function process_action(action, text, session, sender=null, format='application/json'){
-    let ai = new AI();
+async function process_action(ai, action, text, session, sender=null, format='application/json'){
     let response = {
         raw: null,
         formatted: null,
         bookings: session.bookings
     }
-    
-    ai.action = action;
-    ai.bookings = session.bookings;
     
     format!='application/json' && await actionsService.send_message(sender, get_text_by_key('request_in_progress'))
     
