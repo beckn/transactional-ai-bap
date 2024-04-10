@@ -103,7 +103,8 @@ async function process_text(req, res) {
         active_transaction: null,
         routes:[],
         orders:[],
-        selected_route:null
+        selected_route:null,
+        last_action:""
     }
     
     // Update lat, long
@@ -160,8 +161,9 @@ async function process_text(req, res) {
         else{
             
             // get action
-            ai.action = await ai.get_beckn_action_from_text(message, session.text.slice(-3), session.bookings);
-            
+            ai.action = await ai.get_beckn_action_from_text(message, session.text.slice(-3), ai.action?.action);
+            session.last_action = ai.action?.action;
+
             // Reset actions context if action is search
             if(ai.action?.action === 'search') {
                 session.actions = EMPTY_SESSION.actions;

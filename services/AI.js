@@ -66,13 +66,13 @@ class AI {
     //     return response;
     // }
 
-    async get_beckn_action_from_text(instruction, context=[], bookings=[]){
+    async get_beckn_action_from_text(instruction, context=[], last_action=null){
         let response = {
             action : null
         }
         const messages = [
             { role: 'system', content: `Supported actions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` },
-            { role: 'system', content: `Ongoing bookings : ${JSON.stringify(bookings)}` },
+            { role: 'system', content: `Last action : ${last_action}` },
             ...context,
             { role: "user", content: instruction }
 
