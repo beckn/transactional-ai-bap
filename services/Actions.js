@@ -6,7 +6,6 @@ import {createWriteStream} from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url';
-import get_text_by_key from '../utils/language.js'
 const __filename = fileURLToPath(import.meta.url);
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -67,105 +66,56 @@ class Actions {
         return responseObject
     }
     
-    async process_instruction(message, context=[]) {
-        let response = {
-            status: false,
-            formatted: get_text_by_key('formatting_failed'),
-        }
+    async send_message(recipient, message, media_url=null) {
         try {
-
-            // Get action from text message
-            this.ai.action = await this.ai.get_beckn_action_from_text(message, context);
-            if(this.ai.action?.action === 'search') context = [];
-
-            // Get becnk request from text message
-            const beckn_request = await this.ai.get_beckn_request_from_text(message, context);
-            if(!beckn_request.status){
-                response.formatted = beckn_request.message;              
-            }
-            else{
-                // Call the API
-                logger.info(`Making api call...`)
-                const call_api_response = await this.call_api(beckn_request.data.url, beckn_request.data.method, beckn_request.data.body, beckn_request.data.headers)
-                if(!call_api_response.status){
-                    response.formatted = get_text_by_key('api_call_failed')
-                    response.data = call_api_response.data              
-                }
-                else{
-
-                    logger.info(`API call successful. Compessing search results in case of search...`)
-                    response = {
-                        status: true,
-                        raw: beckn_request.data.body.context.action==='search' ? await this.ai.compress_search_results(call_api_response.data) : call_api_response.data
-                    }
-
-                    // Format the response
-                    logger.info(`Formatting response...`);
-                    const format_response_response = await this.ai.format_response(
-                        call_api_response.data,
-                        [...context, { role: 'user', content: message }]
-                        )
-                        response.formatted = format_response_response.message
-                    }                
-                }            
-            } catch (error) {
-                logger.error(`Error processing instruction: ${error.message}`)
-                response.formatted = get_text_by_key('failed_to_process_instruction')
+            let body = {
+                body: message,
+                from: `whatsapp:${twilioNumber}`,
+                to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
             }
             
-            return response;
-        }
-        
-        async send_message(recipient, message, media_url=null) {
-            try {
-                let body = {
-                    body: message,
-                    from: `whatsapp:${twilioNumber}`,
-                    to: recipient.includes('whatsapp:') ? recipient : `whatsapp:${recipient}`,
-                }
-                
-                if(media_url && !parseInt(process.env.DEVELOPER_MODE_ON)){
-                    body.mediaUrl = [media_url];
-                }
-                let data = await client.messages.create(body)
-                const status = await client.messages(data.sid).fetch()
-                return { deliveryStatus: status.status }
-            } catch (error) {
-                logger.error(`Error sending message: ${error.message}`)           
-                return false;
+            if(media_url && !parseInt(process.env.DEVELOPER_MODE_ON)){
+                body.mediaUrl = [media_url];
             }
-        }
-        
-        async download_file(url) {
-            const destination_path = path.join(rootPath,'../public');
-            try {
-                const response = await axios({
-                    method: 'GET',
-                    url: url,
-                    responseType: 'stream',
-                });
-                
-                const fileName = `${uuidv4()}.png`;
-                const filePath = path.join(destination_path, fileName);
-                
-                // Create a write stream to save the file
-                const writer = createWriteStream(filePath);
-                
-                // Pipe the response data to the file
-                response.data.pipe(writer);
-                
-                return new Promise((resolve, reject) => {
-                    writer.on('finish', ()=>{
-                        resolve(`${process.env.SERVER_URL}/public/${fileName}`)
-                    });
-                    writer.on('error', reject);
-                    
-                });
-            } catch (error) {
-                logger.error(`Error sending message: ${error.message}`)           
-                return null;
-            }
+            let data = await client.messages.create(body)
+            const status = await client.messages(data.sid).fetch()
+            return { deliveryStatus: status.status }
+        } catch (error) {
+            logger.error(`Error sending message: ${error.message}`)           
+            return false;
         }
     }
     
-    export default Actions
+    async download_file(url) {
+        const destination_path = path.join(rootPath,'../public');
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: url,
+                responseType: 'stream',
+            });
+            
+            const fileName = `${uuidv4()}.png`;
+            const filePath = path.join(destination_path, fileName);
+            
+            // Create a write stream to save the file
+            const writer = createWriteStream(filePath);
+            
+            // Pipe the response data to the file
+            response.data.pipe(writer);
+            
+            return new Promise((resolve, reject) => {
+                writer.on('finish', ()=>{
+                    resolve(`${process.env.SERVER_URL}/public/${fileName}`)
+                });
+                writer.on('error', reject);
+                
+            });
+        } catch (error) {
+            logger.error(`Error sending message: ${error.message}`)           
+            return null;
+        }
+    }
+}
+
+export default Actions

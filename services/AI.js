@@ -20,52 +20,6 @@ class AI {
         this.bookings = [];
     }
     
-    /**
-     * Function to get the action from text. Works better without the context.
-     * @param {*} text 
-     * @param {*} context 
-     * @returns 
-     */
-    // async get_beckn_action_from_text(text, context=[], bookings = []){
-    //     let booking_context = [
-    //         { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`}
-    //     ];
-    //     if(bookings.length > 0){
-    //         booking_context = [
-    //             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL', 'transaction_id':'TRANSACTION_ID_OF_SELECTED_BOOKING_OR_NULL'}.`},
-    //             { role: 'system', content: `In case of a 'search', the transaction_id should be taken based on which booking out of the list of bookings the user wants to make. For e.g. if the user wants to book the first booking in the list, the transaction_id should be the transaction_id of the first booking. Booking list : ${JSON.stringify(bookings)}`}
-    //         ];
-    //     }
-    //     const openai_messages = [
-    //         { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
-    //         ...booking_context,
-    //         { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
-    //         { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
-    //         ...context, 
-    //         { role: 'user', content: text }
-    //     ]
-        
-    //     let response = {
-    //         action: null,
-    //         response: null
-    //     }
-    //     try{
-    //         const completion = await openai.chat.completions.create({
-    //             messages: openai_messages,
-    //             model: process.env.OPENAI_MODEL_ID,
-    //             temperature: 0,
-    //             response_format: { type: 'json_object' }
-    //         })
-    //         response = JSON.parse(completion.choices[0].message.content);
-    //     }
-    //     catch(e){
-    //         logger.error(e);
-    //     }
-
-    //     logger.info(`Got action from text : ${JSON.stringify(response)}`)
-    //     return response;
-    // }
-
     async get_beckn_action_from_text(instruction, context=[], last_action=null){
         let response = {
             action : null

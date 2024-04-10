@@ -11,65 +11,6 @@ const db = new DBService()
 const actionsService = new ActionsService()
 
 const message_config = JSON.parse(readFileSync('./config/message.json'))
-/**
-* @deprecated
-* @param {*} req 
-* @param {*} res 
-*/
-async function process_wa_webhook(req, res) {
-    try {
-        const message = req.body.Body
-        const sender = req.body.From
-        const format = req.headers['content-type'] || 'text/xml';
-        const raw_yn = req.body.raw_yn || false;
-        
-        const EMPTY_SESSION = {
-            sessionId: sender,
-            data : []
-        }
-        
-        logger.info(`Received message from ${sender}: ${message}. Response format: ${format}`)
-        
-        // get or create session
-        const  session_response = await db.get_session(sender);
-        let session = session_response.data;
-        if(!session_response.status){
-            session = EMPTY_SESSION
-        }
-        
-        // Process instruction
-        const process_response = await actionsService.process_instruction(message, session.data)
-        if (process_response.raw?.context?.action === 'search') {
-            session = EMPTY_SESSION
-        }
-        if(process_response.formatted){
-            session.data.push({ role: 'user', content: message });  // add user message to session
-            if(process_response.raw && typeof process_response.raw === 'object'){
-                session.data.push({ role: 'assistant', content: JSON.stringify(process_response.raw) }); // add system response to session
-            }
-            else{
-                session.data.push({ role: 'assistant', content: process_response.formatted }); // add system response to session
-            }
-            
-            await db.update_session(sender, session);
-        }        
-        
-        // twiml.message(process_response.formatted)
-        logger.info(`Sending formatted response to ${sender}: ${process_response.formatted}`)
-        if(format!='application/json'){
-            // res.type('text/xml').send(twiml.toString())
-            await actionsService.send_message(sender, process_response.formatted)
-            res.send("Done!")
-        }
-        else{
-            raw_yn ? res.send(process_response.raw) : res.send(process_response.formatted)
-        }
-        
-    } catch (error) {
-        logger.error(`Error processing message: ${error.message}`)
-        res.status(400).send('Failed to process message')
-    }
-}
 
 /**
 * Function to process any text message received by the bot
@@ -454,7 +395,6 @@ async function process_action(ai, action, text, session, sender=null, format='ap
    
 
     export default {
-        process_wa_webhook,
         process_text,  
         webhookControl,
     }
