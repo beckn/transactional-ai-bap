@@ -95,6 +95,7 @@ async function process_text(req, res) {
             // Reset actions context if action is search
             if(ai.action?.action === 'search') {
                 session.actions = EMPTY_SESSION.actions;
+                session.beckn_transaction = EMPTY_BECKN_TRANSACTION;
                 session.beckn_transaction.id = ai.action.transaction_id || uuidv4();
             }
             
@@ -154,16 +155,9 @@ async function process_text(req, res) {
                 if(ai.action?.action === 'confirm') {
                     session.orders.push(response.raw.responses[0]);
                     session.actions = EMPTY_SESSION.actions;
-                    session.text = EMPTY_SESSION.text;
                     session.beckn_transaction = EMPTY_BECKN_TRANSACTION;
                 }
-                else if(response.formatted && response.raw){
-                    session.actions.raw.push({ role: 'user', content: message }); 
-                    session.actions.raw.push({ role: 'assistant', content: JSON.stringify(response.raw)}); 
-                    
-                    session.actions.formatted.push({ role: 'user', content: message }); 
-                    session.actions.formatted.push({ role: 'assistant', content: response.formatted }); 
-                    
+                if(response.formatted){
                     session.text.push({ role: 'user', content: message }); 
                     session.text.push({ role: 'assistant', content: response.formatted }); 
                 }
@@ -284,7 +278,7 @@ async function process_action(ai, action, text, session, sender=null, format='ap
                 
                 const formatted_response = await ai.format_response(
                     api_response.data,
-                    [...session.actions.formatted, { role: 'user', content: text }],
+                    [...session.text, { role: 'user', content: text }],
                     session.profile
                     );
                     response.formatted = formatted_response.message;

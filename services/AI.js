@@ -21,6 +21,7 @@ class AI {
     }
     
     async get_beckn_action_from_text(instruction, context=[], last_action=null){
+        logger.info(`Getting action from instruction : ${instruction} and last_action is ${last_action}, context is ${JSON.stringify(context)}`);
         let response = {
             action : null
         }
@@ -194,7 +195,7 @@ class AI {
      */
     async get_beckn_request_from_text(instruction, beckn_context={}, schema={}, session={}){
 
-        logger.info(`Getting beckn request from instruction : ${instruction}`)
+        logger.info(`get_beckn_request_from_text() : ${instruction}, for schema : ${schema} , context : ${JSON.stringify(beckn_context)}`)
         let action_response = {
             status: false,
             data: null,
@@ -251,7 +252,7 @@ class AI {
     }
 
     async get_beckn_message_from_text(instruction, context=[], domain='', polygon=null) {
-        logger.info(`Getting beckn message from instruction : ${instruction}, for domain : ${domain}`)
+        logger.info(`get_beckn_message_from_text() : ${instruction}, for domain : ${domain} , polygon : ${polygon}`)
         let domain_context = [], policy_context = [];
         if(domain && domain!='') {
             domain_context = [
@@ -286,7 +287,7 @@ class AI {
         try{
             // Assuming you have a function to abstract the API call
             const response = await openai.chat.completions.create({
-                model: 'gpt-4-0125-preview',
+                model: process.env.OPENAI_MODEL_ID, //'gpt-4-0125-preview',
                 messages: messages,
                 tools: tools,
                 tool_choice: "auto", // auto is default, but we'll be explicit
@@ -376,17 +377,14 @@ class AI {
             call_to_action.select+= 'Billing details are mandatory for initiating the order. You should ask the user to share billing details such as name, email and phone to iniatie the order.';
         }
 
-        if(this.bookings.length > 0 && this.action?.action === 'confirm'){
-            call_to_action.confirm=`You should display the order id and show the succesful order confirmation message. You should also show the list of bookings with theri boooking status and ask which booking would they want to do next. Bookings list : ${JSON.stringify(this.bookings)}`            
-        }
         const openai_messages = [
-            {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
+            {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}.`},
             {role: 'system', content: `${call_to_action[json_response?.context?.action] || 'you should ask the user what they want to do next.'}`},
-            {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
-            {role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
-            {role: 'system', content: `Chat history goes next ....`},
-            ...context.slice(-1),
+            // {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
+            // {role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             {role: 'assistant',content: `input_json: ${JSON.stringify(json_response)}`},
+            {role: 'system', content: `Chat history goes next ....`},
+            ...context.slice(-2),
         ]
         try {
             const completion = await openai.chat.completions.create({
