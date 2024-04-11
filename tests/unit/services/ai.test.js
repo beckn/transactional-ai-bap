@@ -5,7 +5,6 @@ import { readFileSync } from 'fs';
 import { EMPTY_SESSION } from '../../../config/constants.js';
 const ai = new AI();
 const on_search = JSON.parse(readFileSync('./tests/data/api_responses/on_search.json'))
-const on_search_compressed = JSON.parse(readFileSync('./tests/data/api_responses/on_search_compressed.json'))
 const on_select = JSON.parse(readFileSync('./tests/data/api_responses/on_select.json'))
 const on_init = JSON.parse(readFileSync('./tests/data/api_responses/on_init.json'))
 const on_confirm = JSON.parse(readFileSync('./tests/data/api_responses/on_confirm.json'))

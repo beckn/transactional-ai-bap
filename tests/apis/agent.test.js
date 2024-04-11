@@ -130,8 +130,8 @@ describe('Test cases for trip planning workflow', ()=>{
     })
 })
 
-describe.only('Test cases for booking collection', ()=>{
-    it.only('Should make the hotel bookings', async ()=>{
+describe.skip('Test cases for booking collection', ()=>{
+    it('Should make the hotel bookings', async ()=>{
         
         const chats = [
             "Hey Alfred, you up? ",

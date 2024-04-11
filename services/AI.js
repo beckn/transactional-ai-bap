@@ -215,7 +215,7 @@ class AI {
             {"role": "system", "content": `User profile : ${JSON.stringify(session.profile)}`},
             ...last_action_context,
             {"role": "system", "content": `Following is the conversation history`},
-            ...session?.text?.slice(-3),
+            ...session?.text?.slice(-3) || [],
             { "role": "user", "content": instruction }
         ]
         
