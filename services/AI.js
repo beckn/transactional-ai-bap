@@ -287,7 +287,7 @@ class AI {
         try{
             // Assuming you have a function to abstract the API call
             const response = await openai.chat.completions.create({
-                model: process.env.OPENAI_MODEL_ID, //'gpt-4-0125-preview',
+                model: 'gpt-4-0125-preview',
                 messages: messages,
                 tools: tools,
                 tool_choice: "auto", // auto is default, but we'll be explicit

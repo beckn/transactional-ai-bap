@@ -67,7 +67,8 @@ export const EMPTY_SESSION = {
     routes:[],
     orders:[],
     last_action:false,
-    beckn_transaction : EMPTY_BECKN_TRANSACTION
+    beckn_transaction : EMPTY_BECKN_TRANSACTION,
+    avoid_point: []
 }
 
 

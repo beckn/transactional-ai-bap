@@ -102,7 +102,7 @@ async function process_text(req, res) {
             
             if(ai.action?.action === 'get_routes'){
                 const routes = await mapService.generate_routes(message, session.text, session.avoid_point|| []);
-                const formatting_response = await ai.format_response(routes.data?.routes_formatted || routes.errors, [{ role: 'user', content: message },...session.text]);
+                const formatting_response = await ai.format_response(routes.data?.routes_formatted || routes.errors, [{ role: 'user', content: message }]);
                 response.formatted = formatting_response.message;
                 session.routes = routes.data?.routes || session.routes;
                 logger.info(`AI response: ${response.formatted}`);
@@ -128,8 +128,8 @@ async function process_text(req, res) {
                     }
                     session.routes=[]; // reset routes                    
                 }
-                const formatting_response = await ai.format_response(route_response, [{ role: 'user', content: message },...session.text]);
-                response.formatted = formatting_response.message;
+                // const formatting_response = await ai.format_response(route_response, [{ role: 'user', content: message },...session.text]);
+                response.formatted = route_response.message;
 
                 logger.info(`AI response: ${response.formatted}`);
                 
