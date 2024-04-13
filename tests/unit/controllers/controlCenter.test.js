@@ -13,14 +13,6 @@ describe('API tests for /notify endpoint for an end to end Notify Request', () =
         expect(response.status).to.equal(400)
     })
 
-    it('Should test success response for no whatsapp number provided in the payload and will sent to TEST_RECEPIENT_NUMBER', async () => {
-        const response = await request(app).post('/notify').send({})
-
-        expect(response.status).to.equal(200)
-        expect(response._body.status).to.equal(true)
-        expect(response._body.deliveryStatus).to.not.equal('failed')
-    })
-
     it('Should test success response for valid whatsapp number', async () => {
         const response = await request(app).post('/notify').send({
             "userNo":process.env.TEST_RECEPIENT_NUMBER

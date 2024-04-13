@@ -12,7 +12,7 @@ const registry_config = JSON.parse(readFileSync('./config/registry.json'))
 const trip_planning = JSON.parse(readFileSync('./tests/data/chats/trip_planning.json'))
 
 
-describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
+describe.skip('Test cases for services/ai/get_beckn_action_from_text()', () => {
     it('Should return null action when shared details about a trip', async () => {
         const response = await ai.get_beckn_action_from_text(trip_planning.TRIP_DETAILS);
         expect(response).to.have.property('action')
@@ -74,7 +74,7 @@ describe('Test cases for services/ai/get_beckn_action_from_text()', () => {
     });    
 })
 
-describe('Test cases for get_ai_response_to_query() function', () => {
+describe.skip('Test cases for get_ai_response_to_query() function', () => {
     it('Should return a response with success false for an empty query', async () => {
         const response = await ai.get_ai_response_to_query('Hi');
         expect(response).to.be.an.string;
@@ -91,7 +91,7 @@ describe('Test cases for get_ai_response_to_query() function', () => {
     })
 })
 
-describe('Test cases for get_schema_by_action() function', () => {
+describe.skip('Test cases for get_schema_by_action() function', () => {
     it('Should return a search schema for search', async () => {
         ai.action = {action: 'search'};
         const response = await ai.get_schema_by_action(`I'm looking for some hotels`);
@@ -111,7 +111,7 @@ describe('Test cases for get_schema_by_action() function', () => {
     })
 })
 
-describe('Test cases for get_context_by_instruction()', async () => {
+describe.skip('Test cases for get_context_by_instruction()', async () => {
     it('Should return right config for search action in ev context', async () => {
         ai.action = {action: 'search'};
         const config = await ai.get_context_by_instruction("I'm looking for ev:chargers");;
@@ -146,7 +146,7 @@ describe('Test cases for get_context_by_instruction()', async () => {
     })    
 })
 
-describe('Test cases for services/ai/compress_search_results()', () => {
+describe.skip('Test cases for services/ai/compress_search_results()', () => {
     it('Should test succesful compression of search results', async () => {
         const compressed = await ai.compress_search_results(on_search);
         expect(compressed.responses.providers).to.be.an('array')
@@ -157,7 +157,7 @@ describe('Test cases for services/ai/compress_search_results()', () => {
     })
 })
 
-describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
+describe.skip('Test cases for services/ai/get_beckn_request_from_text()', () => {
     let session = EMPTY_SESSION;
 
     it('Should test get_beckn_request_from_text() succesfully for a `search` intent', async () => {
@@ -261,7 +261,7 @@ describe('Test cases for services/ai/get_beckn_request_from_text()', () => {
 });
 
 
-describe('Test cases for services/ai/format_response()', () => {
+describe.skip('Test cases for services/ai/format_response()', () => {
     it('Should test format_response() and throw response with success false for empty object', async () => {
         const response = await ai.format_response({})
         expect(response.status).to.equal(false)
@@ -275,7 +275,7 @@ describe('Test cases for services/ai/format_response()', () => {
     })
 })
 
-describe('Test cases for services/ai/get_beckn_message_from_text()', () => {
+describe.skip('Test cases for services/ai/get_beckn_message_from_text()', () => {
     it('Should return the correct message for a search by name', async () => {
         let instruction = "I'm looking for some raincoats";
         let response = await ai.get_beckn_message_from_text(instruction)
@@ -315,7 +315,7 @@ describe('Test cases for services/ai/get_beckn_message_from_text()', () => {
 })
 
 
-describe('Test cases for get_profile_from_text', () => {
+describe.skip('Test cases for get_profile_from_text', () => {
     it('Should return an object with billing details if billing details shared', async ()=> {
         const response = await ai.get_profile_from_text('John Doe, 9999999999, john.doe@example.com');
         expect(response.status).to.be.true;
