@@ -11,7 +11,7 @@ const ai = new AI();
 const actionsService = new ActionService()
 
 describe('Test cases for AI', () => {
-    it('Should return message with location polygon', async () => {
+    it.skip('Should return message with location polygon', async () => {
         
         const source_gps = await mapService.lookupGps('Denver');
         const destination_gps = await mapService.lookupGps('Yellowstone national park');

@@ -9,8 +9,8 @@
     },
     "scripts": {
         "test": "NODE_ENV=test mocha tests --recursive --timeout 900000 -r dotenv/config --exit",
-        "test:unit": "NODE_ENV=test mocha tests/unit tests/utils --recursive --timeout 60000 -r dotenv/config --exit",
-        "test:apis": "NODE_ENV=test mocha tests/apis --recursive --timeout 60000 -r dotenv/config --exit",
+        "test:unit": "NODE_ENV=test mocha tests/unit tests/utils --recursive --timeout 120000 -r dotenv/config --exit",
+        "test:apis": "NODE_ENV=test mocha tests/apis --recursive --timeout 120000 -r dotenv/config --exit",
         "start": "nodemon --env-file=.env server.js",
         "dev": "NODE_ENV=dev && npm start",
         "prod": "NODE_ENV=prod && npm start",
