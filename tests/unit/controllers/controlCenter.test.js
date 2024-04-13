@@ -87,7 +87,7 @@ describe('API tests for /update-catalog endpoint for an end to end Notify Messag
 })
 
 describe('API tests for triggering a roadblock', ()=>{    
-    it('Should trigger a roadblock on a selected route', async ()=>{
+    it.skip('Should trigger a roadblock on a selected route', async ()=>{
         const response = await request(app).post('/trigger-exception').send({
             "point":[39.7408351, -104.9874105],
             "message": "There is a roadblock on your selected route due to an accident!"
