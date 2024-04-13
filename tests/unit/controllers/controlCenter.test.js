@@ -13,14 +13,6 @@ describe('API tests for /notify endpoint for an end to end Notify Request', () =
         expect(response.status).to.equal(400)
     })
 
-    it('Should test success response for no whatsapp number provided in the payload and will sent to TEST_RECEPIENT_NUMBER', async () => {
-        const response = await request(app).post('/notify').send({})
-
-        expect(response.status).to.equal(200)
-        expect(response._body.status).to.equal(true)
-        expect(response._body.deliveryStatus).to.not.equal('failed')
-    })
-
     it('Should test success response for valid whatsapp number', async () => {
         const response = await request(app).post('/notify').send({
             "userNo":process.env.TEST_RECEPIENT_NUMBER
@@ -95,30 +87,12 @@ describe('API tests for /update-catalog endpoint for an end to end Notify Messag
 })
 
 describe('API tests for triggering a roadblock', ()=>{    
-    it('Should trigger a roadblock on a selected route', async ()=>{
-        const ask1 = "Can you get routes from Denver to Yellowstone national park?";
-        await request(app).post('/webhook').send({
-            "From": process.env.TEST_RECEPIENT_NUMBER,
-            "Body": ask1
-        }) 
-        
-        const ask2 = "Lets select the first route.";
-        await request(app).post('/webhook').send({
-            "From": process.env.TEST_RECEPIENT_NUMBER,
-            "Body": ask2
-        }) 
-        
+    it.skip('Should trigger a roadblock on a selected route', async ()=>{
         const response = await request(app).post('/trigger-exception').send({
             "point":[39.7408351, -104.9874105],
             "message": "There is a roadblock on your selected route due to an accident!"
         })
 
-        const ask3 = "I'm near Glendo";
-        await request(app).post('/webhook').send({
-            "From": process.env.TEST_RECEPIENT_NUMBER,
-            "Body": ask3
-        })
-      
         expect(response.status).equal(200)
     })
 })

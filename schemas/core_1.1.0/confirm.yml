@@ -117,7 +117,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/Billing'
         fulfillments:
-          description: The fulfillments involved in completing this order
+          description: The fulfillments involved in completing this order.
           type: array
           items:
             $ref: '#/components/schemas/Fulfillment'
@@ -142,8 +142,11 @@ components:
           type: string
           description: ID of entity which changed the state
     Fulfillment:
-      description: Describes how a an order will be rendered/fulfilled to the end-customer
+      description: Describes how a an order will be rendered/fulfilled to the end-customer.
       type: object
+      required:
+        - id
+        - customer
       properties:
         id:
           description: Unique reference ID to the fulfillment of an order
@@ -173,46 +176,15 @@ components:
       description: Describes a person as any individual
       type: object
       properties:
-        id:
-          type: string
-          description: Describes the identity of the person
-        url:
-          description: Profile url of the person
-          type: string
-          format: uri
         name:
           description: the name of the person
-          type: string
-        dob:
-          description: Date of birth of the person
-          type: string
-          format: date
-        gender:
-          type: string
-          description: 'Gender of something, typically a Person, but possibly also fictional characters, animals, etc. While Male and Female may be used, text strings are also acceptable for people who do not identify as a binary gender.Allowed values for this field can be published in the network policy'
-        languages:
-          type: array
-          items:
-            description: Describes a language known to the person.
-            type: object
-            properties:
-              code:
-                type: string
-              name:
-                type: string
-        skills:
-          type: array
-          items:
-            description: Describes a skill of the person.
-            type: object
-            properties:
-              code:
-                type: string
-              name:
-                type: string
+          type: string        
     Customer:
-      description: Describes a customer buying/availing a product or a service
+      description: Describes a customer buying/availing a product or a service. These should be picker up from the customer profile.
       type: object
+      required:
+        - person
+        - contact
       properties:
         person:
           $ref: '#/components/schemas/Person'
@@ -226,9 +198,6 @@ components:
           type: string
         email:
           type: string
-        jcard:
-          type: object
-          description: A Jcard object as per draft-ietf-jcardcal-jcard-03 specification
     Billing:
       description: 'Describes the billing details of an entity.<br>This has properties like name,organization,address,email,phone,time,tax_number, created_at,updated_at'
       type: object

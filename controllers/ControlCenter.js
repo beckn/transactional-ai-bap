@@ -13,7 +13,7 @@ import {
     ENERGY_STRAPI_URL,
     DOMAINS,
     UPDATE_STATUS_MESSAGE
-} from '../utils/constants.js'
+} from '../config/constants.js'
 import DBService from '../services/DBService.js'
 import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
@@ -116,11 +116,11 @@ export const notify = async (req, res) => {
             
             // check if point exists on route
             for(let session of sessions){
-                const selected_route = session.data.selected_route;
-                if(selected_route?.overview_polyline?.points) {
-                    const status = await mapService.checkGpsOnPolygon(point, selected_route?.overview_polyline?.points)
+                const route = session.data.profile.selected_route;
+                if(route?.overview_polyline?.points) {
+                    const status = await mapService.checkGpsOnPolygon(point, route?.overview_polyline?.points)
 
-                    logger.info(`Status of gps point ${JSON.stringify(point)} on route ${selected_route.summary} is ${status}`)
+                    logger.info(`Status of gps point ${JSON.stringify(point)} on route ${route.summary} is ${status}`)
                     // send whatsapp and add to context
                     if(status){
                         try{
@@ -148,10 +148,11 @@ export const notify = async (req, res) => {
 
 export const updateStatus = async (req, res) => {
     try {
-        const { orderId, domain="", status=null } = req.body
+        let { orderId, domain="", status=null } = req.body
         if(!orderId){
             return res.status(400).json({message:"Order Id is Required", status:false})
         }
+        orderId = parseInt(orderId);
         let DOMAIN_DETAILS = {
             url:"",
             token:"",

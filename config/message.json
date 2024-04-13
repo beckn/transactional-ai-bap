@@ -1,37 +1,37 @@
 {
-    "FULFILLMENT_STATUS_CODES":{
-        "order-picked-up":{
-            "message": "Your order has been picked up"
+    "FULFILLMENT_STATUS_CODES": {
+        "order-picked-up": {
+            "message": "Your order's on its way!"
         },
         "order-on-the-way": {
-            "message": "Your order is on the way"
+            "message": "Hang tight! Your order's cruising over to you."
         },
-        "order-delivered":{
-            "message": "Your order has been delivered"
+        "order-delivered": {
+            "message": "Package alert! Your order's been delivered."
         },
-        "ticket-issued":{
-            "message": "Your ticket has been issued"
-        }, 
-        "ticket-validated":{
-            "message": "Your ticket has been validated"
+        "ticket-issued": {
+            "message": "All set! Your ticket's ready to go."
+        },
+        "ticket-validated": {
+            "message": "You're all good! Your ticket's been validated."
         },
         "charging-started": {
-            "message": "Your charging has started"
-        }, 
-        "charging-stopped":{
-            "message": "Your charging has stopped"
-        }, 
-        "charger-not-working":{
-            "message": "Hi, it looks likes your charger is not working. DO you want to find other chargin stations?"
-        }, 
-        "charging-completed":{
-            "message": "Hi, your chargin is complete!"
+            "message": "Juice up! Your charging session's begun."
+        },
+        "charging-stopped": {
+            "message": "Heads up! Your charging session's been paused."
+        },
+        "charger-not-working": {
+            "message": "Uh-oh, looks like there's a glitch with your charger. Need help finding another spot?"
+        },
+        "charging-completed": {
+            "message": "Charged and ready! Your battery's full."
         },
         "checked-in": {
-            "message": "You have succesfully checked-in to your stay!"
-        }, 
-        "checked-out":{
-            "message": "You have succesfully checked-out from your stay!"
+            "message": "Welcome! You've successfully checked in."
+        },
+        "checked-out": {
+            "message": "Safe travels! You've checked out."
         }
     }
 }

@@ -38,7 +38,6 @@ class DBService {
             response.error = err
         }
 
-        logger.info(response)
         return response
     }
 

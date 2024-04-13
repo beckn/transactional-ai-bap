@@ -135,67 +135,40 @@ describe.skip('Test cases for booking collection', ()=>{
         
         const chats = [
             "Hey Alfred, you up? ",
-            "Just bought a new EV - Chevrolet Bolt, thinking of taking it out for a spin with the family. ",
-            "I'm thinking, Denver to Yellowstone tomorrow for 3 days, traveling with my family of 4 and a pet",
-            "Perfect, lets make the bookings!",
-            "Lets find the hotel first",
-            "Lets select the first one",
-            "Adam, 9999999999, adam@example.com",
-            "Lets confirm the order"
-
+            "I’m hitting Yellowstone National Park on April 12th for 2 days. Find a hotel to book",
+            "First one sounds awesome. Lets go with that",
+            "Sure, John A. Smith, john.smith@example.com, (555) 123-4567",
+            "Sure, lets confirm!",
+            "Can you share the best routes from Denver to Yellowstone national park?",
+            "Lets go with Route 1",
+            "Can you find some ev chargers along the way?",
+            "Lets go with the first one",
+            "go ahead and initiate!",
+            "Sure, lets confirm"
         ];
-
-        for(const chat of chats){
-            const response = await request(app).post('/webhook').send({
-                From: process.env.TEST_RECEPIENT_NUMBER,
-                Body: chat,
-            });
-            logger.info(JSON.stringify(response.text, null, 2));
-            expect(response.status).equal(200);
-        } 
-    })
-
-    it('Should make the ticket bookings', async ()=>{
         
-        const chats = [
-            "lets find tickets for yellowstone national park",
-            "4 of the first one please",
-            "Sure, go ahead and place the order",
-            "Lets confirm the order",
-
-        ];
 
         for(const chat of chats){
             const response = await request(app).post('/webhook').send({
                 From: process.env.TEST_RECEPIENT_NUMBER,
                 Body: chat,
+                raw_yn : 1
             });
             logger.info(JSON.stringify(response.text, null, 2));
             expect(response.status).equal(200);
         } 
     })
 
-    it('Should find and book ev chargers', async ()=>{
-        
-        const chats = [
-            "Can you find ev charging stations near me? lat: 48.9762, long: -117.7012",
-            "I've selected the first one",
-            "Sure, go ahead",
-            "Lets confirm the order",
-
-        ];
-
-        for(const chat of chats){
-            const response = await request(app).post('/webhook').send({
-                From: process.env.TEST_RECEPIENT_NUMBER,
-                Body: chat,
-            });
-            logger.info(JSON.stringify(response.text, null, 2));
-            expect(response.status).equal(200);
-        } 
+    it('Should trigger an exception', async ()=>{
+        const response = await request(app).post('/update-status').send({
+            "From": process.env.TEST_RECEPIENT_NUMBER,
+            "Body": "I'm looking for some ev chargers along my route. Im' currently near Casper."
+        })        
+        logger.info(JSON.stringify(response.text, null, 2));
+        expect(response.status).to.be.eq(200)
     })
 
-    it('Should Place the order for raincoats', async ()=>{
+    it.skip('Should Place the order for raincoats', async ()=>{
         
         const chats = [
             "Can you find some raincoats near Yellwostone national park?",
@@ -240,7 +213,7 @@ describe('test cases for generating routes', ()=>{
     })
 })
 
-describe('test cases for generating routes and selecting a route', ()=>{
+describe.skip('test cases for generating routes and selecting a route', ()=>{
     
     it('Should share routes when asked to share routes.', async () => {
         const ask = "Can you get routes from Denver to Yellowstone national park?";

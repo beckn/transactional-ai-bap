@@ -20,59 +20,14 @@ class AI {
         this.bookings = [];
     }
     
-    /**
-     * Function to get the action from text. Works better without the context.
-     * @param {*} text 
-     * @param {*} context 
-     * @returns 
-     */
-    // async get_beckn_action_from_text(text, context=[], bookings = []){
-    //     let booking_context = [
-    //         { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL'}`}
-    //     ];
-    //     if(bookings.length > 0){
-    //         booking_context = [
-    //             { role: 'system', content: `You must return a json response with the following structure : {'action':'SOME_ACTION_OR_NULL', 'transaction_id':'TRANSACTION_ID_OF_SELECTED_BOOKING_OR_NULL'}.`},
-    //             { role: 'system', content: `In case of a 'search', the transaction_id should be taken based on which booking out of the list of bookings the user wants to make. For e.g. if the user wants to book the first booking in the list, the transaction_id should be the transaction_id of the first booking. Booking list : ${JSON.stringify(bookings)}`}
-    //         ];
-    //     }
-    //     const openai_messages = [
-    //         { role: 'system', content: `Your job is to analyse the latest user input and check if it is one of the actions given in the following json with their descriptions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` }, 
-    //         ...booking_context,
-    //         { role: 'system', content: `Beckn actions must be called in the given order search > select > init > confirm. For e.g. confirm can only be called if init has been called before.`},
-    //         { role: 'system', content: `'action' must be null if its not from the given set of actions. For e.g. planning a trip is not an action. 'find hotels near a place' is a search action.` },
-    //         ...context, 
-    //         { role: 'user', content: text }
-    //     ]
-        
-    //     let response = {
-    //         action: null,
-    //         response: null
-    //     }
-    //     try{
-    //         const completion = await openai.chat.completions.create({
-    //             messages: openai_messages,
-    //             model: process.env.OPENAI_MODEL_ID,
-    //             temperature: 0,
-    //             response_format: { type: 'json_object' }
-    //         })
-    //         response = JSON.parse(completion.choices[0].message.content);
-    //     }
-    //     catch(e){
-    //         logger.error(e);
-    //     }
-
-    //     logger.info(`Got action from text : ${JSON.stringify(response)}`)
-    //     return response;
-    // }
-
-    async get_beckn_action_from_text(instruction, context=[], bookings=[]){
+    async get_beckn_action_from_text(instruction, context=[], last_action=null){
+        logger.info(`Getting action from instruction : ${instruction} and last_action is ${last_action}, context is ${JSON.stringify(context)}`);
         let response = {
             action : null
         }
         const messages = [
             { role: 'system', content: `Supported actions : ${JSON.stringify(openai_config.SUPPORTED_ACTIONS)}` },
-            { role: 'system', content: `Ongoing bookings : ${JSON.stringify(bookings)}` },
+            { role: 'system', content: `Last action : ${last_action}` },
             ...context,
             { role: "user", content: instruction }
 
@@ -173,17 +128,24 @@ class AI {
      * @param {*} context 
      * @returns 
      */
-    async get_context_by_instruction(instruction, context=[]){
+    async get_context_by_instruction(instruction, session){
         
         const desired_structure = {
             domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`            
         }
 
+        let last_action_context=[];
         if(this.action?.action!=='search'){
-            desired_structure.bpp_id = `<bpp_id as per the search response>`;
-            desired_structure.bpp_uri = `<bpp_uri as per the search response>`;
-        }
+            desired_structure.bpp_id = `<bpp_id as per user selection and last response>`;
+            desired_structure.bpp_uri = `<bpp_uri as per user selection and last response>`;
 
+            // last action context
+            if(session?.profile?.last_action && session.beckn_transaction?.responses[`on_${session.profile.last_action}`]){
+                last_action_context = [
+                    {role: 'system', content: `Response of last action '${session.profile.last_action}' is : ${JSON.stringify(session.beckn_transaction?.responses[`on_${session.profile.last_action}`])}`},
+                ]
+            }            
+        }
         
         let response = {
             message_id : uuidv4(),
@@ -200,10 +162,10 @@ class AI {
         }
 
         const openai_messages = [
-            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generated a config json in the following structure : ${JSON.stringify(desired_structure)}` },
+            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generate a config json in the following structure : ${JSON.stringify(desired_structure)}` },
             { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
             { role: 'system', content: `Instruction : ${instruction}` },
-            ...context
+            ...last_action_context,
         ]
 
         try {
@@ -231,28 +193,36 @@ class AI {
      * @param {*} schema 
      * @returns 
      */
-    async get_beckn_request_from_text(instruction, context=[], beckn_context={}, schema={}, profile={}){
+    async get_beckn_request_from_text(instruction, beckn_context={}, schema={}, session={}){
 
-        logger.info(`Getting beckn request from instruction : ${instruction}`)
+        logger.info(`get_beckn_request_from_text() : ${instruction}, for schema : ${schema} , context : ${JSON.stringify(beckn_context)}`)
         let action_response = {
             status: false,
             data: null,
             message: null
         }        
 
+        // last action context
+        let last_action_context = [];
+        if(session?.profile?.last_action && session.beckn_transaction?.responses[`on_${session.profile.last_action}`]){
+            last_action_context = [
+                {role: 'system', content: `Response of last action '${session.profile.last_action}' is : ${JSON.stringify(session.beckn_transaction?.responses[`on_${session.profile.last_action}`])}`},
+            ]
+        }
         let openai_messages = [
-            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
             ...openai_config.SCHEMA_TRANSLATION_CONTEXT,
-            {"role": "system", "content": `This is the user profile that you can use for transactions : ${JSON.stringify(profile)}`},
+            { "role": "system", "content": `Schema definition: ${JSON.stringify(schema)}` },
+            {"role": "system", "content": `User profile : ${JSON.stringify(session.profile)}`},
+            ...last_action_context,
             {"role": "system", "content": `Following is the conversation history`},
-            ...context,
+            ...session?.text?.slice(-3) || [],
             { "role": "user", "content": instruction }
         ]
         
         try{
-            const completion = await openai.chat.completions.create({
+            const completion =await openai.chat.completions.create({
                 messages: openai_messages,
-                model: process.env.OPENAI_MODEL_ID,
+                model: 'gpt-4-0125-preview',
                 response_format: { type: 'json_object' },
                 temperature: 0,
             })
@@ -282,7 +252,7 @@ class AI {
     }
 
     async get_beckn_message_from_text(instruction, context=[], domain='', polygon=null) {
-        logger.info(`Getting beckn message from instruction : ${instruction}, for domain : ${domain}`)
+        logger.info(`get_beckn_message_from_text() : ${instruction}, for domain : ${domain} , polygon : ${polygon}`)
         let domain_context = [], policy_context = [];
         if(domain && domain!='') {
             domain_context = [
@@ -407,17 +377,14 @@ class AI {
             call_to_action.select+= 'Billing details are mandatory for initiating the order. You should ask the user to share billing details such as name, email and phone to iniatie the order.';
         }
 
-        if(this.bookings.length > 0 && this.action?.action === 'confirm'){
-            call_to_action.confirm=`You should display the order id and show the succesful order confirmation message. You should also show the list of bookings with theri boooking status and ask which booking would they want to do next. Bookings list : ${JSON.stringify(this.bookings)}`            
-        }
         const openai_messages = [
-            {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}. If the json is invalid or empty, the status in desired output should be false with the relevant error message.`},
+            {role: 'system', content: `Your job is to analyse the input_json and provided chat history to convert the json response into a human readable, less verbose, whatsapp friendly message and return this in a json format as given below: \n ${JSON.stringify(desired_output)}.`},
             {role: 'system', content: `${call_to_action[json_response?.context?.action] || 'you should ask the user what they want to do next.'}`},
-            {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
-            {role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
-            {role: 'system', content: `Chat history goes next ....`},
-            ...context.slice(-1),
+            // {role: 'system', content: `If the given json looks like an error, summarize the error but for humans, do not include any code or technical details. Produce some user friendly fun messages.`},
+            // {role: 'system', content: `User profile : ${JSON.stringify(profile)}`},
             {role: 'assistant',content: `input_json: ${JSON.stringify(json_response)}`},
+            {role: 'system', content: `Chat history goes next ....`},
+            ...context.slice(-2),
         ]
         try {
             const completion = await openai.chat.completions.create({

@@ -27,6 +27,7 @@ class MapsService {
                 if(!status) routes.push(route)
             }
             
+            
             const path = this.get_static_image_path(routes);
             logger.info(`Static image path for routes: ${path}`);
 
@@ -68,7 +69,7 @@ class MapsService {
         return encodeURIComponent(color);
     }
 
-    async generate_routes(message, context=[]) {
+    async generate_routes(message, context=[], avoid_point=[]) {
         let response = {
             status:false,
             data: {},
@@ -106,7 +107,7 @@ class MapsService {
             }
             else{
                 // generate routes
-                const routes = await this.getRoutes(`${source_gps.lat},${source_gps.lng}`, `${destination_gps.lat},${destination_gps.lng}`);
+                const routes = await this.getRoutes(`${source_gps.lat},${source_gps.lng}`, `${destination_gps.lat},${destination_gps.lng}`, avoid_point);
                 response.data.routes = routes.map(route=>{
                     return {
                         overview_polyline: route.overview_polyline,
@@ -122,7 +123,7 @@ class MapsService {
 
                 response.data.routes_formatted = {
                     "description": get_text_by_key('route_list_description'),
-                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}`)
+                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}\n`)
                 }
                 response.status = true;
             }            
