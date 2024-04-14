@@ -1,33 +1,56 @@
 import { describe, it} from 'mocha'
 import * as chai from 'chai'
-import agent from '../../../controllers/Agent.js';
 const expect = chai.expect
+import request from 'supertest'
+import app from '../../../server.js'
 
-describe.only('API tests for getResponseFromOpenAI() function', () => {
-    it('Should return a string message for a common question', async ()=>{
-        let messages = [
-            { role: 'user', content: "What is the capital of India?" },
-        ];
-        
-        const response = await agent.getResponseFromOpenAI(messages);
-        expect(response.content).to.be.a('string');
-        expect(response.content).to.contain('New Delhi');
+describe.only('API tests for getResponse() function', () => {
+    it('should return 400 if From or Body is missing', async () => {
+        const message = "What is the capital of India?"
+        const response = await request(app).post('/webhook').send({
+            Body: message,
+        })
+        expect(response.status).to.be.eq(400)
+        expect(response.text).to.be.eq('Bad Request');
     })
 
-    it('Should return routes when asked for routes', async ()=>{
-        let messages = [
-            { role: 'user', content: "Can you get me routes from Delhi to Mumbai?"},
-        ];
-        const response = await agent.getResponseFromOpenAI(messages);
-        expect(response.content).to.be.a('string');
-        expect(response.content).to.contain('NH 48');
+    it('should return sucecsful response if a general query is asked', async () => {
+        const message = "What is the capital of India?"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+        })
+        expect(response.text).to.be.a('string');
+        expect(response.text).to.contain('New Delhi');
     })
 
-    it('Should be able to search for items on network', async ()=>{
-        let messages = [
-            { role: 'user', content: "Can you find some ev chargers near Denver?"},
-        ];
-        const response = await agent.getResponseFromOpenAI(messages);
-        expect(response.content).to.be.a('string');
+    it('Should return list of routes between two points if asked', async () => {
+        const message = "Can you share routes between New Delhi and Mumbai?"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+        })
+        expect(response.text).to.be.a('string');
+        expect(response.text).to.contain('NH 48');
+    })
+
+    it.only('Should return a list of hotels', async () => {
+        const message = "Can you please find hotels near Yellowstone national park?"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+        })
+        expect(response.text).to.be.a('string');
+        expect(response.text).to.contain('Lake');
+    })
+
+    it.only('Should return a list of hotels', async () => {
+        const message = "Lets select the first one."
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+        })
+        expect(response.text).to.be.a('string');
+        expect(response.text).to.contain('Lake');
     })
 })

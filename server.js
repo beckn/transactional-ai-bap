@@ -6,6 +6,7 @@ import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
 import messageController from './controllers/Bot.js'
 import DBService from './services/DBService.js'
+import agentController from './controllers/Agent.js';
 import {
     cancelBooking,
     updateCatalog,
@@ -27,7 +28,7 @@ app.use(bodyParser.json())
 
 // Define endpoints here
 // app.post('/act', actions.act)
-app.post('/webhook', messageController.process_text)
+app.post('/webhook', agentController.getResponse)
 app.post('/notify', notify)
 app.post('/cancel-booking', cancelBooking)
 app.post('/update-catalog', updateCatalog)

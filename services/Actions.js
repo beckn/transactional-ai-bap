@@ -22,8 +22,8 @@ class Actions {
     }
     
     async call_api(endpoint, method, data, headers = {}) {
-        logger.info(`Calling ${method} on ${endpoint}...`);
-        logger.info(`Data: ${JSON.stringify(data, null, 2)}`);
+        logger.warn(`Calling ${method} on ${endpoint}...`);
+        logger.verbose(`Data: ${JSON.stringify(data, null, 2)}`);
         let responseObject = {
             status: false,
             retry: false,
@@ -54,7 +54,7 @@ class Actions {
                 cookies: response.headers['set-cookie'],
             }
             logger.info(`API call was successful: , response.status`)
-            logger.info(JSON.stringify(response.data, null, 2))
+            logger.verbose(JSON.stringify(response.data, null, 2))
         } catch (error) {
             logger.error(error)
             

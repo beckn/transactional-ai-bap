@@ -4,11 +4,14 @@ import logger from '../utils/logger.js'
 import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
 import search from '../schemas/jsons/search.js';
+import select from '../schemas/jsons/select.js';
 import actions from '../schemas/jsons/actions.js';
 import Actions from './Actions.js';
+import { TOOLS } from '../config/GPT/tools.js';
 
 const SCHEMAS = {
-    search: search
+    search: search,
+    select: select
 }
 
 const openai = new OpenAI({
@@ -24,6 +27,8 @@ class AI {
         this.action = null;
         this.bookings = [];
         this.actionService = new Actions();
+        this.session = {};
+        this.tools = [];
     }
     
     async get_beckn_action_from_text(instruction, context=[], last_action=null){
@@ -564,8 +569,8 @@ class AI {
         }
     }
 
-    async performAction({action, instruction}){
-        logger.info(`performAction() : ${action}, ${instruction}`);
+    async perform_beckn_transaction({action, instruction}){
+        logger.info(`perform_beckn_transaction() : ${action}, ${instruction}`);
         let response = {
             status: false,
             data: null,
@@ -574,18 +579,33 @@ class AI {
 
         try{
             // get context
+            logger.warn(`Getting context for action : ${action}`);
             const context = await this.get_context_by_action(action, instruction);
+            logger.info("Got context!");
 
             // get message
-            const message = await this.get_message_by_action(action, instruction);
+            logger.warn(`Getting message for action : ${action}`);
+            const message = await this.get_message_by_action(action, instruction, context.domain);
+            logger.info("Got message!");
 
             // call API
+            logger.warn(`Calling API for action : ${action}`);
             const url = `${context.base_url}/${action}`;
             const api_response = await this.actionService.call_api(url, 'POST', {context: context, message: message});
+            logger.info("Got API response!");
             response={
                 status: true,
-                data: api_response.data
+                data: api_response.data,
+                message: api_response.data.responses.length>0 ? "Succesfully retireved response" : "No response found for the given action"
             }
+
+            
+            // update last action and response
+            if(api_response?.data?.responses?.length>0){
+                this.session.profile.last_action = action;
+                this.session.beckn_transaction.responses[`on_${action}`] = api_response.data.responses;
+            }
+            
         }
         catch(e){
             logger.error(e);
@@ -604,7 +624,14 @@ class AI {
         let last_action_context=[];
         if(action!='search'){
             desired_structure.bpp_id = `<bpp_id as per user selection and last response>`;
-            desired_structure.bpp_uri = `<bpp_uri as per user selection and last response>`;                       
+            desired_structure.bpp_uri = `<bpp_uri as per user selection and last response>`;
+
+            // last action context
+            if(this.session?.profile?.last_action && this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`]){
+                last_action_context = [
+                    {role: 'system', content: `Response of last action '${this.session.profile.last_action}' is : ${JSON.stringify(this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`])}`},
+                ]
+            }
         }
         
         let response = {
@@ -614,15 +641,14 @@ class AI {
             bap_id: registry_config[0].bap_subscriber_id,
             bap_uri: registry_config[0].bap_subscriber_url,
             action: action,
-            version: registry_config[0].version,
-            
+            version: registry_config[0].version,            
         }
-        
+
         const openai_messages = [
             { role: 'system', content: `Your job is to analyse the given instruction, registry details and generate a config json in the following structure : ${JSON.stringify(desired_structure)}` },
             { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
-            { role: 'system', content: `Instruction : ${instruction}` },
             ...last_action_context,
+            { role: 'system', content: `Instruction : ${instruction}` }
         ]
 
         try {
@@ -634,7 +660,7 @@ class AI {
             })
             let gpt_response = JSON.parse(completion.choices[0].message.content)
             response = {...response, ...gpt_response};            
-            logger.info(`Got context from instruction : ${JSON.stringify(response)}`);
+            logger.verbose(`Got context from instruction : ${JSON.stringify(response)}`);
             return response;
         } catch (e) {
             logger.error(e)
@@ -642,12 +668,33 @@ class AI {
         }
     }
 
-    async get_message_by_action(action, instruction) {
+    async get_message_by_action(action, instruction, domain=null) {
         logger.info(`get_message_by_action() : ${action}, ${instruction}`)
         
         const messages = [
+            { role: "assistant", content: `Current date is ${new Date().toISOString()}` },
             { role: "user", content: instruction }
         ];
+
+        // Add domain context
+        let domain_context = [];
+        if(domain && registry_config[0].policies.domains[domain]){
+            domain_context = [
+                { role: 'system', content: `Domain : ${domain}`},
+                { role: 'system', content: `Use the following policy : ${JSON.stringify(registry_config[0].policies.domains[domain])}` }
+            ]            
+        }
+
+        // last action context
+        let last_action_context=[];
+        if(action!='search'){
+            // last action context
+            if(this.session?.profile?.last_action && this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`]){
+                last_action_context = [
+                    {role: 'system', content: `Response of last action '${this.session.profile.last_action}' is : ${JSON.stringify(this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`])}`},
+                ]
+            }
+        }
     
         const schema = SCHEMAS[action];
 
@@ -666,12 +713,15 @@ class AI {
             // Assuming you have a function to abstract the API call
             const response = await openai.chat.completions.create({
                 model: 'gpt-4-0125-preview',
-                messages: messages,
+                messages: [
+                    ...domain_context,
+                    ...last_action_context,
+                    ...messages],
                 tools: tools,
                 tool_choice: "auto", // auto is default, but we'll be explicit
             });
             const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
-            logger.info(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
+            logger.verbose(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
             
             return responseMessage
         }
@@ -679,6 +729,60 @@ class AI {
             logger.error(e);
             return null;
         }        
+    }
+
+    async getResponseFromOpenAI(messages){
+
+        const context = [
+            {role: 'assistant', content : "You are a travel planner ai agent that is capable of performing actions. "},
+            {role: 'assistant', content : "You can only share results immediately, so you should never say that you will do something in the future. "},
+            {role: 'assistant', content : "If the last tool call did not produce any useful response, you should convey that directly."},
+            {role: 'assistant', content : "Your tone should be polite and helpful. "},
+    
+        ]
+        try{
+            const gpt_response = await openai.chat.completions.create({
+                model: process.env.OPENAI_MODEL_ID,
+                messages: [...context, ...messages],
+                tools: TOOLS,
+                tool_choice: "auto", 
+            });
+            let responseMessage = gpt_response.choices[0].message;
+    
+            // check for tool calls
+            const toolCalls = responseMessage.tool_calls;
+            if (toolCalls) {
+                logger.info("Tool calls found in response, proceeding...");
+    
+    
+                messages.push(responseMessage);
+                
+                for (let tool of toolCalls) {
+                    const parameters = JSON.parse(tool.function.arguments);
+                    const functionToCall = this.tools[tool.function.name];
+                    if (functionToCall) {
+                        const response = await functionToCall(parameters);
+                        
+                        messages.push({
+                            tool_call_id: tool.id,
+                            role: "tool",
+                            name: functionToCall,
+                            content: JSON.stringify(response),
+                        });
+    
+                        // call again to get the response
+                        responseMessage = await this.getResponseFromOpenAI(messages);
+                    }
+                }
+            }
+            
+            return responseMessage;
+            
+        }
+        catch(e){
+            logger.error(e);
+            return false;
+        } 
     }
 
 

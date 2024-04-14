@@ -23,7 +23,7 @@ export const TOOLS = [
         type: "function",
         function: {
             name: "perform_beckn_action",
-            description: "If the user is trying to search a product, select an item or add to cart, initialize an order or confirm on order.", 
+            description: "If the user has indicated to search/find a product, select an item or add to cart, initialize an order or confirm on order.", 
             parameters: {
                 type: "object",
                 properties: {

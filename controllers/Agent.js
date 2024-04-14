@@ -1,91 +1,53 @@
-import MapsService from "../services/MapService.js";
-import { TOOLS } from "../config/GPT/tools.js";
-import logger from "../utils/logger.js";
-import OpenAI from "openai";
-import AI from "../services/AI.js";
-const map = new MapsService();
-const ai = new AI();
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_AI_KEY,
-})
-
-const AVAILABLE_TOOLS = {
-    get_routes: map.getRoutes.bind(map),
-    perform_beckn_action: ai.performAction.bind(ai),
-};
+import AI from '../services/AI.js';
+import DBService from '../services/DBService.js'
+import MapService from '../services/MapService.js'
+import {
+    EMPTY_SESSION
+} from '../config/constants.js';
+const db = new DBService();
+const map = new MapService();
 
 async function getResponse(req, res) {
     const { From, Body } = req.body
     
-    // get session
-    
-    // get answer from AI 
-    
-    // save session
-    
-    res.send(response)
-}
-
-
-
-
-
-async function getResponseFromOpenAI(messages){
-    const context = [
-        {role: 'assistant', content : "You are a travel planner ai agent that is capable of performing actions. "},
-        {role: 'assistant', content : "You can only share results immediately, so you should never say that you will do something in the future. "},
-        {role: 'assistant', content : "If the last tool call did not produce any useful response, you should convey that directly."},
-        {role: 'assistant', content : "Your tone should be polite and helpful. "},
-
-    ]
-    try{
-        const gpt_response = await openai.chat.completions.create({
-            model: process.env.OPENAI_MODEL_ID,
-            messages: [...context, ...messages],
-            tools: TOOLS,
-            tool_choice: "auto", 
-        });
-        let responseMessage = gpt_response.choices[0].message;
-
-        // check for tool calls
-        const toolCalls = responseMessage.tool_calls;
-        if (toolCalls) {
-            logger.info("Tool calls found in response, proceeding...");
-
-
-            messages.push(responseMessage);
-            
-            for (let tool of toolCalls) {
-                const parameters = JSON.parse(tool.function.arguments);
-                const functionToCall = AVAILABLE_TOOLS[tool.function.name];
-                if (functionToCall) {
-                    const response = await functionToCall(parameters);
-                    
-                    messages.push({
-                        tool_call_id: tool.id,
-                        role: "tool",
-                        name: functionToCall,
-                        content: JSON.stringify(response),
-                    });
-
-                    // call again to get the response
-                    responseMessage = await getResponseFromOpenAI(messages);
-                }
-            }
-        }
-        
-        return responseMessage;
-        
+    if(!From || !Body){
+        res.status(400).send("Bad Request")
     }
-    catch(e){
-        logger.error(e);
-        return false;
-    } 
+    else{
+        // get session
+        const  session_response = await db.get_session(From);
+        let session = session_response.data;
+        if(!session_response.status){
+            session = EMPTY_SESSION
+        }
+
+        // get answer from AI 
+        const ai = new AI();
+        ai.session = session;
+
+        // setup tools
+        const available_tools = {
+            get_routes: map.getRoutes.bind(map),
+            perform_beckn_action: ai.perform_beckn_transaction.bind(ai),
+        };
+        ai.tools = available_tools;
+
+        // make request
+        let messages = [
+            ...session.text,
+            { role: 'user', content: Body}
+        ];
+        const response = await ai.getResponseFromOpenAI(messages)
+
+        // save session
+        await db.update_session(From, session)
+
+        res.send(response.content)
+    }
+    
 }
 
 
 export default {
-    getResponse,
-    getResponseFromOpenAI
+    getResponse
 }
