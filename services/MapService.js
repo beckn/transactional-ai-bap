@@ -11,7 +11,14 @@ class MapsService {
         this.client = new Client({});
     }
 
-    async getRoutes(source, destination, avoidPoint=[]) {
+    /**
+     * 
+     * @param {*} source | format : [latitude, longitude], "latitude,longitude"
+     * @param {*} destination | format : "latitude,longitude"
+     * @param {*} avoidPoint | format : [[latitude, longitude], [latitude, longitude], ...]
+     * @returns 
+     */
+    async getRoutes({source, destination, avoidPoint=[]}) {
         try {
             const response = await this.client.directions({
                 params: {
@@ -30,9 +37,8 @@ class MapsService {
             
             const path = this.get_static_image_path(routes);
             logger.info(`Static image path for routes: ${path}`);
-
             
-            return routes;
+            return routes.map(route => route.summary);
         } catch (error) {
             logger.error(error);
             return [];
@@ -93,40 +99,27 @@ class MapsService {
             }
         }
         else{
-            // Get gps for source and destination                    
-            const source_gps = await this.lookupGps(details.source);
-            const destination_gps = await this.lookupGps(details.destination);
+            
+            // generate routes
+            const routes = await this.getRoutes({...details, avoidPoint: avoid_point});
+            response.data.routes = routes.map(route=>{
+                return {
+                    overview_polyline: route.overview_polyline,
+                    summary: route.summary,
+                    source_gps: details.source,
+                    destination_gps: details.destination
+                }
+            })
 
-            if(!source_gps || !destination_gps) {
-                if(!source_gps) {
-                    response.errors.push(get_text_by_key('missing_source'));
-                }
-                if(!destination_gps) {
-                    response.errors.push(get_text_by_key('missing_destination'));
-                }
+            // print path
+            const path = this.get_static_image_path(routes)
+            logger.info(`Route image path : ${path}`)
+
+            response.data.routes_formatted = {
+                "description": get_text_by_key('route_list_description'),
+                "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}\n`)
             }
-            else{
-                // generate routes
-                const routes = await this.getRoutes(`${source_gps.lat},${source_gps.lng}`, `${destination_gps.lat},${destination_gps.lng}`, avoid_point);
-                response.data.routes = routes.map(route=>{
-                    return {
-                        overview_polyline: route.overview_polyline,
-                        summary: route.summary,
-                        source_gps: source_gps,
-                        destination_gps: destination_gps
-                    }
-                })
-
-                // print path
-                const path = this.get_static_image_path(routes)
-                logger.info(`Route image path : ${path}`)
-
-                response.data.routes_formatted = {
-                    "description": get_text_by_key('route_list_description'),
-                    "routes": response.data.routes.map((route, index) => `Route ${index+1}: ${route.summary}\n`)
-                }
-                response.status = true;
-            }            
+            response.status = true;           
         }
 
         // logger.info(`Generated routes response : ${JSON.stringify(response, null, 2)}`);

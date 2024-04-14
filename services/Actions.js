@@ -18,7 +18,6 @@ const rootPath = path.resolve(__dirname, './');
 class Actions {
     
     constructor() {
-        this.ai = new AI()
         this.context = [];
     }
     

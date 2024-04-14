@@ -17,7 +17,7 @@ describe('Test cases for AI', () => {
         const destination_gps = await mapService.lookupGps('Yellowstone national park');
         
         // generate routes
-        const routes = await mapService.getRoutes(source_gps, destination_gps);
+        const routes = await mapService.getRoutes({source: source_gps, destination: destination_gps});
         
         const context=[
             { role : 'user', content: `Selected route polygon is : ${routes[0].overview_polyline.points}`}
@@ -41,7 +41,7 @@ describe('Test cases for Google maps', () => {
         const source ='37.422391,-122.084845';
         const destination = '37.411991,-122.079414';
         
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         const selected_route = 0;
         const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300&path=enc:${routes[selected_route].overview_polyline.points}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
         logger.info(`route_image: ${route_image}`);
@@ -81,7 +81,7 @@ describe('Test cases for Google maps', () => {
         const destination_gps = await mapService.lookupGps(details.destination);
         
         // generate routes
-        const routes = await mapService.getRoutes(source_gps, destination_gps);
+        const routes = await mapService.getRoutes({source: source_gps, destination: destination_gps});
         
         // Selected route
         const selected_route = 0;
@@ -101,7 +101,7 @@ describe('Test cases for Google maps', () => {
         const source ='37.422391,-122.084845';
         const destination = '37.411991,-122.079414';
         
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         let summary = 'Here are the available routes for your request: \n\n';
         routes.forEach((route, index) => {
             summary+=`Route ${index+1}: ${route.summary}. \n`;
@@ -114,7 +114,7 @@ describe('Test cases for Google maps', () => {
         const source = await mapService.lookupGps('Denver');
         const destination = await mapService.lookupGps('Yelllowstone national park');
         
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         let polygon_path = '';
         routes.forEach((route, index) => {
             polygon_path+=`&path=color:${mapService.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
@@ -134,7 +134,7 @@ describe('Test cases for Google maps', () => {
         ]
         
         // gerenate routes
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         let selected_route = routes[0];
         let polygon_path = `&path=color:${mapService.get_random_color()}|enc:${selected_route.overview_polyline.points}`;;
         
@@ -157,7 +157,7 @@ describe('Test cases for Google maps', () => {
         const source ='37.422391,-122.084845';
         const destination = '37.411991,-122.079414';
         
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         const polygon = routes[0].overview_polyline.points;
         await db.update_session('123', {
             polygon: polygon

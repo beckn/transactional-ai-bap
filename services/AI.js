@@ -5,6 +5,11 @@ import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
 import search from '../schemas/jsons/search.js';
 import actions from '../schemas/jsons/actions.js';
+import Actions from './Actions.js';
+
+const SCHEMAS = {
+    search: search
+}
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
@@ -18,6 +23,7 @@ class AI {
         this.context = [];
         this.action = null;
         this.bookings = [];
+        this.actionService = new Actions();
     }
     
     async get_beckn_action_from_text(instruction, context=[], last_action=null){
@@ -557,6 +563,125 @@ class AI {
             return {};
         }
     }
+
+    async performAction({action, instruction}){
+        logger.info(`performAction() : ${action}, ${instruction}`);
+        let response = {
+            status: false,
+            data: null,
+            message: null
+        }
+
+        try{
+            // get context
+            const context = await this.get_context_by_action(action, instruction);
+
+            // get message
+            const message = await this.get_message_by_action(action, instruction);
+
+            // call API
+            const url = `${context.base_url}/${action}`;
+            const api_response = await this.actionService.call_api(url, 'POST', {context: context, message: message});
+            response={
+                status: true,
+                data: api_response.data
+            }
+        }
+        catch(e){
+            logger.error(e);
+            response.message = e.message;
+        }
+
+        return response;
+    }
+
+    async get_context_by_action(action, instruction){
+        
+        const desired_structure = {
+            domain:`DOMAIN_AS_PER_REGISTRY_AND_INSTRUCTION_GIVEN_BY_USER`            
+        }
+
+        let last_action_context=[];
+        if(action!='search'){
+            desired_structure.bpp_id = `<bpp_id as per user selection and last response>`;
+            desired_structure.bpp_uri = `<bpp_uri as per user selection and last response>`;                       
+        }
+        
+        let response = {
+            message_id : uuidv4(),
+            transaction_id: uuidv4(),
+            base_url: registry_config[0].url,
+            bap_id: registry_config[0].bap_subscriber_id,
+            bap_uri: registry_config[0].bap_subscriber_url,
+            action: action,
+            version: registry_config[0].version,
+            
+        }
+        
+        const openai_messages = [
+            { role: 'system', content: `Your job is to analyse the given instruction, registry details and generate a config json in the following structure : ${JSON.stringify(desired_structure)}` },
+            { role: 'system', content: `Registry  : ${JSON.stringify(registry_config)}` },
+            { role: 'system', content: `Instruction : ${instruction}` },
+            ...last_action_context,
+        ]
+
+        try {
+            const completion = await openai.chat.completions.create({
+                messages: openai_messages,
+                model: process.env.OPENAI_MODEL_ID, 
+                temperature: 0,
+                response_format: { type: 'json_object' },
+            })
+            let gpt_response = JSON.parse(completion.choices[0].message.content)
+            response = {...response, ...gpt_response};            
+            logger.info(`Got context from instruction : ${JSON.stringify(response)}`);
+            return response;
+        } catch (e) {
+            logger.error(e)
+            return {}
+        }
+    }
+
+    async get_message_by_action(action, instruction) {
+        logger.info(`get_message_by_action() : ${action}, ${instruction}`)
+        
+        const messages = [
+            { role: "user", content: instruction }
+        ];
+    
+        const schema = SCHEMAS[action];
+
+        const tools = [
+            {
+                type: "function",
+                function: {
+                    name: "get_message",
+                    description: "Get the correct message object based on user instructions", 
+                    parameters: schema
+                }
+            }
+        ];
+    
+        try{
+            // Assuming you have a function to abstract the API call
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4-0125-preview',
+                messages: messages,
+                tools: tools,
+                tool_choice: "auto", // auto is default, but we'll be explicit
+            });
+            const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
+            logger.info(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
+            
+            return responseMessage
+        }
+        catch(e){
+            logger.error(e);
+            return null;
+        }        
+    }
+
+
 }
 
 export default AI;
