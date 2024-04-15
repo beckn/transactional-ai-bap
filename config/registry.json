@@ -24,7 +24,7 @@
                 },
                 "hospitality": {
                     "rules": [
-                        "item.descriptor should not be used in search intent for this domain",
+                        "item must not be used in search intent for this domain",
                         "search must have two stops for this domain.",
                         "Supported stop.type : check-in, check-out",
                         "fulfillment.stops[i].time should be an object and contain timestamp",

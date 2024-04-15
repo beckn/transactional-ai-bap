@@ -38,6 +38,8 @@ async function getResponse(req, res) {
             { role: 'user', content: Body}
         ];
         const response = await ai.getResponseFromOpenAI(messages)
+        messages.push(response);
+        session.text = messages; // Update session text (chat history)
 
         // save session
         await db.update_session(From, session)

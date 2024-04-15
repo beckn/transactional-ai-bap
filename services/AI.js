@@ -3,16 +3,31 @@ import OpenAI from 'openai'
 import logger from '../utils/logger.js'
 import yaml from 'js-yaml'
 import { v4 as uuidv4 } from 'uuid'
-import search from '../schemas/jsons/search.js';
-import select from '../schemas/jsons/select.js';
 import actions from '../schemas/jsons/actions.js';
 import Actions from './Actions.js';
 import { TOOLS } from '../config/GPT/tools.js';
 
-const SCHEMAS = {
-    search: search,
-    select: select
+// TODO: Load schemas. This needs to be improved so that any new schema is automatically loaded
+import search from '../schemas/jsons/search.js';
+import select from '../schemas/jsons/select.js';
+import init from '../schemas/jsons/init.js';
+import confirm from '../schemas/jsons/confirm.js';
+import get_text_by_key from '../utils/language.js';
+const BECKN_ACTIONS = {
+    search: {
+        schema : search, call_to_action : "Which one would you like to select?"
+    },
+    select: {
+        schema: select, call_to_action: "Would you like to initiate the order?"
+    },
+    init: {
+        schema: init, call_to_action: "Would you like to confirm the order?"
+    },
+    confirm: {
+        schema: confirm, call_to_action: "Your order is confirmed with order id <ORDER_ID>. Would you like to order something else?"
+    }
 }
+const NUMBER_OF_RETRIES=3;
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_AI_KEY,
@@ -29,6 +44,7 @@ class AI {
         this.actionService = new Actions();
         this.session = {};
         this.tools = [];
+        this.attempt = 0; // for API call attempts
     }
     
     async get_beckn_action_from_text(instruction, context=[], last_action=null){
@@ -578,34 +594,62 @@ class AI {
         }
 
         try{
+
+            let context = {};
+            let message = {};
+            let api_response = {};
+            
             // get context
-            logger.warn(`Getting context for action : ${action}`);
-            const context = await this.get_context_by_action(action, instruction);
-            logger.info("Got context!");
+            let attempt = 0;
+            while(attempt<NUMBER_OF_RETRIES){
+                logger.warn(`Getting context for action : ${action} | Attempt : ${attempt+1}`);
+                context = await this.get_context_by_action(action, instruction);
+                logger.info("Got context!");
+                if(context) break;
+                attempt++;
+            }
 
             // get message
-            logger.warn(`Getting message for action : ${action}`);
-            const message = await this.get_message_by_action(action, instruction, context.domain);
-            logger.info("Got message!");
+            attempt = 0;
+            while(attempt<NUMBER_OF_RETRIES){
+                logger.warn(`Getting message for action : ${action} | Attempt : ${attempt+1}`);
+                message = await this.get_message_by_action(action, instruction, context.domain);
+                logger.info("Got message!");
+                if(message) break;
+                attempt++;
+            }
 
             // call API
-            logger.warn(`Calling API for action : ${action}`);
+            logger.warn(`Calling API for action : ${action} | Attempt : ${this.attempt+1}`);
             const url = `${context.base_url}/${action}`;
-            const api_response = await this.actionService.call_api(url, 'POST', {context: context, message: message});
+            const request = {context: context, message: message};
+            api_response = await this.actionService.call_api(url, 'POST', request);
             logger.info("Got API response!");
-            response={
-                status: true,
-                data: api_response.data,
-                message: api_response.data.responses.length>0 ? "Succesfully retireved response" : "No response found for the given action"
-            }
-
             
-            // update last action and response
-            if(api_response?.data?.responses?.length>0){
-                this.session.profile.last_action = action;
-                this.session.beckn_transaction.responses[`on_${action}`] = api_response.data.responses;
+            if(api_response?.status && api_response?.data?.responses?.length>0){
+                response={
+                    status: true,
+                    data: api_response.data,
+                    message: api_response.data.responses.length>0 ? BECKN_ACTIONS[action]['call_to_action'] : "No response found for the given action"
+                }
+    
+                
+                // update last action and response
+                if(api_response?.data?.responses?.length>0){
+                    this.session.profile.last_action = action;
+                    this.session.beckn_transaction.responses[action] = request;
+                    this.session.beckn_transaction.responses[`on_${action}`] = api_response.data.responses;
+                }
             }
-            
+            else if(this.attempt<=NUMBER_OF_RETRIES){
+                // retry
+                this.attempt++;
+                logger.warn(`Retrying perform_beckn_transaction() for action : ${action} | Attempt : ${this.attempt+1}...`);
+                response = await this.perform_beckn_transaction({action, instruction});
+            }
+            else{
+                throw new Error(get_text_by_key('api_call_failed'));
+            }
         }
         catch(e){
             logger.error(e);
@@ -689,14 +733,15 @@ class AI {
         let last_action_context=[];
         if(action!='search'){
             // last action context
-            if(this.session?.profile?.last_action && this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`]){
+            let prefix = this.session?.profile?.last_action=='search' ? 'on_' : '';
+            if(this.session?.profile?.last_action && this.session.beckn_transaction?.responses[`${prefix}${this.session.profile.last_action}`]){
                 last_action_context = [
-                    {role: 'system', content: `Response of last action '${this.session.profile.last_action}' is : ${JSON.stringify(this.session.beckn_transaction?.responses[`on_${this.session.profile.last_action}`])}`},
+                    {role: 'system', content: `Payload of '${prefix}${this.session.profile.last_action}' is : ${JSON.stringify(this.session.beckn_transaction?.responses[`${prefix}${this.session.profile.last_action}`])}`},
                 ]
             }
         }
     
-        const schema = SCHEMAS[action];
+        const schema = BECKN_ACTIONS[action]['schema'];
 
         const tools = [
             {
@@ -712,7 +757,7 @@ class AI {
         try{
             // Assuming you have a function to abstract the API call
             const response = await openai.chat.completions.create({
-                model: 'gpt-4-0125-preview',
+                model: 'gpt-4-0125-preview', //process.env.OPENAI_MODEL_ID,
                 messages: [
                     ...domain_context,
                     ...last_action_context,
