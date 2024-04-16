@@ -71,9 +71,11 @@ class MapsService {
     }
 
     async selectRoute(index) {
-        logger.info(`Selecting route ${index}`);
-        if (this.session.routes && index >= 0 && index < this.session.routes.length) {
-            this.session.profile.selected_route = this.session.routes[index];
+        logger.info(`Selecting route ${index.index}`);
+        if (this.session.routes && index.index >= 0 && index.index < this.session.routes.length) {
+            this.session.profile.selected_route = {
+                polyline: this.session.routes[index.index].overview_polyline.points
+            }
             return true;
         } else {
             return false;

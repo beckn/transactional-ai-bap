@@ -18,7 +18,7 @@
                     "rules": [
                         "item.descriptor should not be used in search intent for this domain",
                         "search should have fulfillment for this domain. fulfillment should only contain location for this domain.",
-                        "fulfillment should contain only 1 stop for this domain",
+                        "fulfillment must have only 1 stop for this domain",
                         "If a route polygon has been shared, fulfillment.stops[i].location should have the polygon field."
                     ]
                 },

@@ -740,6 +740,14 @@ class AI {
                 ]
             }
         }
+
+        // Add profile context
+        let profile_context = [];
+        if(this.session?.profile){
+            profile_context = [
+                { role: 'system', content: `User profile : ${JSON.stringify(this.session.profile)}` }
+            ]
+        }
     
         const schema = BECKN_ACTIONS[action]['schema'];
 
@@ -761,21 +769,17 @@ class AI {
                 messages: [
                     ...domain_context,
                     ...last_action_context,
+                    ...profile_context,
                     ...messages],
                 tools: tools,
                 tool_choice: "auto", // auto is default, but we'll be explicit
             });
-            const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
+            let responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
+
+            responseMessage = await this._cleanup_beckn_message(action, responseMessage);
+
             logger.verbose(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
             
-            // update message for init and confirm. Cleanup incorrect `items` for init and incorrect `items` and `billing` details for confirm
-            if((action=='init' || action=='confirm') && this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]){
-                responseMessage.order = {
-                    ...responseMessage.order,
-                    ...this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]?.message?.order
-                }
-
-            }
 
             return responseMessage
         }
@@ -783,6 +787,27 @@ class AI {
             logger.error(e);
             return null;
         }        
+    }
+
+    async _cleanup_beckn_message(action, message){
+        // cleanup polygon
+        if(action=='search' && message.intent.fulfillment.stops){
+            for(let stop of message.intent.fulfillment.stops){
+                if(stop.location?.polygon){
+                    delete stop.location?.gps;
+                }
+            }
+        }
+        
+        // update message for init and confirm. Cleanup incorrect `items` for init and incorrect `items` and `billing` details for confirm
+        if((action=='init' || action=='confirm') && this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]){
+            message.order = {
+                ...message.order,
+                ...this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]?.message?.order
+            }
+        }
+
+        return message;
     }
 
     async getResponseFromOpenAI(messages){
@@ -812,6 +837,7 @@ class AI {
                 messages.push(responseMessage);
                 
                 for (let tool of toolCalls) {
+                    logger.warn(`Executing tool : ${tool.function.name} ...`);
                     const parameters = JSON.parse(tool.function.arguments);
                     const functionToCall = this.tools[tool.function.name];
                     if (functionToCall) {
