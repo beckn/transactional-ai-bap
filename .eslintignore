@@ -5,4 +5,4 @@ models/*
 package*.json
 LICENSE
 *.md
-schemas/*
+config/schemas/*

@@ -4,7 +4,6 @@ dotenv.config()
 import express from 'express'
 import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
-import messageController from './controllers/Bot.js'
 import DBService from './services/DBService.js'
 import agentController from './controllers/Agent.js';
 import {
@@ -14,6 +13,7 @@ import {
     triggerExceptionOnLocation,
     updateStatus,
     unpublishItem,
+    webhookControl
 } from './controllers/ControlCenter.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
@@ -35,7 +35,8 @@ app.post('/update-catalog', updateCatalog)
 app.post('/trigger-exception', triggerExceptionOnLocation)
 app.post('/update-status', updateStatus)
 app.post('/unpublish-item', unpublishItem)
-app.post('/webhook-ps', messageController.webhookControl)
+app.post('/webhook-ps', webhookControl)
+
 // Reset all sessions
 export const db = new DBService()
 

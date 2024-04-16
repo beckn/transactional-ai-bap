@@ -37,7 +37,8 @@ describe('Should test the map service', () => {
         const destination = '37.411991,-122.079414';
         
         const point = [37.422391, -122.084845];
-        let routes = await mapService.getRoutes({source: source, destination: destination});
+        await mapService.getRoutes({source: source, destination: destination});
+        let routes = mapService.session.routes;
 
         const status = await mapService.checkGpsOnPolygon(point, routes[0].overview_polyline.points);
         expect(status).to.be.true;

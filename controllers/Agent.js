@@ -42,7 +42,7 @@ async function getResponse(req, res) {
             ...session.text,
             { role: 'user', content: Body}
         ];
-        const response = await ai.getResponseFromOpenAI(messages, raw_yn)
+        const response = await ai.get_response_or_perform_action(messages, raw_yn)
         
         // prepare raw body if required
         const responseBody = raw_yn ? response.raw : response.content;

@@ -1,7 +1,6 @@
 import twilio from 'twilio'
 import logger from '../utils/logger.js'
 import axios from 'axios'
-import AI from './AI.js'
 import {createWriteStream} from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
