@@ -25,7 +25,7 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.contain('New Delhi');
     })
 
-    it('Should return list of routes between two points if asked', async () => {
+    it.only('Should return list of routes between two points if asked', async () => {
         const message = "Can you share routes between New Delhi and Mumbai?"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
@@ -33,6 +33,16 @@ describe('API tests for getResponse() function', () => {
         })
         expect(response.text).to.be.a('string');
         expect(response.text).to.contain('NH 48');
+    })
+
+    it.only('Should select a route', async () => {
+        const message = "Lets select the first one"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+        })
+        expect(response.text).to.be.a('string');
+        expect(response.text).to.contain('first');
     })
 
     it('Should return a list of hotels', async () => {
@@ -46,7 +56,7 @@ describe('API tests for getResponse() function', () => {
     })
 })
 
-describe.only('API tests for a order confirmation workflow', ()=>{
+describe('API tests for a order confirmation workflow', ()=>{
     const chats = [
         {key: "search_hotel", value: "Can you please find hotels near Yellowstone national park?"},
         {key: "select_hotel", value: "Lets select the first one."},

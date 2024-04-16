@@ -768,6 +768,15 @@ class AI {
             const responseMessage = JSON.parse(response.choices[0].message?.tool_calls[0]?.function?.arguments) || null;
             logger.verbose(`Got beckn message from instruction : ${JSON.stringify(responseMessage)}`);
             
+            // update message for init and confirm. Cleanup incorrect `items` for init and incorrect `items` and `billing` details for confirm
+            if((action=='init' || action=='confirm') && this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]){
+                responseMessage.order = {
+                    ...responseMessage.order,
+                    ...this.session?.beckn_transaction?.responses[this.session?.profile?.last_action]?.message?.order
+                }
+
+            }
+
             return responseMessage
         }
         catch(e){

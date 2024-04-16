@@ -9,6 +9,7 @@ import get_text_by_key from "../utils/language.js";
 class MapsService {
     constructor() {
         this.client = new Client({});
+        this.session = {};
     }
 
     /**
@@ -38,6 +39,11 @@ class MapsService {
             const path = this.get_static_image_path(routes);
             logger.info(`Static image path for routes: ${path}`);
             
+            // Save session if possible
+            if(this.session){
+                this.session.routes = routes;
+            }
+
             return routes.map(route => route.summary);
         } catch (error) {
             logger.error(error);
@@ -61,6 +67,16 @@ class MapsService {
         } catch (error) {
             logger.error(error);
             return null;
+        }
+    }
+
+    async selectRoute(index) {
+        logger.info(`Selecting route ${index}`);
+        if (this.session.routes && index >= 0 && index < this.session.routes.length) {
+            this.session.profile.selected_route = this.session.routes[index];
+            return true;
+        } else {
+            return false;
         }
     }
 

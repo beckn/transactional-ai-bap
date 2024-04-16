@@ -5,7 +5,6 @@ import {
     EMPTY_SESSION
 } from '../config/constants.js';
 const db = new DBService();
-const map = new MapService();
 
 async function getResponse(req, res) {
     const { From, Body } = req.body
@@ -21,13 +20,15 @@ async function getResponse(req, res) {
             session = EMPTY_SESSION
         }
 
-        // get answer from AI 
+        // initialize services
         const ai = new AI();
-        ai.session = session;
+        const map = new MapService();
+        ai.session = map.session = session;
 
         // setup tools
         const available_tools = {
             get_routes: map.getRoutes.bind(map),
+            select_route: map.selectRoute.bind(map),
             perform_beckn_action: ai.perform_beckn_transaction.bind(ai),
         };
         ai.tools = available_tools;

@@ -3,7 +3,7 @@ export default {
     properties: {
         action:{
             type:"string",
-            description: "action that the user wants to perform. This should be one of th actions defined by supported actions. If its not one of teh actions, its value should be null."
+            description: "action that the user wants to perform. This should be one of th actions defined by supported actions. If its not one of the actions, its value should be null."
         },
         transaction_id:{
             type:"string",
