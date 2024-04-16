@@ -1,13 +1,17 @@
 import AI from '../services/AI.js';
 import DBService from '../services/DBService.js'
 import MapService from '../services/MapService.js'
+import Actions from '../services/Actions.js';
 import {
     EMPTY_SESSION
 } from '../config/constants.js';
 const db = new DBService();
+const actionsService = new Actions();
 
 async function getResponse(req, res) {
     const { From, Body, raw_yn } = req.body
+    const format = (req?.headers && req.headers['content-type']) || 'text/xml';
+
     
     if(!From || !Body){
         res.status(400).send("Bad Request")
@@ -50,9 +54,15 @@ async function getResponse(req, res) {
         // save session
         await db.update_session(From, session)
 
-        res.send(responseBody)
-    }
-    
+        // Send response
+        if(format!='application/json'){
+            await actionsService.send_message(From, responseBody, []);
+            res.send("Message sent!")
+        }
+        else{
+            res.send(responseBody)
+        }        
+    }    
 }
 
 
