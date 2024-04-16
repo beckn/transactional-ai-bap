@@ -50,7 +50,7 @@ describe.only('API tests for a order confirmation workflow', ()=>{
     const chats = [
         {key: "search_hotel", value: "Can you please find hotels near Yellowstone national park?"},
         {key: "select_hotel", value: "Lets select the first one."},
-        {key: "initiate_order", value: "Lets initiate the order. My details are : John Doe, 1234567890"},
+        {key: "initiate_order", value: "Lets initiate the order. My details are : John Doe, 1234567890, john.doe@example.com"},
         {key: "confirm_order", value: "Lets confirm."}
     ]
     

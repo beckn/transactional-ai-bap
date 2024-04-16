@@ -629,7 +629,7 @@ class AI {
             if(api_response?.status && api_response?.data?.responses?.length>0){
                 response={
                     status: true,
-                    data: api_response.data,
+                    data: api_response?.data?.responses,
                     message: api_response.data.responses.length>0 ? BECKN_ACTIONS[action]['call_to_action'] : "No response found for the given action"
                 }
     
@@ -641,8 +641,8 @@ class AI {
                     this.session.beckn_transaction.responses[`on_${action}`] = api_response.data.responses;
                 }
             }
-            else if(this.attempt<=NUMBER_OF_RETRIES){
-                // retry
+            else if(this.attempt<NUMBER_OF_RETRIES){
+                // retry if api resopnse is not received
                 this.attempt++;
                 logger.warn(`Retrying perform_beckn_transaction() for action : ${action} | Attempt : ${this.attempt+1}...`);
                 response = await this.perform_beckn_transaction({action, instruction});
