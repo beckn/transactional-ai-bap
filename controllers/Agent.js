@@ -7,7 +7,7 @@ import {
 const db = new DBService();
 
 async function getResponse(req, res) {
-    const { From, Body } = req.body
+    const { From, Body, raw_yn } = req.body
     
     if(!From || !Body){
         res.status(400).send("Bad Request")
@@ -38,14 +38,19 @@ async function getResponse(req, res) {
             ...session.text,
             { role: 'user', content: Body}
         ];
-        const response = await ai.getResponseFromOpenAI(messages)
+        const response = await ai.getResponseFromOpenAI(messages, raw_yn)
+        
+        // prepare raw body if required
+        const responseBody = raw_yn ? response.raw : response.content;
+        delete response.raw;
+        
         messages.push(response);
         session.text = messages; // Update session text (chat history)
 
         // save session
         await db.update_session(From, session)
 
-        res.send(response.content)
+        res.send(responseBody)
     }
     
 }

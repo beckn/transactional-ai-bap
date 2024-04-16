@@ -810,7 +810,7 @@ class AI {
         return message;
     }
 
-    async getResponseFromOpenAI(messages){
+    async getResponseFromOpenAI(messages, raw_yn=false){
 
         const context = [
             {role: 'assistant', content : "You are a travel planner ai agent that is capable of performing actions. "},
@@ -852,6 +852,9 @@ class AI {
     
                         // call again to get the response
                         responseMessage = await this.getResponseFromOpenAI(messages);
+                        if(raw_yn) {
+                            responseMessage.raw = response.data;
+                        }
                     }
                 }
             }
