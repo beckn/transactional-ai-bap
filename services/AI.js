@@ -323,7 +323,7 @@ class AI {
 
     async _cleanup_beckn_message(action, message){
         // cleanup polygon
-        if(action=='search' && message.intent.fulfillment.stops){
+        if(action=='search' && message?.intent?.fulfillment?.stops){
             for(let stop of message.intent.fulfillment.stops){
                 if(stop.location?.polygon){
                     delete stop.location?.gps;
