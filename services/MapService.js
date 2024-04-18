@@ -6,6 +6,7 @@ class MapsService {
     constructor() {
         this.client = new Client({});
         this.session = {};
+        this.routes_image = null;
     }
 
     /**
@@ -27,6 +28,10 @@ class MapsService {
             });
             let routes= [];
             for(const route of response.data.routes){
+                // update navigation link
+                route.navigation_url = `https://www.google.com/maps/dir/${source}/${destination}/`;
+
+                // check avoid point
                 const status = await this.checkGpsOnPolygon(avoidPoint, route.overview_polyline.points)
                 if(!status) routes.push(route)
             }
@@ -38,6 +43,7 @@ class MapsService {
             // Save session if possible
             if(this.session){
                 this.session.routes = routes;
+                this.routes_image = path;
             }
 
             return routes.map(route => route.summary);

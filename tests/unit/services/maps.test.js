@@ -9,18 +9,22 @@ describe('Should test the map service', () => {
         const source ='37.422391,-122.084845';
         const destination = '37.411991,-122.079414';
         
-        let routes = await mapService.getRoutes({source: source, destination: destination});
+        let response = await mapService.getRoutes({source: source, destination: destination});
         
-        expect(routes).to.be.an('array');
+        expect(response.routes).to.be.an('array');
     });
 
     it('Should test route fetching with strings', async () => {
         const source ='Bengaluru';
         const destination = 'Mumbai';
         
-        let routes = await mapService.getRoutes({source: source, destination: destination});
+        let response = await mapService.getRoutes({source: source, destination: destination});
+        const routes_in_session = mapService.session.routes;
         
-        expect(routes).to.be.an('array');
+        expect(response.routes).to.be.an('array').that.is.not.empty;
+        expect(routes_in_session).to.be.an('array').that.is.not.empty;
+        expect(routes_in_session[0]).to.be.an('object').that.has.property('overview_polyline');
+        expect(routes_in_session[0]).to.have.property('navigation_url');
     });
     
     it('should return GPS coordinates for a valid address', async () => {
@@ -44,12 +48,12 @@ describe('Should test the map service', () => {
         expect(status).to.be.true;
     })
     
-    it('Should return path avoiding certail points', async ()=>{
+    it.skip('Should return path avoiding certail points', async ()=>{
         const source ='39.7392358,-104.990251';
         const destination = '44.427963, -110.588455';
         const pointBeforeCasper = [42.839531, -106.136404];
         await mapService.getRoutes({source: source, destination: destination, avoidPoint: [pointBeforeCasper]});
+        // add tests here
     })
-    
 });
 

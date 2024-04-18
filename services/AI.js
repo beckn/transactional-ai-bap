@@ -97,7 +97,7 @@ class AI {
                         // call again to get the response
                         responseMessage = await this.get_response_or_perform_action(messages);
                         if(raw_yn) {
-                            responseMessage.raw = response.data;
+                            responseMessage.raw = response.data || response;
                         }
                     }
                 }

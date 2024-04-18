@@ -11,7 +11,7 @@ const actionsService = new Actions();
 async function getResponse(req, res) {
     const { From, Body, raw_yn } = req.body
     const format = (req?.headers && req.headers['content-type']) || 'text/xml';
-
+    let media_urls = [];
     
     if(!From || !Body){
         res.status(400).send("Bad Request")
@@ -44,11 +44,19 @@ async function getResponse(req, res) {
         ];
         const response = await ai.get_response_or_perform_action(messages, raw_yn)
         
+        // check for media urls
+        if(map.routes_image){
+            const public_url = await actionsService.download_file(map.routes_image);
+            media_urls.push(public_url);
+        }
+
         // prepare raw body if required
-        const responseBody = raw_yn ? response.raw : response.content;
-        delete response.raw;
+        const responseBody = raw_yn ? {
+            data : response.raw,
+            media_urls : media_urls
+        } : response.content;
         
-        messages.push(response);
+        messages.push({role: response.role, content: response.content});
         session.text = messages; // Update session text (chat history)
 
         // save session
@@ -56,7 +64,7 @@ async function getResponse(req, res) {
 
         // Send response
         if(format!='application/json'){
-            await actionsService.send_message(From, responseBody, []);
+            await actionsService.send_message(From, responseBody, media_urls);
             res.send("Message sent!")
         }
         else{
