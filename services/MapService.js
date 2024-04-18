@@ -1,6 +1,7 @@
 import {Client} from "@googlemaps/google-maps-services-js";
 import logger from '../utils/logger.js'
 import polyline from '@mapbox/polyline';
+import get_text_by_key from '../utils/language.js';
 
 class MapsService {
     constructor() {
@@ -78,7 +79,14 @@ class MapsService {
             this.session.profile.selected_route = {
                 polyline: this.session.routes[index.index].overview_polyline.points
             }
-            return true;
+            
+            // set route image in map instance
+            this.routes_image = await this.get_static_image_path([this.session.routes[index.index]]);
+
+            return {
+                status: true,
+                message: get_text_by_key('route_selected', {url : this.session.routes[index.index].navigation_url})                
+            };
         } else {
             return false;
         }
