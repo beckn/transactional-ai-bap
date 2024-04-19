@@ -4,7 +4,7 @@ const expect = chai.expect
 import request from 'supertest'
 import app from '../../../server.js'
 
-describe('API tests for getResponse() function', () => {
+describe.only('API tests for getResponse() function', () => {
     it('should return 400 if From or Body is missing', async () => {
         const message = "What is the capital of India?"
         const response = await request(app).post('/webhook').send({
@@ -33,7 +33,7 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.be.a('string');
     })
 
-    it.only('Should return routes between two points along with route image with raw request', async () => {
+    it('Should return routes between two points along with route image with raw request', async () => {
         const message = "Can you share routes between New Delhi and Mumbai?"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
@@ -57,7 +57,7 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.be.a('string');
     })
 
-    it.only('Should select a route and get route map wit navigation link', async () => {
+    it('Should select a route and get route map wit navigation link', async () => {
         const message = "Lets select the first one"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
