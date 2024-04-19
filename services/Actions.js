@@ -34,19 +34,6 @@ class Actions {
         try {
             let response = await axios(request)
             
-            // optimise search results. 
-            // This code will ensure that for search resylts, only the responses with catalog providers are returned and out of them we only take the first resopnse to further reduce the token size. 
-            // This should be imlemented by different baps based on their requirements.
-            if(request.data.context && request.data.context.action==='search'){
-                response.data.responses = response.data.responses.filter(res => res.message && res.message.catalog && res.message.catalog.providers && res.message.catalog.providers.length > 0)
-                if(response.data.responses.length > 0) {
-                    response.data.responses = response.data.responses.slice(0, 1);                
-                    if(response?.data?.responses[0].message?.catalog?.providers){
-                        response.data.responses[0].message.catalog.providers = response.data.responses[0].message.catalog.providers.slice(0, 3);
-                    }
-                }
-                
-            }
             responseObject = {
                 status: true,
                 data: response.data,

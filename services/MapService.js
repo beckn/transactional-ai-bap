@@ -2,12 +2,13 @@ import {Client} from "@googlemaps/google-maps-services-js";
 import logger from '../utils/logger.js'
 import polyline from '@mapbox/polyline';
 import get_text_by_key from '../utils/language.js';
+import Actions from "./Actions.js";
 
 class MapsService {
     constructor() {
         this.client = new Client({});
         this.session = {};
-        this.routes_image = null;
+        this.media_url = null;
     }
 
     /**
@@ -44,7 +45,7 @@ class MapsService {
             // Save session if possible
             if(this.session){
                 this.session.routes = routes;
-                this.routes_image = path;
+                this.media_url = await new Actions().download_file(path);
             }
 
             return routes.map(route => route.summary);
@@ -77,11 +78,12 @@ class MapsService {
         logger.info(`Selecting route ${index.index}`);
         if (this.session.routes && index.index >= 0 && index.index < this.session.routes.length) {
             this.session.profile.selected_route = {
-                polyline: this.session.routes[index.index].overview_polyline.points
+                overview_polyline: this.session.routes[index.index].overview_polyline
             }
             
             // set route image in map instance
-            this.routes_image = await this.get_static_image_path([this.session.routes[index.index]]);
+            const static_image_url = await this.get_static_image_path([this.session.routes[index.index]]);
+            this.media_url = await new Actions().download_file(static_image_url);
 
             return {
                 status: true,
@@ -160,15 +162,23 @@ class MapsService {
         return Math.abs(deltaXt) < tolerance;
     }
 
-    get_static_image_path(routes){
+    get_static_image_path(routes, markers=[]){
         let polygon_path = '';
-        routes.forEach((route, index) => {
-            polygon_path+=`&path=color:${this.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
-        })
+        let markers_path = '';
         
-        const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-        return route_image;
-                
+        if(routes.length === 0) return false;
+        else{
+            routes.forEach((route, index) => {
+                polygon_path+=`&path=color:${this.get_random_color()}|weight:${5-index}|enc:${route.overview_polyline.points}`;
+            })
+
+            markers.forEach((marker) => {
+                markers_path+=encodeURI(`&markers=color:blue|size:mid|${marker.location}`);
+            })
+            
+            const route_image = `https://maps.googleapis.com/maps/api/staticmap?size=300x300${polygon_path}${markers_path}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+            return route_image;
+        }       
     }
 }
 

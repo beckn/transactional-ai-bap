@@ -45,9 +45,9 @@ async function getResponse(req, res) {
         const response = await ai.get_response_or_perform_action(messages, raw_yn)
         
         // check for media urls
-        if(map.routes_image){
-            const public_url = await actionsService.download_file(map.routes_image);
-            media_urls.push(public_url);
+        const media_url = map.media_url || ai.media_url;
+        if(media_url){
+            media_urls.push(media_url);
         }
 
         // prepare raw body if required

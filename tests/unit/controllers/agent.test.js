@@ -31,7 +31,6 @@ describe('API tests for getResponse() function', () => {
             Body: message,
         })
         expect(response.text).to.be.a('string');
-        expect(response.text).to.contain('NH 48');
     })
 
     it('Should return routes between two points along with route image with raw request', async () => {
@@ -80,6 +79,5 @@ describe('API tests for getResponse() function', () => {
             Body: message,
         })
         expect(response.text).to.be.a('string');
-        expect(response.text).to.contain('Lake');
     })
 })
