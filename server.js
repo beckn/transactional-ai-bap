@@ -4,7 +4,6 @@ dotenv.config()
 import express from 'express'
 import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
-import DBService from './services/DBService.js'
 import agentController from './controllers/Agent.js';
 import {
     cancelBooking,
