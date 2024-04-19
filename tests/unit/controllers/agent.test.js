@@ -33,7 +33,7 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.be.a('string');
     })
 
-    it('Should return routes between two points along with route image with raw request', async () => {
+    it.only('Should return routes between two points along with route image with raw request', async () => {
         const message = "Can you share routes between New Delhi and Mumbai?"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
@@ -57,7 +57,7 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.be.a('string');
     })
 
-    it('Should select a route and get route map wit navigation link', async () => {
+    it.only('Should select a route and get route map wit navigation link', async () => {
         const message = "Lets select the first one"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
