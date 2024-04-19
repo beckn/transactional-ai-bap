@@ -76,7 +76,7 @@ class AI {
     
             // check for tool calls
             const toolCalls = responseMessage.tool_calls;
-            if (toolCalls) {
+            if (toolCalls && toolCalls.length > 0) {
                 logger.info("Tool calls found in response, proceeding...");
     
     
@@ -92,7 +92,7 @@ class AI {
                         messages.push({
                             tool_call_id: tool.id,
                             role: "tool",
-                            name: functionToCall,
+                            name: tool.function.name,
                             content: JSON.stringify(response),
                         });
     

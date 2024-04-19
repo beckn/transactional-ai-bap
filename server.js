@@ -37,12 +37,6 @@ app.post('/update-status', updateStatus)
 app.post('/unpublish-item', unpublishItem)
 app.post('/webhook-ps', webhookControl)
 
-// Reset all sessions
-export const db = new DBService()
-
-await db.clear_all_sessions()
-
-
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {
     logger.info(`Server is running on port ${process.env.SERVER_PORT}`)
