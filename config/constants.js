@@ -47,6 +47,10 @@ export const BECKN_STATUS_CALL =  {
 export const EMPTY_BECKN_TRANSACTION = { 
     id: false,
     responses: {
+        search: {},
+        select: {},
+        init: {},
+        confirm: {},
         on_search: {},
         on_select: {},
         on_init: {},
