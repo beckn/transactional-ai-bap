@@ -9,7 +9,16 @@ describe('Should test the map service', () => {
         const source ='37.422391,-122.084845';
         const destination = '37.411991,-122.079414';
         
-        let routes = await mapService.getRoutes(source, destination);
+        let routes = await mapService.getRoutes({source: source, destination: destination});
+        
+        expect(routes).to.be.an('array');
+    });
+
+    it('Should test route fetching with strings', async () => {
+        const source ='Bengaluru';
+        const destination = 'Mumbai';
+        
+        let routes = await mapService.getRoutes({source: source, destination: destination});
         
         expect(routes).to.be.an('array');
     });
@@ -28,7 +37,8 @@ describe('Should test the map service', () => {
         const destination = '37.411991,-122.079414';
         
         const point = [37.422391, -122.084845];
-        let routes = await mapService.getRoutes(source, destination);
+        await mapService.getRoutes({source: source, destination: destination});
+        let routes = mapService.session.routes;
 
         const status = await mapService.checkGpsOnPolygon(point, routes[0].overview_polyline.points);
         expect(status).to.be.true;
@@ -38,7 +48,7 @@ describe('Should test the map service', () => {
         const source ='39.7392358,-104.990251';
         const destination = '44.427963, -110.588455';
         const pointBeforeCasper = [42.839531, -106.136404];
-        await mapService.getRoutes(source, destination, pointBeforeCasper);
+        await mapService.getRoutes({source: source, destination: destination, avoidPoint: [pointBeforeCasper]});
     })
     
 });

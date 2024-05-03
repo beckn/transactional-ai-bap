@@ -1,38 +1,16 @@
 {
     "FULFILLMENT_STATUS_CODES": {
-        "order-picked-up": {
-            "message": "Your order's on its way!"
-        },
-        "order-on-the-way": {
-            "message": "Hang tight! Your order's cruising over to you."
-        },
-        "order-delivered": {
-            "message": "Package alert! Your order's been delivered."
-        },
-        "ticket-issued": {
-            "message": "All set! Your ticket's ready to go."
-        },
-        "ticket-validated": {
-            "message": "You're all good! Your ticket's been validated."
-        },
-        "charging-started": {
-            "message": "Juice up! Your charging session's begun."
-        },
-        "charging-stopped": {
-            "message": "Heads up! Your charging session's been paused."
-        },
-        "charger-not-working": {
-            "message": "Uh-oh, looks like there's a glitch with your charger ⚡😓. Need help finding another spot? 📍🔍"
-        },
-        "charging-completed": {
-            "message": "Charged and ready! Your battery's full."
-        },
-        "checked-in": {
-            "message": "Welcome! You've successfully checked in."
-        },
-        "checked-out": {
-            "message": "Safe travels! You've checked out."
-        }
+        "order-picked-up": "Your order's on its way!",
+        "order-on-the-way": "Hang tight! Your order's cruising over to you.",
+        "order-delivered": "Package alert! Your order's been delivered.",
+        "ticket-issued": "All set! Your ticket's ready to go.",
+        "ticket-validated": "You're all good! Your ticket's been validated.",
+        "charging-started": "Juice up! Your charging session's begun.",
+        "charging-stopped": "Heads up! Your charging session's been paused.",
+        "charger-not-working": "Uh-oh, looks like there's a glitch with your charger ⚡😓. Need help finding another spot? 📍🔍",
+        "charging-completed": "Charged and ready! Your battery's full.",
+        "checked-in": "Welcome! You've successfully checked in.",
+        "checked-out": "Safe travels! You've checked out."
     },
     "ALL_MESSAGES": {
         "session_cleared": "Your session has been cleared! You're all set to start a new one.",
@@ -49,26 +27,5 @@
         "missing_source": "Mind sharing the starting point for your journey?",
         "missing_destination": "Could you let us know your destination?",
         "route_list_description": "Here are some route options for you. Which one do you prefer?"
-    },
-    "TEST_MESSAGES_USER": [
-        "---Days before the travel---",
-        "Adam: Hey Alfred, you around?",
-        "Adam: I’m hitting Yellowstone National Park on April 12th for 2 days. Got any places to stay?",
-        "Adam: First one sounds awesome. Lets go with that",
-        "Adam: You got it - John A. Smith, john.smith@example.com, (555) 123-4567.",
-        "Adam: Sure, lets confirm!",
-
-        "---On the date of travel---",
-        "Adam: Alfred, can you find the best route to Yellowstone national park from Denver?",
-        "Adam: lets go with Route 1",
-        "Adam: Can you find ev chargers on the route?",
-        "Adam: Lets go with Tesla Supercharger",
-        
-
-        "---Charging stopped due to an error---",
-        "Adam: Yeah, let’s find another charger",
-        "Adam: Let’s go with the second one.",
-        "Adam: Sure thing, lets book it",
-        "Adam: Yeah, let’s do it."
-    ]
+    }
 }

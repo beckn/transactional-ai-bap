@@ -19,6 +19,7 @@ import MapsService from '../services/MapService.js'
 import get_text_by_key from '../utils/language.js'
 
 const action = new Actions()
+const db = new DBService();
 
 const TWILIO_RECEPIENT_NUMBER = process.env.TEST_RECEPIENT_NUMBER
 export const cancelBooking = async (req, res) => {
@@ -27,7 +28,7 @@ export const cancelBooking = async (req, res) => {
         if(!orderId){
             return res.status(400).json({message:"Order Id is Required", status:false})
         }
-      
+        
         const validOrderId = await action.call_api(`${TOURISM_STRAPI_URL}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${process.env.STRAPI_TOURISM_TOKEN}`})
         logger.info(`OrderDetails: ${JSON.stringify(validOrderId)}`)
         if(!validOrderId.status){
@@ -119,7 +120,7 @@ export const notify = async (req, res) => {
                 const route = session.data.profile.selected_route;
                 if(route?.overview_polyline?.points) {
                     const status = await mapService.checkGpsOnPolygon(point, route?.overview_polyline?.points)
-
+                    
                     logger.info(`Status of gps point ${JSON.stringify(point)} on route ${route.summary} is ${status}`)
                     // send whatsapp and add to context
                     if(status){
@@ -131,7 +132,7 @@ export const notify = async (req, res) => {
                             session.data.avoid_point = point;
                             if(!session.data.text) session.data.text=[]
                             session.data.text.push({role: 'assistant', content: reply_message});
-    
+                            
                             await db.update_session(session.key, session.data);
                         }
                         catch(e){
@@ -144,125 +145,181 @@ export const notify = async (req, res) => {
         }
         else res.status(400).send('Point and message are required in the body.')
     }
-
-
-export const updateStatus = async (req, res) => {
-    try {
-        let { orderId, domain="", status=null } = req.body
-        if(!orderId){
-            return res.status(400).json({message:"Order Id is Required", status:false})
-        }
-        orderId = parseInt(orderId);
-        let DOMAIN_DETAILS = {
-            url:"",
-            token:"",
-            message:""
-        }
-        switch(domain){
-            case DOMAINS.ENERGY:
+    
+    
+    export const updateStatus = async (req, res) => {
+        try {
+            let { orderId, domain="", status=null } = req.body
+            if(!orderId){
+                return res.status(400).json({message:"Order Id is Required", status:false})
+            }
+            orderId = parseInt(orderId);
+            let DOMAIN_DETAILS = {
+                url:"",
+                token:"",
+                message:""
+            }
+            switch(domain){
+                case DOMAINS.ENERGY:
                 DOMAIN_DETAILS = {
                     url:ENERGY_STRAPI_URL,
                     token:process.env.STRAPI_ENERGY_TOKEN,
                     message:status || UPDATE_STATUS_MESSAGE.ENERGY
-
+                    
                 }
                 break;
-            case DOMAINS.RETAIL:
+                case DOMAINS.RETAIL:
                 DOMAIN_DETAILS = {
                     url:RETAIL_STRAPI_URL,
                     token:process.env.STRAPI_RETAIL_TOKEN,
                     message:status || UPDATE_STATUS_MESSAGE.RETAIL
                 }
                 break;
-            case DOMAINS.HOTEL:
+                case DOMAINS.HOTEL:
                 DOMAIN_DETAILS = {
                     url:HOTEL_STRAPI_URL,
                     token:process.env.STRAPI_HOTEL_TOKEN,
                     message:status || UPDATE_STATUS_MESSAGE.HOTEL
                 }
                 break;
-            case DOMAINS.TOURISM:
+                case DOMAINS.TOURISM:
                 DOMAIN_DETAILS = {
                     url:TOURISM_STRAPI_URL,
                     token:process.env.STRAPI_TOURISM_TOKEN,
                     message: status || UPDATE_STATUS_MESSAGE.TOURISM
                 }
                 break;
+            }
+            const validOrderId = await action.call_api(`${DOMAIN_DETAILS.url}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+            logger.info(`OrderDetails: ${JSON.stringify(validOrderId)}`)
+            if(!validOrderId.status){
+                return res.status(400).send({ message: `Invalid Order Id`, status:false })
+            }
+            
+            const getOrderFulfillmentDetails = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments?order_id=${orderId}&sort=order_id.id:desc&populate=order_id`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+            logger.info(`Order Fulfillment Details: ${JSON.stringify(getOrderFulfillmentDetails)}`)
+            if (getOrderFulfillmentDetails.data.data.length) {  
+                const requiredOrder = getOrderFulfillmentDetails.data.data.find((order)=>order.attributes.order_id.data.id===orderId)
+                const updateStatusResponse = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments/${requiredOrder.id}`,'PUT',{
+                    data: {
+                        state_code: DOMAIN_DETAILS.message,
+                        state_value: DOMAIN_DETAILS.message,
+                    },
+                },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+                const webhookResponse = await action.call_api(`${process.env.SERVER_URL}/webhook-ps`, 'POST',{...updateStatusResponse, orderId:orderId});
+                logger.info(JSON.stringify(webhookResponse));
+                return res.status(200).send({ message: `Status Updated to: ${updateStatusResponse.data.data.attributes.state_value}`, status:true })
+            }
+            
+            return res.status(400).send({ message: 'Order Status Update Failed', status:false })
+        } catch (error) {
+            logger.error(error.message)
+            return res.status(400).send({ message: error.message, status:false })
         }
-        const validOrderId = await action.call_api(`${DOMAIN_DETAILS.url}/orders/${orderId}`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
-        logger.info(`OrderDetails: ${JSON.stringify(validOrderId)}`)
-        if(!validOrderId.status){
-            return res.status(400).send({ message: `Invalid Order Id`, status:false })
-        }
-        
-        const getOrderFulfillmentDetails = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments?order_id=${orderId}&sort=order_id.id:desc&populate=order_id`,'GET',{},{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
-        logger.info(`Order Fulfillment Details: ${JSON.stringify(getOrderFulfillmentDetails)}`)
-        if (getOrderFulfillmentDetails.data.data.length) {  
-            const requiredOrder = getOrderFulfillmentDetails.data.data.find((order)=>order.attributes.order_id.data.id===orderId)
-            const updateStatusResponse = await action.call_api(`${DOMAIN_DETAILS.url}/order-fulfillments/${requiredOrder.id}`,'PUT',{
-                data: {
-                    state_code: DOMAIN_DETAILS.message,
-                    state_value: DOMAIN_DETAILS.message,
-                },
-            },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
-            const webhookResponse = await action.call_api(`${process.env.SERVER_URL}/webhook-ps`, 'POST',{...updateStatusResponse, orderId:orderId});
-            logger.info(JSON.stringify(webhookResponse));
-            return res.status(200).send({ message: `Status Updated to: ${updateStatusResponse.data.data.attributes.state_value}`, status:true })
-        }
-
-        return res.status(400).send({ message: 'Order Status Update Failed', status:false })
-    } catch (error) {
-        logger.error(error.message)
-        return res.status(400).send({ message: error.message, status:false })
     }
-}
-
-export const unpublishItem = async (req, res) => {
-    try{
-        const {domain="", itemId=""} = req.body
-        let DOMAIN_DETAILS = {
-            url:"",
-            token:""
-        }
-
-        switch(domain){
-            case DOMAINS.ENERGY:
+    
+    export const unpublishItem = async (req, res) => {
+        try{
+            const {domain="", itemId=""} = req.body
+            let DOMAIN_DETAILS = {
+                url:"",
+                token:""
+            }
+            
+            switch(domain){
+                case DOMAINS.ENERGY:
                 DOMAIN_DETAILS = {
                     url:ENERGY_STRAPI_URL,
                     token:process.env.STRAPI_ENERGY_TOKEN,
-
+                    
                 }
                 break;
-            case DOMAINS.RETAIL:
+                case DOMAINS.RETAIL:
                 DOMAIN_DETAILS = {
                     url:RETAIL_STRAPI_URL,
                     token:process.env.STRAPI_RETAIL_TOKEN,
                 }
                 break;
-            case DOMAINS.HOTEL:
+                case DOMAINS.HOTEL:
                 DOMAIN_DETAILS = {
                     url:HOTEL_STRAPI_URL,
                     token:process.env.STRAPI_HOTEL_TOKEN,
                 }
                 break;
-            case DOMAINS.TOURISM:
+                case DOMAINS.TOURISM:
                 DOMAIN_DETAILS = {
                     url:TOURISM_STRAPI_URL,
                     token:process.env.STRAPI_TOURISM_TOKEN,
                 }
                 break;
+            }
+            const unpublishItemResp = await action.call_api(`${DOMAIN_DETAILS.url}/items/${itemId}`,'PUT',{
+                "data":{"publishedAt": null}
+            },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
+            return res.status(200).json({
+                status:unpublishItemResp.status,
+                message: unpublishItemResp.error || 'Item Unpublished'
+            })
+        }catch(error){
+            return res.status(400).json({
+                status:false,
+                message:error.message
+            })
         }
-        const unpublishItemResp = await action.call_api(`${DOMAIN_DETAILS.url}/items/${itemId}`,'PUT',{
-            "data":{"publishedAt": null}
-          },{ Authorization: `Bearer ${DOMAIN_DETAILS.token}`})
-        return res.status(200).json({
-            status:unpublishItemResp.status,
-            message: unpublishItemResp.error || 'Item Unpublished'
-        })
-    }catch(error){
-        return res.status(400).json({
-            status:false,
-            message:error.message
-        })
     }
-}
+    
+    export const webhookControl = async (req, res) => {
+        try{
+            const sessions = await db.get_all_sessions();
+            logger.info(`Got ${sessions.length} sessions.`)
+            
+            
+            for(let session of sessions){
+                const orders = session.data.orders;
+                const index = orders ? orders.findIndex((order)=>order.message.order.id == req.body.orderId) : null;
+                if(index!==null && index>=0 && (!orders[index].message.order.fulfillments[0].state||orders[index].message.order.fulfillments[0].state.descriptor.code !== req.body.data.data.attributes.state_code )) {
+                    // send whatsapp and add to context
+                    try{
+                        // update session
+                        orders[index].message.order.fulfillments[0] = {
+                            ...orders[index].message.order.fulfillments[0],
+                            state:{
+                                descriptor:{
+                                    code:req.body.data.data.attributes.state_code,
+                                    short_desc:req.body.data.data.attributes.state_value
+                                },
+                                updated_at:req.body.data.data.attributes.updatedAt
+                            }
+                        }
+                        let reply_message = get_text_by_key(req.body.data.data.attributes.state_code, {}, 'FULFILLMENT_STATUS_CODES') || `Hey the status of your order is updated to ${req.body.data.data.attributes.state_code}`
+                        await action.send_message(session.key,
+                            reply_message
+                            )
+                            if (!session.data.text) session.data.text = []
+                            session.data.text.push({
+                                role: 'assistant',
+                                content: reply_message,
+                            })
+                            await db.update_session(
+                                session.key,
+                                session.data
+                                )
+                            }
+                            catch(e){
+                                logger.error(e);
+                                throw new Error(e.message)
+                            }
+                            
+                        }
+                    }
+                    return res.status(200).json({
+                        status:true,
+                        message:'Notification Sent'
+                    })
+                }catch(error){
+                    return res.status(400).json({
+                        status:false,
+                        message:'Some Error Occured'
+                    })
+                }
+            }

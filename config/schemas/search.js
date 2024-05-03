@@ -72,10 +72,10 @@ export default {
                                             },
                                             polygon: {
                                                 type: "string",
-                                                description: "This describes the route on which the item needs to be searched. This should be used if the request is to search along a route"
+                                                description: "This describes the route on which the item needs to be searched. This should be used if the instruction is to search along a route and there is a selelected route in user profile."
                                             }
                                         },
-                                        required: ['gps']
+                                        required: []
                                     },
                                     time: {
                                         type: "object",

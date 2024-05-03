@@ -1,7 +1,6 @@
 import twilio from 'twilio'
 import logger from '../utils/logger.js'
 import axios from 'axios'
-import AI from './AI.js'
 import {createWriteStream} from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -18,13 +17,12 @@ const rootPath = path.resolve(__dirname, './');
 class Actions {
     
     constructor() {
-        this.ai = new AI()
         this.context = [];
     }
     
     async call_api(endpoint, method, data, headers = {}) {
-        logger.info(`Calling ${method} on ${endpoint}...`);
-        logger.info(`Data: ${JSON.stringify(data, null, 2)}`);
+        logger.warn(`Calling ${method} on ${endpoint}...`);
+        logger.verbose(`Data: ${JSON.stringify(data, null, 2)}`);
         let responseObject = {
             status: false,
             retry: false,
@@ -55,7 +53,7 @@ class Actions {
                 cookies: response.headers['set-cookie'],
             }
             logger.info(`API call was successful: , response.status`)
-            logger.info(JSON.stringify(response.data, null, 2))
+            logger.verbose(JSON.stringify(response.data, null, 2))
         } catch (error) {
             logger.error(error)
             
