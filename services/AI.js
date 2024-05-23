@@ -12,6 +12,7 @@ import init from '../config/schemas/init.js';
 import confirm from '../config/schemas/confirm.js';
 import get_text_by_key from '../utils/language.js';
 import { EMPTY_SESSION } from '../config/constants.js';
+import MapsService from './MapService.js';
 const BECKN_ACTIONS = {
     search: {
         schema : search, call_to_action : "Which one would you like to select?"
@@ -41,6 +42,7 @@ class AI {
         this.bookings = [];
         this.actionService = new Actions();
         this.session = EMPTY_SESSION;
+        this.media_url = null;
         this.tools = [];
         this.attempt = 0; // for API call attempts
     }
@@ -74,7 +76,7 @@ class AI {
     
             // check for tool calls
             const toolCalls = responseMessage.tool_calls;
-            if (toolCalls) {
+            if (toolCalls && toolCalls.length > 0) {
                 logger.info("Tool calls found in response, proceeding...");
     
     
@@ -90,14 +92,14 @@ class AI {
                         messages.push({
                             tool_call_id: tool.id,
                             role: "tool",
-                            name: functionToCall,
+                            name: tool.function.name,
                             content: JSON.stringify(response),
                         });
     
                         // call again to get the response
                         responseMessage = await this.get_response_or_perform_action(messages);
                         if(raw_yn) {
-                            responseMessage.raw = response.data;
+                            responseMessage.raw = response.data || response;
                         }
                     }
                 }
@@ -162,10 +164,36 @@ class AI {
                 response={
                     status: true,
                     data: api_response?.data?.responses,
-                    message: api_response.data.responses.length>0 ? BECKN_ACTIONS[action]['call_to_action'] : "No response found for the given action"
+                    message: BECKN_ACTIONS[action]['call_to_action']
                 }
     
-                
+                // in case of search along the route, add a media url for the route image
+                if(action=='search' && message.intent?.fulfillment?.stops[0].location?.polygon){
+                    
+                    const mapService = new MapsService();
+                    logger.warn('Fetching static image for search along the route...')
+                    let markers = [];
+                    response.data.map(res => {
+                        try{
+                            res.message.catalog.providers.map(provider => {
+                                provider.locations.map(location => {
+                                    markers.push({
+                                        label: location.address,
+                                        location: location.gps
+                                    })
+                                })
+                            })
+                        }
+                        catch(e){
+                            logger.error(e);
+                        }                        
+                    })
+                    const static_image_url = mapService.get_static_image_path([this.session.profile.selected_route], markers);
+                    logger.info(`Got static image for search along the route : ${static_image_url}`);
+                    this.media_url = await this.actionService.download_file(static_image_url);
+                     
+                }
+
                 // update last action and response
                 if(api_response?.data?.responses?.length>0){
                     this.session.profile.last_action = action;

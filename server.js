@@ -4,7 +4,6 @@ dotenv.config()
 import express from 'express'
 import bodyParser from 'body-parser'
 import logger from './utils/logger.js'
-import DBService from './services/DBService.js'
 import agentController from './controllers/Agent.js';
 import {
     cancelBooking,
@@ -36,12 +35,6 @@ app.post('/trigger-exception', triggerExceptionOnLocation)
 app.post('/update-status', updateStatus)
 app.post('/unpublish-item', unpublishItem)
 app.post('/webhook-ps', webhookControl)
-
-// Reset all sessions
-export const db = new DBService()
-
-await db.clear_all_sessions()
-
 
 // Start the Express server
 app.listen(process.env.SERVER_PORT, () => {

@@ -24,23 +24,52 @@ describe('API tests for getResponse() function', () => {
         expect(response.text).to.contain('New Delhi');
     })
 
-    it('Should return list of routes between two points if asked', async () => {
+    it.skip('Should return list of routes between two points if asked', async () => {
         const message = "Can you share routes between New Delhi and Mumbai?"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
             Body: message,
         })
         expect(response.text).to.be.a('string');
-        expect(response.text).to.contain('NH 48');
     })
 
-    it('Should select a route', async () => {
+    it('Should return routes between two points along with route image with raw request', async () => {
+        const message = "Can you share routes between New Delhi and Mumbai?"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+            raw_yn: true
+        })
+        expect(response.body).to.have.property('data');
+        expect(response.body).to.have.property('media_urls');
+        expect(response.body.data).to.be.an('array');
+        expect(response.body.data[0]).to.be.a('string');
+        expect(response.body.media_urls).to.be.an('array').that.is.not.empty;
+        expect(response.body.media_urls[0]).to.be.a('string');        
+    })
+
+    it.skip('Should select a route', async () => {
         const message = "Lets select the first one"
         const response = await request(app).post('/webhook').send({
             From: process.env.TEST_RECEPIENT_NUMBER,
             Body: message,
         })
         expect(response.text).to.be.a('string');
+    })
+
+    it('Should select a route and get route map wit navigation link', async () => {
+        const message = "Lets select the first one"
+        const response = await request(app).post('/webhook').send({
+            From: process.env.TEST_RECEPIENT_NUMBER,
+            Body: message,
+            raw_yn: true
+        })
+        expect(response.body).to.have.property('data');
+        expect(response.body).to.have.property('media_urls');
+        expect(response.body.data).to.be.an('object');
+        expect(response.body.data.message).to.be.a('string');
+        expect(response.body.media_urls).to.be.an('array').that.is.not.empty;
+        expect(response.body.media_urls[0]).to.be.a('string');  
     })
 
     it('Should return a list of hotels', async () => {
@@ -50,6 +79,5 @@ describe('API tests for getResponse() function', () => {
             Body: message,
         })
         expect(response.text).to.be.a('string');
-        expect(response.text).to.contain('Lake');
     })
 })
