@@ -4,3 +4,7 @@ TWILIO_ACCOUNT_SSID=
 TWILIO_API_TOKEN=
 GEMINI_API_KEY=
 GEMINI_MODEL_NAME=
+DOMAIN=uei:p2p-trading
+BAP_ID=https://bap-ps-network-ueip2p.becknprotocol.io
+BAP_URI=https://bap-ps-network-ueip2p.becknprotocol.io
+BAP_CLIENT_URI=https://bap-ps-client-ueip2p.becknprotocol.io
