@@ -10,7 +10,30 @@ const model = genAI.getGenerativeModel({
 });
 export const getAiReponse = async (prompt: string) => {
   try {
-    const data = await model.generateContent(prompt);
+    const context = [
+      {
+        role: "assistant",
+        content:
+          "You are an AI agent that is cable of doing transcations to open network related to energy domain"
+      },
+      {
+        role: "assistant",
+        content:
+          "You should check whether the message contains some intent to buy some energy from the open network"
+      },
+      {
+        role: "assistant",
+        content: "Your tone should be polite and helpful. "
+      },
+      { role: "user", content: prompt }
+    ];
+    const context2 = [
+      "You are cable of doing transcations to open network related to energy domain",
+      "You should check whether the message contains some intent to buy some energy from the open network",
+      "If there is an intent to buy some energy then reply only in true else respond with relevant information",
+      prompt
+    ];
+    const data = await model.generateContent(context2);
     return data.response.text();
   } catch (err: any) {
     console.log(err);
