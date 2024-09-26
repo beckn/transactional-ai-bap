@@ -25,6 +25,7 @@ export const makeBecknCall = async (
         url = `${url}/${BECKN_ACTIONS.search}`;
         break;
     }
+    console.log("Beckn Payload--->", JSON.stringify(payload));
     const response = await axios.post(url as string, payload);
     return response.data;
   } catch (err: any) {
