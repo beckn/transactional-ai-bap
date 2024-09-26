@@ -41,8 +41,8 @@ export const createBecknSearchPayload = () => {
           {
             time: {
               range: {
-                start: tomorrowStartTimestamp.toISOString(),
-                end: tomorrowEndTimeStamp.toISOString()
+                start: "2024-10-04T10:00:00.000Z",
+                end: "2024-10-04T18:00:00.000Z"
               }
             }
           }
