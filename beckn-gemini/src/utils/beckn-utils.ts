@@ -26,27 +26,29 @@ export const createBecknSearchPayload = () => {
   return {
     context: createBecknContext(),
     message: {
-      item: {
-        quantity: {
-          available: {
-            measure: {
-              value: "1000.0",
-              unit: "kWH"
-            }
-          }
-        }
-      },
-      fulfillment: {
-        stops: [
-          {
-            time: {
-              range: {
-                start: "2024-10-04T10:00:00.000Z",
-                end: "2024-10-04T18:00:00.000Z"
+      intent: {
+        item: {
+          quantity: {
+            available: {
+              measure: {
+                value: "1000.0",
+                unit: "kWH"
               }
             }
           }
-        ]
+        },
+        fulfillment: {
+          stops: [
+            {
+              time: {
+                range: {
+                  start: "2024-10-04T10:00:00.000Z",
+                  end: "2024-10-04T18:00:00.000Z"
+                }
+              }
+            }
+          ]
+        }
       }
     }
   };
