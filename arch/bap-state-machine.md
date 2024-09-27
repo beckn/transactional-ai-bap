@@ -85,28 +85,29 @@ The **Agent Orchestrator** is the central node responsible for coordinating the 
 
 ```mermaid
 graph LR
-    A[Agent Orchestrator] -->|Forward| D[Discovery Agent]
-    A -->|Forward| PN[Price Negotiation Agent]
-    A -->|Forward| TN[Terms Negotiation Agent]
-    A -->|Forward| F[Fulfillment Agent]
-    A -->|Forward| S[Support Agent]
-    A -->|Forward| C[Confirmation Agent]
-    A -->|Forward| T[Tracking Agent]
-    A -->|Forward| CA[Cancellation Agent]
-    A -->|Forward| M[Modification Agent]
-    A -->|Forward| R[Rating Agent]
+    AgentOrchestrator --> DiscoveryAgent
+    AgentOrchestrator --> PriceNegotiationAgent
+    AgentOrchestrator --> TermsNegotiationAgent
+    AgentOrchestrator --> FulfillmentAgent
+    AgentOrchestrator --> SupportAgent
+    AgentOrchestrator --> ConfirmationAgent
+    AgentOrchestrator --> TrackingAgent
+    AgentOrchestrator --> CancellationAgent
+    AgentOrchestrator --> ModificationAgent
+    AgentOrchestrator --> RatingAgent
 
-    style A fill:#f9c702
-    style D fill:#f7b7a3
-    style PN fill:#d0f0c0
-    style TN fill:#b0e0e6
-    style F fill:#ffcccb
-    style S fill:#dda0dd
-    style C fill:#ffb6c1
-    style T fill:#add8e6
-    style CA fill:#ffdab9
-    style M fill:#87ceeb
-    style R fill:#afeeee
+    style AgentOrchestrator fill:#f9c702
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
+    style FulfillmentAgent fill:#ffcccb
+    style SupportAgent fill:#dda0dd
+    style ConfirmationAgent fill:#ffb6c1
+    style TrackingAgent fill:#add8e6
+    style CancellationAgent fill:#ffdab9
+    style ModificationAgent fill:#87ceeb
+    style RatingAgent fill:#afeeee
+
 ```
 
 #### Connected to:
@@ -130,16 +131,17 @@ The **Discovery Agent** is responsible for finding and presenting available serv
 
 ```mermaid
 graph LR
-    D[Discovery Agent] -->|Forward| PN[Price Negotiation Agent]
-    D -->|Forward| TN[Terms Negotiation Agent]
-    D -->|Forward| Tool
-    PN -->|Reverse| D
-    TN -->|Reverse| D
+    DiscoveryAgent --> PriceNegotiationAgent
+    DiscoveryAgent --> TermsNegotiationAgent
+    DiscoveryAgent --> Tool
+    PriceNegotiationAgent --> DiscoveryAgent
+    TermsNegotiationAgent --> DiscoveryAgent
 
-    style D fill:#f7b7a3
-    style PN fill:#d0f0c0
-    style TN fill:#b0e0e6
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -162,16 +164,17 @@ graph LR
 The **Price Negotiation Agent** handles price-related tasks such as offering discounts or applying special pricing based on user interactions.
 ```mermaid
 graph LR
-    PN[Price Negotiation Agent] -->|Forward| C[Confirmation Agent]
-    PN -->|Forward| Tool
-    D -->|Reverse| PN
-    TN -->|Reverse| PN
+    PriceNegotiationAgent --> ConfirmationAgent
+    PriceNegotiationAgent --> Tool
+    DiscoveryAgent --> PriceNegotiationAgent
+    TermsNegotiationAgent --> PriceNegotiationAgent
 
-    style PN fill:#d0f0c0
-    style C fill:#ffb6c1
-    style D fill:#f7b7a3
-    style TN fill:#b0e0e6
+    style PriceNegotiationAgent fill:#d0f0c0
+    style ConfirmationAgent fill:#ffb6c1
+    style DiscoveryAgent fill:#f7b7a3
+    style TermsNegotiationAgent fill:#b0e0e6
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -192,16 +195,17 @@ graph LR
 The **Terms Negotiation Agent** manages the negotiation of terms such as delivery times, return policies, or other service conditions.
 ```mermaid
 graph LR
-    TN[Terms Negotiation Agent] -->|Forward| C[Confirmation Agent]
-    TN -->|Forward| Tool
-    D -->|Reverse| TN
-    PN -->|Reverse| TN
+    TermsNegotiationAgent --> ConfirmationAgent
+    TermsNegotiationAgent --> Tool
+    DiscoveryAgent --> TermsNegotiationAgent
+    PriceNegotiationAgent --> TermsNegotiationAgent
 
-    style TN fill:#b0e0e6
-    style C fill:#ffb6c1
-    style D fill:#f7b7a3
-    style PN fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
+    style ConfirmationAgent fill:#ffb6c1
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -222,16 +226,17 @@ graph LR
 The **Confirmation Agent** finalizes the transaction by confirming all negotiated terms, prices, and other details.
 ```mermaid
 graph LR
-    C[Confirmation Agent] -->|Forward| F[Fulfillment Agent]
-    C -->|Forward| Tool
-    PN -->|Reverse| C
-    TN -->|Reverse| C
+    ConfirmationAgent --> FulfillmentAgent
+    ConfirmationAgent --> Tool
+    PriceNegotiationAgent --> ConfirmationAgent
+    TermsNegotiationAgent --> ConfirmationAgent
 
-    style C fill:#ffb6c1
-    style F fill:#ffcccb
-    style PN fill:#d0f0c0
-    style TN fill:#b0e0e6
+    style ConfirmationAgent fill:#ffb6c1
+    style FulfillmentAgent fill:#ffcccb
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -252,18 +257,19 @@ graph LR
 The **Fulfillment Agent** takes responsibility for executing the confirmed order, such as shipping the product or delivering the service.
 ```mermaid
 graph LR
-    F[Fulfillment Agent] -->|Forward| T[Tracking Agent]
-    F -->|Forward| CA[Cancellation Agent]
-    F -->|Forward| M[Modification Agent]
-    F -->|Forward| Tool
-    C -->|Reverse| F
+    FulfillmentAgent --> TrackingAgent
+    FulfillmentAgent --> CancellationAgent
+    FulfillmentAgent --> ModificationAgent
+    FulfillmentAgent --> Tool
+    ConfirmationAgent --> FulfillmentAgent
 
-    style F fill:#ffcccb
-    style T fill:#add8e6
-    style CA fill:#ffdab9
-    style M fill:#87ceeb
-    style C fill:#ffb6c1
+    style FulfillmentAgent fill:#ffcccb
+    style TrackingAgent fill:#add8e6
+    style CancellationAgent fill:#ffdab9
+    style ModificationAgent fill:#87ceeb
+    style ConfirmationAgent fill:#ffb6c1
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -286,14 +292,15 @@ graph LR
 The **Tracking Agent** provides real-time updates on the status of the order or service delivery.
 ```mermaid
 graph LR
-    T[Tracking Agent] -->|Forward| S[Support Agent]
-    T -->|Forward| Tool
-    F -->|Reverse| T
+    TrackingAgent --> SupportAgent
+    TrackingAgent --> Tool
+    FulfillmentAgent --> TrackingAgent
 
-    style T fill:#add8e6
-    style S fill:#dda0dd
-    style F fill:#ffcccb
+    style TrackingAgent fill:#add8e6
+    style SupportAgent fill:#dda0dd
+    style FulfillmentAgent fill:#ffcccb
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -313,20 +320,21 @@ The **Support Agent** assists the user throughout the entire process, from disco
 
 ```mermaid
 graph LR
-    S[Support Agent] -->|Forward| Tool
-    D -->|Reverse| S
-    PN -->|Reverse| S
-    TN -->|Reverse| S
-    T -->|Reverse| S
-    F -->|Reverse| S
+    SupportAgent --> Tool
+    DiscoveryAgent --> SupportAgent
+    PriceNegotiationAgent --> SupportAgent
+    TermsNegotiationAgent --> SupportAgent
+    TrackingAgent --> SupportAgent
+    FulfillmentAgent --> SupportAgent
 
-    style S fill:#dda0dd
-    style D fill:#f7b7a3
-    style PN fill:#d0f0c0
-    style TN fill:#b0e0e6
-    style T fill:#add8e6
-    style F fill:#ffcccb
+    style SupportAgent fill:#dda0dd
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
+    style TrackingAgent fill:#add8e6
+    style FulfillmentAgent fill:#ffcccb
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -347,13 +355,14 @@ graph LR
 The **Cancellation Agent** handles requests to cancel orders, stopping fulfillment and initiating refunds.
 ```mermaid
 graph LR
-    CA[Cancellation Agent] -->|Forward| F[Fulfillment Agent]
-    CA -->|Forward| Tool
-    F -->|Reverse| CA
+    CancellationAgent --> FulfillmentAgent
+    CancellationAgent --> Tool
+    FulfillmentAgent --> CancellationAgent
 
-    style CA fill:#ffdab9
-    style F fill:#ffcccb
+    style CancellationAgent fill:#ffdab9
+    style FulfillmentAgent fill:#ffcccb
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -372,13 +381,14 @@ graph LR
 The **Modification Agent** allows users to make changes to their orders after placement but before fulfillment is complete.
 ```mermaid
 graph LR
-    M[Modification Agent] -->|Forward| F[Fulfillment Agent]
-    M -->|Forward| Tool
-    F -->|Reverse| M
+    ModificationAgent --> FulfillmentAgent
+    ModificationAgent --> Tool
+    FulfillmentAgent --> ModificationAgent
 
-    style M fill:#87ceeb
-    style F fill:#ffcccb
+    style ModificationAgent fill:#87ceeb
+    style FulfillmentAgent fill:#ffcccb
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -397,14 +407,15 @@ graph LR
 The **Rating Agent** handles user feedback and ratings after the completion of the order or service.
 ```mermaid
 graph LR
-    R[Rating Agent] -->|Forward| S[Support Agent]
-    R -->|Forward| Tool
-    F -->|Reverse| R
+    RatingAgent --> SupportAgent
+    RatingAgent --> Tool
+    FulfillmentAgent --> RatingAgent
 
-    style R fill:#afeeee
-    style S fill:#dda0dd
-    style F fill:#ffcccb
+    style RatingAgent fill:#afeeee
+    style SupportAgent fill:#dda0dd
+    style FulfillmentAgent fill:#ffcccb
     style Tool fill:#f0e68c
+
 ```
 
 #### Connected to:
@@ -423,26 +434,27 @@ graph LR
 The **Tool** represents external systems or APIs that provide data, processing, or external integrations to each agent.
 ```mermaid
 graph LR
-    Tool[Tool] -->|Forward| D[Discovery Agent]
-    Tool -->|Forward| PN[Price Negotiation Agent]
-    Tool -->|Forward| TN[Terms Negotiation Agent]
-    Tool -->|Forward| C[Confirmation Agent]
-    Tool -->|Forward| F[Fulfillment Agent]
-    Tool -->|Forward| CA[Cancellation Agent]
-    Tool -->|Forward| M[Modification Agent]
-    Tool -->|Forward| T[Tracking Agent]
-    Tool -->|Forward| R[Rating Agent]
+    DiscoveryAgent --> Tool
+    PriceNegotiationAgent --> Tool
+    TermsNegotiationAgent --> Tool
+    ConfirmationAgent --> Tool
+    FulfillmentAgent --> Tool
+    CancellationAgent --> Tool
+    ModificationAgent --> Tool
+    TrackingAgent --> Tool
+    RatingAgent --> Tool
 
     style Tool fill:#f0e68c
-    style D fill:#f7b7a3
-    style PN fill:#d0f0c0
-    style TN fill:#b0e0e6
-    style C fill:#ffb6c1
-    style F fill:#ffcccb
-    style CA fill:#ffdab9
-    style M fill:#87ceeb
-    style T fill:#add8e6
-    style R fill:#afeeee
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
+    style ConfirmationAgent fill:#ffb6c1
+    style FulfillmentAgent fill:#ffcccb
+    style CancellationAgent fill:#ffdab9
+    style ModificationAgent fill:#87ceeb
+    style TrackingAgent fill:#add8e6
+    style RatingAgent fill:#afeeee
+
 ```
 
 #### Connected to:
