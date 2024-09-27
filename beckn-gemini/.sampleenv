@@ -8,3 +8,4 @@ DOMAIN=uei:p2p-trading
 BAP_ID=https://bap-ps-network-ueip2p.becknprotocol.io
 BAP_URI=https://bap-ps-network-ueip2p.becknprotocol.io
 BAP_CLIENT_URI=https://bap-ps-client-ueip2p.becknprotocol.io
+P2P_PLUGIN_URL=http://127.0.0.1:1337/ptop-energy
