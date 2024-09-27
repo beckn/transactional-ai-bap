@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import axios from "axios";
+import { TextEncoder } from "util";
 import { sendResponseToWhatsapp } from "../twilio/services";
 import {
   createSession,
@@ -15,6 +16,7 @@ import {
   prefix_prompt_group,
   PROFILE_ACTIONS
 } from "../constant";
+import { consumerFlow, presumerFlow } from "./flows";
 
 export const webhookController = async (
   req: Request,
@@ -22,7 +24,10 @@ export const webhookController = async (
   next: NextFunction
 ) => {
   try {
+    console.log("**********************************************");
     console.log("Whatsapp Request Received from", req.body.From);
+    const session = getSession(req?.body?.From);
+    let flow: string = "general";
     // For Image Processing Code Modification Required
     if (req?.body?.MediaUrl0) {
       const data = await axios.get(req?.body?.MediaUrl0, {
@@ -31,27 +36,63 @@ export const webhookController = async (
           password: process.env.TWILIO_API_TOKEN as string
         }
       });
-      console.log(data.data);
-      return;
+      console.log("data received---->", data);
+      const encodedData = new TextEncoder().encode(data.data);
+
+      console.log(encodedData);
+
+      await sendResponseToWhatsapp({
+        body: "content",
+        receiver: req.body.From.split(":")[1]
+      });
+
+      return res.send("message sent");
     }
+
+    // Flow Starts here
 
     // Detect Greeting message
     const isGreetingPrompt = await getAiReponseFromPrompt(
       prefix_prompt_group.aiDetectGreeting,
       req?.body?.Body
     );
-    console.log("Is a Greeting Prompt==>", isGreetingPrompt);
+
     if (isGreetingPrompt == "true" || isGreetingPrompt.includes("true")) {
+      console.log("Is a Greeting Prompt==>", isGreetingPrompt);
       // remove existing session
       deleteSession(req?.body?.From);
+      flow = "general";
     }
 
     // Diffrentiate between transactional request and normal request
-    const responseFromAI = await getAiReponseFromPrompt(
+    let decisionFromAI = await getAiReponseFromPrompt(
       prefix_prompt_group.aiReponseFromUserPrompt,
       req?.body?.Body
     );
-    console.log("Response from AI==>", responseFromAI);
+
+    if (decisionFromAI.includes("'flow':'consumer'")) {
+      flow = "consumer";
+    }
+    if (decisionFromAI.includes("'flow':'presumer'")) {
+      flow = "presumer";
+    }
+
+    // if(session && session.chats[session.chats.length-1].action === PROFILE_ACTIONS.SIGNUP){
+    //   flow = "consumer"
+
+    // }
+
+    if (flow === "consumer") {
+      // Consumer Flow i.e. Beckn Flow
+      return await consumerFlow(req?.body?.From, req?.body?.Body, res);
+    }
+
+    if (flow === "presumer") {
+      // Presumer Flow i.e. Strapi API Flow
+      return await presumerFlow(req?.body?.From, req?.body?.Body, res);
+    }
+
+    console.log("Response from AI==>", decisionFromAI);
 
     // Detect OTP is sent
     // const existingSession = getSession(req?.body?.From);
@@ -74,12 +115,12 @@ export const webhookController = async (
     // }
 
     // transactional query
-    if (responseFromAI.includes("make_beckn_call")) {
+    if (decisionFromAI.includes("make_beckn_call")) {
       let aiResponseForBecknCall: any = {};
 
       // detect json response for make_beckn_call
-      if (responseFromAI.startsWith("```")) {
-        aiResponseForBecknCall = responseFromAI
+      if (decisionFromAI.startsWith("```")) {
+        aiResponseForBecknCall = decisionFromAI
           .split("```")[1]
           .split("json")[1];
       }
@@ -140,7 +181,7 @@ export const webhookController = async (
       });
     } else {
       await sendResponseToWhatsapp({
-        body: responseFromAI,
+        body: decisionFromAI,
         receiver: req.body.From.split(":")[1]
       });
     }

@@ -8,6 +8,7 @@ export interface IBecknCache {
     message_id: string;
     json: string;
     action: BECKN_ACTIONS | PROFILE_ACTIONS;
+    flow: "presumer" | "consumer";
   }[];
 }
 

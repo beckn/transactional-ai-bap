@@ -3,6 +3,7 @@ import {
   GenerateContentRequest,
   Content
 } from "@google/generative-ai";
+import { VertexAI } from "@google-cloud/vertexai";
 import dotenv from "dotenv";
 import { deleteKey, getKey, IBecknCache, setKey } from "../cache";
 import { messages, prompts } from "../constant";
@@ -35,6 +36,7 @@ export const getAiReponseFromPrompt = async (
       });
     }
 
+    console.log("fomatter prompt---", formattedPromt);
     const data = await model.generateContent(formattedPromt);
     return data.response.text();
   } catch (err: any) {
