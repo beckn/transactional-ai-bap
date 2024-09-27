@@ -3,8 +3,9 @@ Below is the state machine of an agentic workflow on a BAP
 
 ```mermaid
 stateDiagram-v2
+    direction TB
     [*] --> AgentOrchestrator
-    
+
     AgentOrchestrator --> DiscoveryAgent
     AgentOrchestrator --> PriceNegotiationAgent
     AgentOrchestrator --> TermsNegotiationAgent
@@ -15,39 +16,39 @@ stateDiagram-v2
     AgentOrchestrator --> CancellationAgent
     AgentOrchestrator --> ModificationAgent
     AgentOrchestrator --> RatingAgent
-    
+
     DiscoveryAgent --> PriceNegotiationAgent
     DiscoveryAgent --> TermsNegotiationAgent
     PriceNegotiationAgent --> ConfirmationAgent
     TermsNegotiationAgent --> ConfirmationAgent
     ConfirmationAgent --> FulfillmentAgent
-    
+
     FulfillmentAgent --> TrackingAgent
     FulfillmentAgent --> CancellationAgent
     FulfillmentAgent --> ModificationAgent
-    
+
     CancellationAgent --> FulfillmentAgent
     CancellationAgent --> SupportAgent
-    
+
     ModificationAgent --> FulfillmentAgent
-    
+
     TrackingAgent --> SupportAgent
     SupportAgent --> Tool : T
     RatingAgent --> SupportAgent
-    
-    PriceNegotiationAgent --> DiscoveryAgent : Continue browsing after price negotiation
-    TermsNegotiationAgent --> DiscoveryAgent : Return to browsing due to undesirable terms
-    TermsNegotiationAgent --> PriceNegotiationAgent : Adjust price based on terms
-    PriceNegotiationAgent --> TermsNegotiationAgent : Adjust terms based on pricing
-    ConfirmationAgent --> TermsNegotiationAgent : Revisit terms before confirming
-    
-    FulfillmentAgent --> ModificationAgent : Update fulfillment based on modifications
-    FulfillmentAgent --> TrackingAgent : Reverse connection to update fulfillment
-    SupportAgent --> DiscoveryAgent : Assist in rediscovering services
-    SupportAgent --> PriceNegotiationAgent : Assist in pricing-related issues
-    SupportAgent --> TermsNegotiationAgent : Assist in terms-related issues
-    CancellationAgent --> TermsNegotiationAgent : Renegotiate terms before cancellation
-    RatingAgent --> FulfillmentAgent : Feedback for fulfillment process
+
+    PriceNegotiationAgent --> DiscoveryAgent
+    TermsNegotiationAgent --> DiscoveryAgent
+    TermsNegotiationAgent --> PriceNegotiationAgent
+    PriceNegotiationAgent --> TermsNegotiationAgent
+    ConfirmationAgent --> TermsNegotiationAgent
+
+    FulfillmentAgent --> ModificationAgent
+    FulfillmentAgent --> TrackingAgent
+    SupportAgent --> DiscoveryAgent
+    SupportAgent --> PriceNegotiationAgent
+    SupportAgent --> TermsNegotiationAgent
+    CancellationAgent --> TermsNegotiationAgent
+    RatingAgent --> FulfillmentAgent
 
     DiscoveryAgent --> Tool : T
     PriceNegotiationAgent --> Tool : T
@@ -58,3 +59,17 @@ stateDiagram-v2
     ModificationAgent --> Tool : T
     TrackingAgent --> Tool : T
     RatingAgent --> Tool : T
+
+    style AgentOrchestrator fill:#f9c702
+    style DiscoveryAgent fill:#f7b7a3
+    style PriceNegotiationAgent fill:#d0f0c0
+    style TermsNegotiationAgent fill:#b0e0e6
+    style FulfillmentAgent fill:#ffcccb
+    style SupportAgent fill:#dda0dd
+    style ConfirmationAgent fill:#ffb6c1
+    style TrackingAgent fill:#add8e6
+    style CancellationAgent fill:#ffdab9
+    style ModificationAgent fill:#87ceeb
+    style RatingAgent fill:#afeeee
+    style Tool fill:#f0e68c
+
