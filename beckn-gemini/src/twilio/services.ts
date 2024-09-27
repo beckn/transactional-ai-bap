@@ -11,6 +11,7 @@ export const sendResponseToWhatsapp = async (payload: {
   receiver: string;
 }) => {
   try {
+    console.log("body", payload.body);
     let body = {
       body: payload.body,
       from: `whatsapp:${process.env.SENDERS_WHATSAPP}`,

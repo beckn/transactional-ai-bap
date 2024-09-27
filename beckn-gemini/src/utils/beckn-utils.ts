@@ -23,6 +23,13 @@ export const createBecknSearchPayload = () => {
   const tomorrowEndTimeStamp = new Date();
   tomorrowEndTimeStamp.setDate(tomorrowEndTimeStamp.getDate() + 1);
   tomorrowEndTimeStamp.setHours(17, 0, 0, 0);
+
+  // Generate a random Unit between 7 and 15
+  const min = 7;
+  const max = 15;
+
+  const randomUnitValue = Math.floor(Math.random() * (max - min + 1)) + min;
+
   return {
     context: createBecknContext(),
     message: {
@@ -31,7 +38,7 @@ export const createBecknSearchPayload = () => {
           quantity: {
             available: {
               measure: {
-                value: "1000.0",
+                value: `${randomUnitValue}`,
                 unit: "kWH"
               }
             }
