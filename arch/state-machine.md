@@ -10,6 +10,11 @@ stateDiagram-v2
     AgentOrchestrator --> TermsNegotiationAgent
     AgentOrchestrator --> FulfillmentAgent
     AgentOrchestrator --> SupportAgent
+    AgentOrchestrator --> ConfirmationAgent
+    AgentOrchestrator --> TrackingAgent
+    AgentOrchestrator --> CancellationAgent
+    AgentOrchestrator --> ModificationAgent
+    AgentOrchestrator --> RatingAgent
     
     DiscoveryAgent --> PriceNegotiationAgent
     DiscoveryAgent --> TermsNegotiationAgent
@@ -27,9 +32,9 @@ stateDiagram-v2
     ModificationAgent --> FulfillmentAgent
     
     TrackingAgent --> SupportAgent
-    SupportAgent --> Tool
+    SupportAgent --> Tool : T
     RatingAgent --> SupportAgent
-
+    
     PriceNegotiationAgent --> DiscoveryAgent : Continue browsing after price negotiation
     TermsNegotiationAgent --> DiscoveryAgent : Return to browsing due to undesirable terms
     TermsNegotiationAgent --> PriceNegotiationAgent : Adjust price based on terms
@@ -43,3 +48,13 @@ stateDiagram-v2
     SupportAgent --> TermsNegotiationAgent : Assist in terms-related issues
     CancellationAgent --> TermsNegotiationAgent : Renegotiate terms before cancellation
     RatingAgent --> FulfillmentAgent : Feedback for fulfillment process
+
+    DiscoveryAgent --> Tool : T
+    PriceNegotiationAgent --> Tool : T
+    TermsNegotiationAgent --> Tool : T
+    ConfirmationAgent --> Tool : T
+    FulfillmentAgent --> Tool : T
+    CancellationAgent --> Tool : T
+    ModificationAgent --> Tool : T
+    TrackingAgent --> Tool : T
+    RatingAgent --> Tool : T
