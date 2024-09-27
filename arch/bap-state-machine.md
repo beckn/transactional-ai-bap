@@ -83,6 +83,32 @@ This document explains each node (agent) in the agentic workflow of a Buyer Aggr
 ### 1. **Agent Orchestrator**
 The **Agent Orchestrator** is the central node responsible for coordinating the flow of actions and tasks across all other agents. It decides which agent should handle a particular request at any given point in the user's journey.
 
+```mermaid
+graph LR
+    A[Agent Orchestrator] -->|Forward| D[Discovery Agent]
+    A -->|Forward| PN[Price Negotiation Agent]
+    A -->|Forward| TN[Terms Negotiation Agent]
+    A -->|Forward| F[Fulfillment Agent]
+    A -->|Forward| S[Support Agent]
+    A -->|Forward| C[Confirmation Agent]
+    A -->|Forward| T[Tracking Agent]
+    A -->|Forward| CA[Cancellation Agent]
+    A -->|Forward| M[Modification Agent]
+    A -->|Forward| R[Rating Agent]
+
+    style A fill:#f9c702
+    style D fill:#f7b7a3
+    style PN fill:#d0f0c0
+    style TN fill:#b0e0e6
+    style F fill:#ffcccb
+    style S fill:#dda0dd
+    style C fill:#ffb6c1
+    style T fill:#add8e6
+    style CA fill:#ffdab9
+    style M fill:#87ceeb
+    style R fill:#afeeee
+```
+
 #### Connected to:
 - **DiscoveryAgent**: Initiates discovery based on user input.
   - **Guard condition**: The user needs to browse available products/services.
@@ -102,6 +128,20 @@ The **Agent Orchestrator** is the central node responsible for coordinating the 
 ### 2. **Discovery Agent**
 The **Discovery Agent** is responsible for finding and presenting available services or products to the user. This agent allows the user to browse through different options based on their input or preferences.
 
+```mermaid
+graph LR
+    D[Discovery Agent] -->|Forward| PN[Price Negotiation Agent]
+    D -->|Forward| TN[Terms Negotiation Agent]
+    D -->|Forward| Tool
+    PN -->|Reverse| D
+    TN -->|Reverse| D
+
+    style D fill:#f7b7a3
+    style PN fill:#d0f0c0
+    style TN fill:#b0e0e6
+    style Tool fill:#f0e68c
+```
+
 #### Connected to:
 - **PriceNegotiationAgent**: Starts pricing negotiation after item selection.
   - **Guard condition**: User has selected an item.
@@ -120,6 +160,19 @@ The **Discovery Agent** is responsible for finding and presenting available serv
 
 ### 3. **Price Negotiation Agent**
 The **Price Negotiation Agent** handles price-related tasks such as offering discounts or applying special pricing based on user interactions.
+```mermaid
+graph LR
+    PN[Price Negotiation Agent] -->|Forward| C[Confirmation Agent]
+    PN -->|Forward| Tool
+    D -->|Reverse| PN
+    TN -->|Reverse| PN
+
+    style PN fill:#d0f0c0
+    style C fill:#ffb6c1
+    style D fill:#f7b7a3
+    style TN fill:#b0e0e6
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **ConfirmationAgent**: Sends confirmed price for order finalization.
@@ -137,6 +190,19 @@ The **Price Negotiation Agent** handles price-related tasks such as offering dis
 
 ### 4. **Terms Negotiation Agent**
 The **Terms Negotiation Agent** manages the negotiation of terms such as delivery times, return policies, or other service conditions.
+```mermaid
+graph LR
+    TN[Terms Negotiation Agent] -->|Forward| C[Confirmation Agent]
+    TN -->|Forward| Tool
+    D -->|Reverse| TN
+    PN -->|Reverse| TN
+
+    style TN fill:#b0e0e6
+    style C fill:#ffb6c1
+    style D fill:#f7b7a3
+    style PN fill:#d0f0c0
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **ConfirmationAgent**: Passes final terms for confirmation.
@@ -154,6 +220,19 @@ The **Terms Negotiation Agent** manages the negotiation of terms such as deliver
 
 ### 5. **Confirmation Agent**
 The **Confirmation Agent** finalizes the transaction by confirming all negotiated terms, prices, and other details.
+```mermaid
+graph LR
+    C[Confirmation Agent] -->|Forward| F[Fulfillment Agent]
+    C -->|Forward| Tool
+    PN -->|Reverse| C
+    TN -->|Reverse| C
+
+    style C fill:#ffb6c1
+    style F fill:#ffcccb
+    style PN fill:#d0f0c0
+    style TN fill:#b0e0e6
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **FulfillmentAgent**: Initiates order fulfillment once confirmation is complete.
@@ -171,6 +250,21 @@ The **Confirmation Agent** finalizes the transaction by confirming all negotiate
 
 ### 6. **Fulfillment Agent**
 The **Fulfillment Agent** takes responsibility for executing the confirmed order, such as shipping the product or delivering the service.
+```mermaid
+graph LR
+    F[Fulfillment Agent] -->|Forward| T[Tracking Agent]
+    F -->|Forward| CA[Cancellation Agent]
+    F -->|Forward| M[Modification Agent]
+    F -->|Forward| Tool
+    C -->|Reverse| F
+
+    style F fill:#ffcccb
+    style T fill:#add8e6
+    style CA fill:#ffdab9
+    style M fill:#87ceeb
+    style C fill:#ffb6c1
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **TrackingAgent**: Updates tracking status of the fulfillment.
@@ -190,6 +284,17 @@ The **Fulfillment Agent** takes responsibility for executing the confirmed order
 
 ### 7. **Tracking Agent**
 The **Tracking Agent** provides real-time updates on the status of the order or service delivery.
+```mermaid
+graph LR
+    T[Tracking Agent] -->|Forward| S[Support Agent]
+    T -->|Forward| Tool
+    F -->|Reverse| T
+
+    style T fill:#add8e6
+    style S fill:#dda0dd
+    style F fill:#ffcccb
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **SupportAgent**: Sends tracking updates to the support agent for user queries.
@@ -205,6 +310,24 @@ The **Tracking Agent** provides real-time updates on the status of the order or 
 
 ### 8. **Support Agent**
 The **Support Agent** assists the user throughout the entire process, from discovery to fulfillment.
+
+```mermaid
+graph LR
+    S[Support Agent] -->|Forward| Tool
+    D -->|Reverse| S
+    PN -->|Reverse| S
+    TN -->|Reverse| S
+    T -->|Reverse| S
+    F -->|Reverse| S
+
+    style S fill:#dda0dd
+    style D fill:#f7b7a3
+    style PN fill:#d0f0c0
+    style TN fill:#b0e0e6
+    style T fill:#add8e6
+    style F fill:#ffcccb
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **DiscoveryAgent**, **PriceNegotiationAgent**, **TermsNegotiationAgent**: Helps the user return to any phase based on queries.
@@ -222,6 +345,16 @@ The **Support Agent** assists the user throughout the entire process, from disco
 
 ### 9. **Cancellation Agent**
 The **Cancellation Agent** handles requests to cancel orders, stopping fulfillment and initiating refunds.
+```mermaid
+graph LR
+    CA[Cancellation Agent] -->|Forward| F[Fulfillment Agent]
+    CA -->|Forward| Tool
+    F -->|Reverse| CA
+
+    style CA fill:#ffdab9
+    style F fill:#ffcccb
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **FulfillmentAgent**: Stops the fulfillment process.
@@ -237,6 +370,16 @@ The **Cancellation Agent** handles requests to cancel orders, stopping fulfillme
 
 ### 10. **Modification Agent**
 The **Modification Agent** allows users to make changes to their orders after placement but before fulfillment is complete.
+```mermaid
+graph LR
+    M[Modification Agent] -->|Forward| F[Fulfillment Agent]
+    M -->|Forward| Tool
+    F -->|Reverse| M
+
+    style M fill:#87ceeb
+    style F fill:#ffcccb
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **FulfillmentAgent**: Updates the fulfillment process based on modifications.
@@ -252,6 +395,17 @@ The **Modification Agent** allows users to make changes to their orders after pl
 
 ### 11. **Rating Agent**
 The **Rating Agent** handles user feedback and ratings after the completion of the order or service.
+```mermaid
+graph LR
+    R[Rating Agent] -->|Forward| S[Support Agent]
+    R -->|Forward| Tool
+    F -->|Reverse| R
+
+    style R fill:#afeeee
+    style S fill:#dda0dd
+    style F fill:#ffcccb
+    style Tool fill:#f0e68c
+```
 
 #### Connected to:
 - **SupportAgent**: Sends feedback for improving support.
@@ -267,6 +421,29 @@ The **Rating Agent** handles user feedback and ratings after the completion of t
 
 ### 12. **Tool (T)**
 The **Tool** represents external systems or APIs that provide data, processing, or external integrations to each agent.
+```mermaid
+graph LR
+    Tool[Tool] -->|Forward| D[Discovery Agent]
+    Tool -->|Forward| PN[Price Negotiation Agent]
+    Tool -->|Forward| TN[Terms Negotiation Agent]
+    Tool -->|Forward| C[Confirmation Agent]
+    Tool -->|Forward| F[Fulfillment Agent]
+    Tool -->|Forward| CA[Cancellation Agent]
+    Tool -->|Forward| M[Modification Agent]
+    Tool -->|Forward| T[Tracking Agent]
+    Tool -->|Forward| R[Rating Agent]
+
+    style Tool fill:#f0e68c
+    style D fill:#f7b7a3
+    style PN fill:#d0f0c0
+    style TN fill:#b0e0e6
+    style C fill:#ffb6c1
+    style F fill:#ffcccb
+    style CA fill:#ffdab9
+    style M fill:#87ceeb
+    style T fill:#add8e6
+    style R fill:#afeeee
+```
 
 #### Connected to:
 - **All Agents**: Provides external data, API access, or integration for agents.
