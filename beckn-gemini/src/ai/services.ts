@@ -35,9 +35,8 @@ export const getAiReponseFromPrompt = async (
         ]
       });
     }
-
-    console.log("fomatter prompt---", formattedPromt);
     const data = await model.generateContent(formattedPromt);
+    console.log("Response==>", data.response.text());
     return data.response.text();
   } catch (err: any) {
     console.log(err);

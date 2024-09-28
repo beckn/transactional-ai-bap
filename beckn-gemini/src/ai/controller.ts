@@ -14,7 +14,8 @@ import { makeBecknCall } from "../beckn/services";
 import {
   BECKN_ACTIONS,
   prefix_prompt_group,
-  PROFILE_ACTIONS
+  CONSUMER_ACTIONS,
+  messages
 } from "../constant";
 import { consumerFlow, presumerFlow } from "./flows";
 
@@ -29,58 +30,75 @@ export const webhookController = async (
     const session = getSession(req?.body?.From);
     let flow: string = "general";
     // For Image Processing Code Modification Required
-    if (req?.body?.MediaUrl0) {
-      const data = await axios.get(req?.body?.MediaUrl0, {
-        auth: {
-          username: process.env.TWILIO_ACCOUNT_SSID as string,
-          password: process.env.TWILIO_API_TOKEN as string
-        }
-      });
-      console.log("data received---->", data);
-      const encodedData = new TextEncoder().encode(data.data);
+    // if (req?.body?.MediaUrl0) {
+    //   const data = await axios.get(req?.body?.MediaUrl0, {
+    //     auth: {
+    //       username: process.env.TWILIO_ACCOUNT_SSID as string,
+    //       password: process.env.TWILIO_API_TOKEN as string
+    //     }
+    //   });
+    //   console.log("data received---->", data);
+    //   const encodedData = new TextEncoder().encode(data.data);
 
-      console.log(encodedData);
+    //   console.log(encodedData);
 
-      await sendResponseToWhatsapp({
-        body: "content",
-        receiver: req.body.From.split(":")[1]
-      });
+    //   await sendResponseToWhatsapp({
+    //     body: "content",
+    //     receiver: req.body.From.split(":")[1]
+    //   });
 
-      return res.send("message sent");
-    }
+    //   return res.send("message sent");
+    // }
 
     // Flow Starts here
 
-    // Detect Greeting message
-    const isGreetingPrompt = await getAiReponseFromPrompt(
-      prefix_prompt_group.aiDetectGreeting,
-      req?.body?.Body
-    );
+    if (req?.body?.MediaUrl0) {
+      flow = "consumer";
+    } else {
+      // Detect Greeting message
+      const isGreetingPrompt = await getAiReponseFromPrompt(
+        prefix_prompt_group.aiDetectGreeting,
+        req?.body?.Body
+      );
 
-    if (isGreetingPrompt == "true" || isGreetingPrompt.includes("true")) {
-      console.log("Is a Greeting Prompt==>", isGreetingPrompt);
-      // remove existing session
-      deleteSession(req?.body?.From);
-      flow = "general";
+      if (isGreetingPrompt == "true" || isGreetingPrompt.includes("true")) {
+        console.log("Is a Greeting Prompt==>", isGreetingPrompt);
+        // remove existing session
+        deleteSession(req?.body?.From);
+        flow = "general";
+      }
     }
 
-    // Diffrentiate between transactional request and normal request
     let decisionFromAI = await getAiReponseFromPrompt(
       prefix_prompt_group.aiReponseFromUserPrompt,
       req?.body?.Body
     );
+    console.log("Decision from AI", decisionFromAI);
+
+    if (
+      session &&
+      session.chats.length &&
+      [
+        CONSUMER_ACTIONS.SIGNUP,
+        CONSUMER_ACTIONS.UPLOAD_BILL,
+        CONSUMER_ACTIONS.OTP_SENT,
+        CONSUMER_ACTIONS.VERIFY_OTP,
+        BECKN_ACTIONS.search,
+        BECKN_ACTIONS.select,
+        BECKN_ACTIONS.init,
+        BECKN_ACTIONS.confirm,
+        BECKN_ACTIONS.status
+      ].includes(session.chats[session.chats.length - 1].action)
+    ) {
+      flow = "consumer";
+    }
+    // Diffrentiate between transactional request and normal request
 
     if (decisionFromAI.includes("'flow':'consumer'")) {
       flow = "consumer";
-    }
-    if (decisionFromAI.includes("'flow':'presumer'")) {
+    } else if (decisionFromAI.includes("'flow':'presumer'")) {
       flow = "presumer";
     }
-
-    // if(session && session.chats[session.chats.length-1].action === PROFILE_ACTIONS.SIGNUP){
-    //   flow = "consumer"
-
-    // }
 
     if (flow === "consumer") {
       // Consumer Flow i.e. Beckn Flow
@@ -149,7 +167,7 @@ export const webhookController = async (
             text: signUpMessage,
             message_id: "",
             json: "",
-            action: PROFILE_ACTIONS.SIGNUP
+            action: CONSUMER_ACTIONS.SIGNUP
           });
           updateSession(req?.body?.From, session);
           await sendResponseToWhatsapp({
@@ -188,6 +206,10 @@ export const webhookController = async (
 
     return res.send("Message sent!");
   } catch (err: any) {
-    console.log("here", err);
+    console.log("here", JSON.stringify(err.response));
+    await sendResponseToWhatsapp({
+      body: messages.APPOLOGY_MESSAGE,
+      receiver: req.body.From.split(":")[1]
+    });
   }
 };

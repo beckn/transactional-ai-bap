@@ -4,6 +4,10 @@ interface IPrefixPromptsGroup {
   [key: string]: Content[];
 }
 
+export interface IKeyValuePair {
+  [key: string]: any;
+}
+
 export const prompts = {
   systemInstruction: `Your name is Elara an AI Agent Powered by Google Gemini. Beckn Open Community has created you. If Someone asks you about your origin then only tell them about your creators. Users can sell or buy energy from you. So if someone greets you then you should greet them back with your introduction and along with that add welcome message to Beckn Grid Connect. If the message is in greeting then only repond with a greeting message. You should check whether the message contains some intent to buy some energy from the open network. If there is an intent to buy or search energy providers then reply only 'make_beckn_call'. If there is no intent to buy or search energy providers then provide relevant results to the user`
 };
@@ -16,10 +20,18 @@ export enum BECKN_ACTIONS {
   status = "status"
 }
 
-export enum PROFILE_ACTIONS {
+export enum CONSUMER_ACTIONS {
+  UPLOAD_BILL = "UPLOADBILL",
   SIGNUP = "SIGNUP",
-  VERIFY_OTP = "VERIFYOTP",
-  OTP_SENT = "OTPSENT"
+  OTP_SENT = "OTPSENT",
+  VERIFY_OTP = "VERIFYOTP"
+}
+export enum PRESUMER_ACTIONS {
+  SELL_INTENT = "SELLINTENT",
+  UPLOAD_CATALOG = "UPLOADCATALOG",
+  UPLOAD_CATALOG_CONFIRMATION = "UPLOADCATALOGCONFIRMATION",
+  RECURING_UPLOAD = "RECURINGUPLOAD",
+  RECURING_UPLOAD_CONFIRMATION = "RECURINGUPLOADCONFIRMATION"
 }
 
 export const messages = {
@@ -145,7 +157,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "Without any error You must have to Create a 2 line message stating your distribution company has a P2P energy trading system. This will allow you to buy solar energy from local producers. Do you want to signup for it?"
+          text: "Without any error You must have to Create a 2 line message stating that I have processed your bill and found that your distribution company has a P2P energy trading system. This will allow you to buy solar energy from local producers. Do you want to signup for it?"
         }
       ]
     },
@@ -153,7 +165,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "You must add keyword Signup somewhere in the message"
+          text: "You must add keyword Signup with a confirmation prompt somewhere in the message"
         }
       ]
     },
@@ -220,6 +232,24 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       ]
     }
   ],
+  aiUploadBill: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Create a message Requesting the user to upload their latest electicity bill as it is mandatory to start buying electricity from P2P source"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "The message should be polite, simple and in 1 line. Don't add quotes"
+        }
+      ]
+    }
+  ],
   aiImageProcess: [
     {
       role: "model",
@@ -242,6 +272,360 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "Process the image and identify the text content of image"
+        }
+      ]
+    }
+  ],
+  aiCheckAcceptance: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Analyze the message and identify if user wants to continue the transaction"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Message could be anything like yes, sure, go ahead, confirm, yo or any keyword which denotes user acceptance"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "If acceptance then return '{'acceptance':'true'}' else return '{'acceptance':'false'}' strictly dont add code block"
+        }
+      ]
+    }
+  ],
+  aiSendOTPMessage: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "You must Create a Message requesting user to enter the 6 digit OTP(One Time Password) sent on their registered mobile number"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Do not create any error and Message should be simple and in 1 line."
+        }
+      ]
+    }
+  ],
+  aiDetectOTP: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Validate the message 6 digit number"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "if valid return true else return false"
+        }
+      ]
+    }
+  ],
+  aiInvalidOTP: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Create a message Telling the user the OTP is invalid"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Ask them to re-enter the 6 digit OTP"
+        }
+      ]
+    }
+  ],
+  aiValidOTP: [
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Create a message Stating the user that OTP is correct and you are fetching their usage profile data from the distribution company"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Message should be simple and do not surround the message with quotation"
+        }
+      ]
+    }
+  ],
+  aiUsageProfileDetails: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message saying that based on your usage profile and the rules of your distribution company, you can buy upto 8 units of power from these rooftop units between 10 AM and 5 PM tomorrow. Do you want me to set this up ?"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Make sure the units are randomized between 8 and 15"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Make sure the time is 10am to 5pm"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Make sure the message should ask user's permission to set this up at the end of message"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You must create a message without any error and not return make_beckn_call and return the data in json format like this {'message':message created by you,'units':units present in the message}"
+        }
+      ]
+    }
+  ],
+  aiSearchIntent: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message saying that Allow me a moment to search for some energy generate by nearby households that are selling energy on lower rates"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Add some 2 to 3 words appreciation for the users decision to buy energy through this process in the start of message"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple and of 2 lines only and you must not add make_beckn_call anywhere in the message"
+        }
+      ]
+    }
+  ],
+  aiBecknOnSearch: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Analyze the json provided and check for the responses array"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If the responses array in the becknSearchResponse property is empty then create a message similar to Sorry No nearby household energy source found"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If the responses array in the becknSearchResponse property is not empty and the sum of items[0].quantity.available.count of all objects in providers array is greater than units provided in the json root then create a message similar to Success! I’ve found a household with surplus solar power that can sell you energy and also at a lower rate than your discom. Would you like me to set it up?. Else create a message saying that Lower energy is found. Would you like me to set it up?"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Make sure the message should ask user's permission to set this up at the end of message"
+        }
+      ]
+    }
+  ],
+  aiSelectIntent: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message similar to Perfect! I’m booking x units of electricity. It will be adjusted against your usage between 10 AM and 5 PM. This will save you around y Rs."
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The value of x will be the number of units passed in the message and value of y will be x multiplied by 1.5"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple and of 2 lines only and you must not add make_beckn_call anywhere in the message"
+        }
+      ]
+    }
+  ],
+  aiBeautifyQuote: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message to present the quote provided in json format in an invoice format ready to be shared over messages and there should not be any alignment issue"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The title of the invoice will be P2P Trading Bill "
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "dont make any change to the calculation and do not return response in json format"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Add a message to next line seeking persmission to proceed further"
+        }
+      ]
+    }
+  ],
+  aiBecknOnInit: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Analyze the json provided and check whether the responses array in the becknInitResponse property is empty or not"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If responses array is not empty then Create a message similar to Great! Here is the QR code for you to approve the payment. The actual payment will be made tomorrow evening after the power has been supplied. Else Create a message to convey the user that there is some issue while processing their order"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple"
+        }
+      ]
+    }
+  ],
+  aiBecknOnConfirm: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Analyze the json provided and check whether the responses array in becknConfirmResponse property is empty or not"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If responses array is not empty then Create a message similar to Thanks for approving the payment. You are now using solar energy and have saved x Rs in doing so. The more you use, the more you save. Do you want me to do this again tomorrow. Else Create a message to convey the user that there is some issue while processing their order"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The value of x units passed in message multiplied by 1.5"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple "
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Add a message seeking permission to do this process again everyday at the last of message"
+        }
+      ]
+    }
+  ],
+  aiCheckRecurrignPurchaseAcceptance: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Analyze the message and identify whether the message summarize to a yes response or no response"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If yes then create a message similar to this I’ll set that up for you! I’ll keep finding the best deals everyday to help you save even more on your energy bills. "
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Else create a message thanking the user for completing the transaction on the platform. And ask the user to reach out again in future for P2P Energy Trading"
         }
       ]
     }

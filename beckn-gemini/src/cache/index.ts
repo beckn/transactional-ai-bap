@@ -1,5 +1,5 @@
 import NodeCache from "node-cache";
-import { BECKN_ACTIONS, PROFILE_ACTIONS } from "../constant";
+import { BECKN_ACTIONS, CONSUMER_ACTIONS } from "../constant";
 
 export interface IBecknCache {
   chats: {
@@ -7,7 +7,7 @@ export interface IBecknCache {
     text: string;
     message_id: string;
     json: string;
-    action: BECKN_ACTIONS | PROFILE_ACTIONS;
+    action: BECKN_ACTIONS | CONSUMER_ACTIONS;
     flow: "presumer" | "consumer";
   }[];
 }
