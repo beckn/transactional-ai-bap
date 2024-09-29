@@ -21,6 +21,8 @@ import {
 import dotenv from "dotenv";
 import { generateQRCode } from "../utils/qr-code-utils";
 dotenv.config();
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const consumerFlow = async (
   whatsappNumber: string,
   userMessage: string,
@@ -437,6 +439,8 @@ export const consumerFlow = async (
               receiver: whatsappNumber.split(":")[1],
               media_url: `${process.env.AI_SERVER_URL}/static/qrcode.png`
             });
+
+            await delay(4000);
 
             // Make Beckn Confirm Call
             const becknConfirmResponse = await makeBecknCall(
