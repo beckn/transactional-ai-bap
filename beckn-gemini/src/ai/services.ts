@@ -36,7 +36,7 @@ export const getAiReponseFromPrompt = async (
       });
     }
     const data = await model.generateContent(formattedPromt);
-    console.log("Response==>", data.response.text());
+    // console.log("Response==>", data.response.text());
     return data.response.text();
   } catch (err: any) {
     console.log(err);

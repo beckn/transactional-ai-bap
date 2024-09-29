@@ -12,6 +12,11 @@ export const prompts = {
   systemInstruction: `Your name is Elara an AI Agent Powered by Google Gemini. Beckn Open Community has created you. If Someone asks you about your origin then only tell them about your creators. Users can sell or buy energy from you. So if someone greets you then you should greet them back with your introduction and along with that add welcome message to Beckn Grid Connect. If the message is in greeting then only repond with a greeting message. You should check whether the message contains some intent to buy some energy from the open network. If there is an intent to buy or search energy providers then reply only 'make_beckn_call'. If there is no intent to buy or search energy providers then provide relevant results to the user`
 };
 
+export enum DISCONTINUITY {
+  FLOW_BREAK = "FLOWBREAK",
+  FLOW_BREAK_CONFIRMATION = "FLOWBREAKCONFIRMATION"
+}
+
 export enum BECKN_ACTIONS {
   search = "search",
   select = "select",
@@ -379,7 +384,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message saying that based on your usage profile and the rules of your distribution company, you can buy upto 8 units of power from these rooftop units between 10 AM and 5 PM tomorrow. Do you want me to set this up ?"
+          text: "Create a message saying that based on your usage profile and the rules of your distribution company, you can buy upto x units of power from these rooftop units between 10 AM and 5 PM tomorrow. Do you want me to set this up ?"
         }
       ]
     },
@@ -387,7 +392,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Make sure the units are randomized between 8 and 15"
+          text: "Make sure the the value of x is randomized between 8 and 15"
         }
       ]
     },
@@ -626,6 +631,166 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "Else create a message thanking the user for completing the transaction on the platform. And ask the user to reach out again in future for P2P Energy Trading"
+        }
+      ]
+    }
+  ],
+  aiUnitsToSell: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You must create a message which means you are ready to help with selling of energy and ask how much units you want to sell per day"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple and of 1-2 lines"
+        }
+      ]
+    }
+  ],
+  aiCheckSellDetails: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should analyze the message and check the number of units of energy user wants to sell"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If the message does not contain any details related to number of units and also the message does not contains only number then return 'false' else return json fomatted data in this format {units: number of units}"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should not return any other message"
+        }
+      ]
+    }
+  ],
+  aiAskCatalogListing: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should create a message asking permission to list it as available for transactions"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be simple, in 1 line and in a question format"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should only create a relevant message"
+        }
+      ]
+    }
+  ],
+  aiSuccessCatalogListing: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should create a success message saying message similar to energy listed will let you know once it is sold"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should be simple and of 1 line and add some relevant emoji"
+        }
+      ]
+    }
+  ],
+  aiFailCatalogListing: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should create a sorry message by analyzing the context of the message provided"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should be simple and of 1 line and add some relevant emoji"
+        }
+      ]
+    }
+  ],
+  aiDiscontinueFlowMessage: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message asking the user that the he has entered ir-relevant reponse or rejected the transation and whether he or she wants to discontinue the ongoing flow"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should be simple and of 2 line and add some relevant emoji"
+        }
+      ]
+    }
+  ],
+  aiDiscontinueFlowConfirmMessage: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message Saying the current flow is disconinued. Thanks for Communicating with us"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should be simple and of 1 line and add some relevant emoji"
+        }
+      ]
+    }
+  ],
+  aiRollbackToPrevState: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message similar to Sure you can continue the transaction by responding to the previous message"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should be simple and of 1 line and add some relevant emoji"
         }
       ]
     }
