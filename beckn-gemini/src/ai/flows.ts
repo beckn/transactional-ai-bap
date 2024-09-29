@@ -1,10 +1,14 @@
-import { Response } from "express";
+import { response, Response } from "express";
 import { makeBecknCall } from "../beckn/services";
 import {
   prefix_prompt_group,
   CONSUMER_ACTIONS,
-  BECKN_ACTIONS
+  BECKN_ACTIONS,
+  messages,
+  PRESUMER_ACTIONS,
+  DISCONTINUITY
 } from "../constant";
+import { saveEnergyRequest } from "../non-beckn/services";
 import { sendResponseToWhatsapp } from "../twilio/services";
 import { createQuote } from "../utils/quote-utils";
 import {
@@ -14,7 +18,11 @@ import {
   getSession,
   updateSession
 } from "./services";
+import dotenv from "dotenv";
+import { generateQRCode } from "../utils/qr-code-utils";
+dotenv.config();
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const consumerFlow = async (
   whatsappNumber: string,
   userMessage: string,
@@ -29,7 +37,6 @@ export const consumerFlow = async (
     }
     if (!session.chats.length) {
       // Fresh Entry Upload Bill Message
-
       const uploadBillMessage = await getAiReponseFromPrompt(
         prefix_prompt_group.aiUploadBill,
         ""
@@ -118,6 +125,17 @@ export const consumerFlow = async (
           });
           console.log("Session Content===>", getSession(whatsappNumber));
           return res.send("message");
+        } else {
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "consumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
         }
       }
 
@@ -251,6 +269,17 @@ export const consumerFlow = async (
           }
 
           return res.send("message");
+        } else {
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "consumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
         }
       }
 
@@ -336,6 +365,17 @@ export const consumerFlow = async (
           }
 
           return res.send("message");
+        } else {
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "consumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
         }
       }
 
@@ -393,6 +433,15 @@ export const consumerFlow = async (
             // Create QR Code and sent to whatsapp
             // ________
 
+            generateQRCode();
+            await sendResponseToWhatsapp({
+              body: "",
+              receiver: whatsappNumber.split(":")[1],
+              media_url: `${process.env.AI_SERVER_URL}/static/qrcode.png`
+            });
+
+            await delay(4000);
+
             // Make Beckn Confirm Call
             const becknConfirmResponse = await makeBecknCall(
               BECKN_ACTIONS.confirm,
@@ -432,6 +481,17 @@ export const consumerFlow = async (
           }
 
           return res.send("message");
+        } else {
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "consumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
         }
       }
 
@@ -455,6 +515,80 @@ export const consumerFlow = async (
         });
         deleteSession(whatsappNumber);
       }
+
+      // Ask Flow Break Confirmation
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          DISCONTINUITY.FLOW_BREAK
+      ) {
+        const discontinueFlowMessage = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiDiscontinueFlowMessage,
+          ""
+        );
+        console.log("Discontinue Flow Message===>", discontinueFlowMessage);
+        session.chats.push({
+          role: "model",
+          text: discontinueFlowMessage,
+          message_id: "",
+          json: "",
+          action: DISCONTINUITY.FLOW_BREAK_CONFIRMATION,
+          flow: "consumer"
+        });
+        updateSession(whatsappNumber, session);
+        await sendResponseToWhatsapp({
+          body: discontinueFlowMessage,
+          receiver: whatsappNumber.split(":")[1]
+        });
+        return res.send("Message sent");
+      }
+
+      // Send Session Cleared Confirmation and Clear the session if yes else roll back to previous state
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+      ) {
+        const userAcceptance = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiCheckAcceptance,
+          userMessage
+        );
+        console.log("User Acceptance===>", userAcceptance);
+        if (
+          userAcceptance.includes("'acceptance':'true'") ||
+          userAcceptance.includes("{'acceptance': 'true'}")
+        ) {
+          deleteSession(whatsappNumber);
+          const discontinueFlowConfirmMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiDiscontinueFlowConfirmMessage,
+            ""
+          );
+          console.log(
+            "Discontinue Flow Confirm Message===>",
+            discontinueFlowConfirmMessage
+          );
+          await sendResponseToWhatsapp({
+            body: discontinueFlowConfirmMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("Message sent");
+        } else {
+          session.chats.pop();
+          session.chats.pop();
+          updateSession(whatsappNumber, session);
+          const rollBackToPrevStateMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiRollbackToPrevState,
+            userMessage
+          );
+          await sendResponseToWhatsapp({
+            body: rollBackToPrevStateMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("Message sent");
+        }
+      }
     }
   } catch (err) {
     console.log(err);
@@ -466,12 +600,261 @@ export const presumerFlow = async (
   userMessage: string,
   res: Response
 ) => {
-  console.log("Presumer Flow Called");
-  await sendResponseToWhatsapp({
-    body: "Presumer Flow Called",
-    receiver: whatsappNumber.split(":")[1]
-  });
-  return res.send("message sent");
+  try {
+    console.log("\n====>Presumer Flow Called<===\n");
+
+    let session = getSession(whatsappNumber);
+    if (!session) {
+      createSession(whatsappNumber);
+      session = getSession(whatsappNumber);
+    }
+    if (!session.chats.length) {
+      // Fresh Entry
+      const askSellDetails = await getAiReponseFromPrompt(
+        prefix_prompt_group.aiUnitsToSell,
+        ""
+      );
+      console.log("Ask Sell Details Message===>", askSellDetails);
+      session.chats.push({
+        role: "model",
+        text: askSellDetails,
+        message_id: "",
+        json: "",
+        action: PRESUMER_ACTIONS.SELL_INTENT,
+        flow: "presumer"
+      });
+      updateSession(whatsappNumber, session);
+      await sendResponseToWhatsapp({
+        body: askSellDetails,
+        receiver: whatsappNumber.split(":")[1]
+      });
+    } else {
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          PRESUMER_ACTIONS.SELL_INTENT
+      ) {
+        // Send Upload Catalog Message
+        let extractSellDetails = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiCheckSellDetails,
+          userMessage
+        );
+        console.log("Extracted Sell Details===>", extractSellDetails);
+        if (
+          extractSellDetails != "false" ||
+          !extractSellDetails.includes("false")
+        ) {
+          if (extractSellDetails.startsWith("```")) {
+            extractSellDetails = extractSellDetails
+              .split("```")[1]
+              .split("json")[1];
+          }
+          session.chats.push({
+            role: "model",
+            text: extractSellDetails,
+            message_id: "",
+            json: extractSellDetails,
+            action: PRESUMER_ACTIONS.UPLOAD_CATALOG,
+            flow: "presumer"
+          });
+          updateSession(whatsappNumber, session);
+          const askCatalogListingMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiAskCatalogListing,
+            ""
+          );
+          await sendResponseToWhatsapp({
+            body: askCatalogListingMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("message sent");
+        } else {
+          // Check Continuty of transaction
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "presumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
+        }
+      }
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          PRESUMER_ACTIONS.UPLOAD_CATALOG
+      ) {
+        // Send Order Confirmtation Message
+        const userAcceptance = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiCheckAcceptance,
+          userMessage
+        );
+        console.log("User Acceptance Message===>", userAcceptance);
+        if (
+          userAcceptance.includes("'acceptance':'true'") ||
+          userAcceptance.includes("{'acceptance': 'true'}")
+        ) {
+          const uploadCatalogStep = session.chats.find(
+            (elem: any) => elem.action === PRESUMER_ACTIONS.UPLOAD_CATALOG
+          );
+
+          // Call Strapi API for placing order
+          const uploadCatalogResponse = await saveEnergyRequest({
+            phone: whatsappNumber.split("+91")[1],
+            unit: Number(JSON.parse(uploadCatalogStep.json).units),
+            start_date: "2024-10-04T10:00:00.000Z",
+            end_date: "2024-10-04T18:00:00.000Z"
+          });
+          console.log(
+            "Upload Catalog Response from BPP===>",
+            uploadCatalogResponse
+          );
+          if (uploadCatalogResponse.status === "SUCCESS") {
+            session.chats.push({
+              role: "model",
+              text: "",
+              message_id: "",
+              json: JSON.stringify({
+                request: {
+                  phone: whatsappNumber.split("+91")[1],
+                  unit: Number(JSON.parse(uploadCatalogStep.json).units),
+                  start_date: "2024-10-04T10:00:00.000Z",
+                  end_date: "2024-10-04T18:00:00.000Z"
+                },
+                response: uploadCatalogResponse
+              }),
+              action: PRESUMER_ACTIONS.UPLOAD_CATALOG_CONFIRMATION,
+              flow: "presumer"
+            });
+            updateSession(whatsappNumber, session);
+            const successCatalogListingMessage = await getAiReponseFromPrompt(
+              prefix_prompt_group.aiSuccessCatalogListing,
+              ""
+            );
+            console.log(
+              "Success Catalog Listing Message====>",
+              successCatalogListingMessage
+            );
+            await sendResponseToWhatsapp({
+              body: successCatalogListingMessage,
+              receiver: whatsappNumber.split(":")[1]
+            });
+            deleteSession(whatsappNumber);
+            return res.send("message sent");
+          } else {
+            const failCatalogListingMessage = await getAiReponseFromPrompt(
+              prefix_prompt_group.aiFailCatalogListing,
+              uploadCatalogResponse.message
+            );
+            console.log(
+              "Fail Catalog Listing Message====>",
+              failCatalogListingMessage
+            );
+            await sendResponseToWhatsapp({
+              body: failCatalogListingMessage,
+              receiver: whatsappNumber.split(":")[1]
+            });
+          }
+        } else {
+          // Check Continuty of transaction
+          session.chats.push({
+            role: "model",
+            text: "",
+            message_id: "",
+            json: "",
+            action: DISCONTINUITY.FLOW_BREAK,
+            flow: "presumer"
+          });
+          updateSession(whatsappNumber, session);
+          session = getSession(whatsappNumber);
+        }
+      }
+      // Ask Flow Break Confirmation
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          DISCONTINUITY.FLOW_BREAK
+      ) {
+        const discontinueFlowMessage = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiDiscontinueFlowMessage,
+          ""
+        );
+        console.log("Discontinue Flow Message===>", discontinueFlowMessage);
+        session.chats.push({
+          role: "model",
+          text: discontinueFlowMessage,
+          message_id: "",
+          json: "",
+          action: DISCONTINUITY.FLOW_BREAK_CONFIRMATION,
+          flow: "presumer"
+        });
+        updateSession(whatsappNumber, session);
+        await sendResponseToWhatsapp({
+          body: discontinueFlowMessage,
+          receiver: whatsappNumber.split(":")[1]
+        });
+        return res.send("Message sent");
+      }
+
+      // Send Session Cleared Confirmation and Clear the session if yes else roll back to previous state
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].action ===
+          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+      ) {
+        const userAcceptance = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiCheckAcceptance,
+          userMessage
+        );
+        console.log("User Acceptance===>", userAcceptance);
+        if (
+          userAcceptance.includes("'acceptance':'true'") ||
+          userAcceptance.includes("{'acceptance': 'true'}")
+        ) {
+          deleteSession(whatsappNumber);
+          const discontinueFlowConfirmMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiDiscontinueFlowConfirmMessage,
+            ""
+          );
+          console.log(
+            "Discontinue Flow Confirm Message===>",
+            discontinueFlowConfirmMessage
+          );
+          await sendResponseToWhatsapp({
+            body: discontinueFlowConfirmMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("Message sent");
+        } else {
+          session.chats.pop();
+          session.chats.pop();
+          updateSession(whatsappNumber, session);
+          const rollBackToPrevStateMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiRollbackToPrevState,
+            userMessage
+          );
+          await sendResponseToWhatsapp({
+            body: rollBackToPrevStateMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("Message sent");
+        }
+      }
+    }
+    return res.send("message sent");
+  } catch (err: any) {
+    console.log(err);
+    await sendResponseToWhatsapp({
+      body: messages.APPOLOGY_MESSAGE,
+      receiver: whatsappNumber.split(":")[1]
+    });
+  }
 };
 
 export const generalFlow = async () => {};

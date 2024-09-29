@@ -1,7 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-
-import axios from "axios";
-import { TextEncoder } from "util";
 import { sendResponseToWhatsapp } from "../twilio/services";
 import {
   createSession,
@@ -15,7 +12,9 @@ import {
   BECKN_ACTIONS,
   prefix_prompt_group,
   CONSUMER_ACTIONS,
-  messages
+  messages,
+  PRESUMER_ACTIONS,
+  DISCONTINUITY
 } from "../constant";
 import { consumerFlow, presumerFlow } from "./flows";
 
@@ -29,34 +28,30 @@ export const webhookController = async (
     console.log("Whatsapp Request Received from", req.body.From);
     const session = getSession(req?.body?.From);
     let flow: string = "general";
-    // For Image Processing Code Modification Required
-    // if (req?.body?.MediaUrl0) {
-    //   const data = await axios.get(req?.body?.MediaUrl0, {
-    //     auth: {
-    //       username: process.env.TWILIO_ACCOUNT_SSID as string,
-    //       password: process.env.TWILIO_API_TOKEN as string
-    //     }
-    //   });
-    //   console.log("data received---->", data);
-    //   const encodedData = new TextEncoder().encode(data.data);
-
-    //   console.log(encodedData);
-
-    //   await sendResponseToWhatsapp({
-    //     body: "content",
-    //     receiver: req.body.From.split(":")[1]
-    //   });
-
-    //   return res.send("message sent");
-    // }
 
     // Flow Starts here
-
-    if (req?.body?.MediaUrl0) {
+    let isGreetingPrompt: string = "false";
+    if (
+      session &&
+      session.chats.length &&
+      session.chats[session.chats.length - 1].action ===
+        CONSUMER_ACTIONS.UPLOAD_BILL
+    ) {
       flow = "consumer";
+      if (!req?.body?.MediaUrl0) {
+        session.chats.push({
+          role: "model",
+          text: "",
+          message_id: "",
+          json: "",
+          action: DISCONTINUITY.FLOW_BREAK,
+          flow: "consumer"
+        });
+        updateSession(req?.body?.From, session);
+      }
     } else {
       // Detect Greeting message
-      const isGreetingPrompt = await getAiReponseFromPrompt(
+      isGreetingPrompt = await getAiReponseFromPrompt(
         prefix_prompt_group.aiDetectGreeting,
         req?.body?.Body
       );
@@ -73,12 +68,20 @@ export const webhookController = async (
       prefix_prompt_group.aiReponseFromUserPrompt,
       req?.body?.Body
     );
-    console.log("Decision from AI", decisionFromAI);
+    console.log("Decision/Response from AI===>", decisionFromAI);
+    if (isGreetingPrompt == "true" || isGreetingPrompt.includes("true")) {
+      await sendResponseToWhatsapp({
+        body: decisionFromAI,
+        receiver: req.body.From.split(":")[1]
+      });
+
+      return res.send("Message sent!");
+    }
 
     if (
       session &&
       session.chats.length &&
-      [
+      ([
         CONSUMER_ACTIONS.SIGNUP,
         CONSUMER_ACTIONS.UPLOAD_BILL,
         CONSUMER_ACTIONS.OTP_SENT,
@@ -88,10 +91,35 @@ export const webhookController = async (
         BECKN_ACTIONS.init,
         BECKN_ACTIONS.confirm,
         BECKN_ACTIONS.status
-      ].includes(session.chats[session.chats.length - 1].action)
+      ].includes(session.chats[session.chats.length - 1].action) ||
+        ([
+          DISCONTINUITY.FLOW_BREAK,
+          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+        ].includes(session.chats[session.chats.length - 1].action) &&
+          session.chats[session.chats.length - 1].flow === "consumer"))
     ) {
       flow = "consumer";
     }
+
+    if (
+      session &&
+      session.chats.length &&
+      ([
+        PRESUMER_ACTIONS.SELL_INTENT,
+        PRESUMER_ACTIONS.UPLOAD_CATALOG,
+        PRESUMER_ACTIONS.UPLOAD_CATALOG_CONFIRMATION,
+        PRESUMER_ACTIONS.RECURING_UPLOAD,
+        PRESUMER_ACTIONS.RECURING_UPLOAD_CONFIRMATION
+      ].includes(session.chats[session.chats.length - 1].action) ||
+        ([
+          DISCONTINUITY.FLOW_BREAK,
+          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+        ].includes(session.chats[session.chats.length - 1].action) &&
+          session.chats[session.chats.length - 1].flow === "presumer"))
+    ) {
+      flow = "presumer";
+    }
+
     // Diffrentiate between transactional request and normal request
 
     if (decisionFromAI.includes("'flow':'consumer'")) {
@@ -109,8 +137,6 @@ export const webhookController = async (
       // Presumer Flow i.e. Strapi API Flow
       return await presumerFlow(req?.body?.From, req?.body?.Body, res);
     }
-
-    console.log("Response from AI==>", decisionFromAI);
 
     // Detect OTP is sent
     // const existingSession = getSession(req?.body?.From);
@@ -133,80 +159,80 @@ export const webhookController = async (
     // }
 
     // transactional query
-    if (decisionFromAI.includes("make_beckn_call")) {
-      let aiResponseForBecknCall: any = {};
+    // if (decisionFromAI.includes("make_beckn_call")) {
+    //   let aiResponseForBecknCall: any = {};
 
-      // detect json response for make_beckn_call
-      if (decisionFromAI.startsWith("```")) {
-        aiResponseForBecknCall = decisionFromAI
-          .split("```")[1]
-          .split("json")[1];
-      }
-      aiResponseForBecknCall = JSON.parse(aiResponseForBecknCall);
+    //   // detect json response for make_beckn_call
+    //   if (decisionFromAI.startsWith("```")) {
+    //     aiResponseForBecknCall = decisionFromAI
+    //       .split("```")[1]
+    //       .split("json")[1];
+    //   }
+    //   aiResponseForBecknCall = JSON.parse(aiResponseForBecknCall);
 
-      if (aiResponseForBecknCall.action == "search") {
-        const session = getSession(req?.body?.From);
-        console.log("Existing Session==>", session);
-        if (
-          !session ||
-          session.chats[session.chats.length - 1].action ==
-            BECKN_ACTIONS.confirm
-        ) {
-          // last session complete fresh signup required
-          deleteSession(req?.body?.From);
-          createSession(req.body.From);
-          const signUpMessage = await getAiReponseFromPrompt(
-            prefix_prompt_group.aiSignupAsk,
-            ""
-          );
+    //   if (aiResponseForBecknCall.action == "search") {
+    //     const session = getSession(req?.body?.From);
+    //     console.log("Existing Session==>", session);
+    //     if (
+    //       !session ||
+    //       session.chats[session.chats.length - 1].action ==
+    //         BECKN_ACTIONS.confirm
+    //     ) {
+    //       // last session complete fresh signup required
+    //       deleteSession(req?.body?.From);
+    //       createSession(req.body.From);
+    //       const signUpMessage = await getAiReponseFromPrompt(
+    //         prefix_prompt_group.aiSignupAsk,
+    //         ""
+    //       );
 
-          console.log("Sign Up Message==>", signUpMessage);
-          const session = getSession(req?.body?.From);
-          session.chats.push({
-            role: "model",
-            text: signUpMessage,
-            message_id: "",
-            json: "",
-            action: CONSUMER_ACTIONS.SIGNUP
-          });
-          updateSession(req?.body?.From, session);
-          await sendResponseToWhatsapp({
-            body: signUpMessage,
-            receiver: req.body.From.split(":")[1]
-          });
-          console.log(getSession(req?.body?.From));
-          return res.send("Message sent!");
-        } else {
-        }
-      }
-      const searchOpenNetworkMSG = await getAiReponseFromPrompt(
-        prefix_prompt_group.aiSearchingOnOpenNetwork,
-        ""
-      );
-      await sendResponseToWhatsapp({
-        body: searchOpenNetworkMSG,
-        receiver: req.body.From.split(":")[1]
-      });
-      const data = await makeBecknCall(BECKN_ACTIONS.search, {});
-      console.log("Beckn Call Data---->", data);
-      const formatedReponse = await getAiReponseFromPrompt(
-        prefix_prompt_group.aiListOfSearchItem,
-        JSON.stringify(data)
-      );
-      await sendResponseToWhatsapp({
-        body: formatedReponse,
-        receiver: req.body.From.split(":")[1]
-      });
-    } else {
-      await sendResponseToWhatsapp({
-        body: decisionFromAI,
-        receiver: req.body.From.split(":")[1]
-      });
-    }
+    //       console.log("Sign Up Message==>", signUpMessage);
+    //       const session = getSession(req?.body?.From);
+    //       session.chats.push({
+    //         role: "model",
+    //         text: signUpMessage,
+    //         message_id: "",
+    //         json: "",
+    //         action: CONSUMER_ACTIONS.SIGNUP
+    //       });
+    //       updateSession(req?.body?.From, session);
+    //       await sendResponseToWhatsapp({
+    //         body: signUpMessage,
+    //         receiver: req.body.From.split(":")[1]
+    //       });
+    //       console.log(getSession(req?.body?.From));
+    //       return res.send("Message sent!");
+    //     } else {
+    //     }
+    //   }
+    //   const searchOpenNetworkMSG = await getAiReponseFromPrompt(
+    //     prefix_prompt_group.aiSearchingOnOpenNetwork,
+    //     ""
+    //   );
+    //   await sendResponseToWhatsapp({
+    //     body: searchOpenNetworkMSG,
+    //     receiver: req.body.From.split(":")[1]
+    //   });
+    //   const data = await makeBecknCall(BECKN_ACTIONS.search, {});
+    //   console.log("Beckn Call Data---->", data);
+    //   const formatedReponse = await getAiReponseFromPrompt(
+    //     prefix_prompt_group.aiListOfSearchItem,
+    //     JSON.stringify(data)
+    //   );
+    //   await sendResponseToWhatsapp({
+    //     body: formatedReponse,
+    //     receiver: req.body.From.split(":")[1]
+    //   });
+    // } else {
+    await sendResponseToWhatsapp({
+      body: decisionFromAI,
+      receiver: req.body.From.split(":")[1]
+    });
+    // }
 
     return res.send("Message sent!");
   } catch (err: any) {
-    console.log("here", JSON.stringify(err.response));
+    console.log("here", err);
     await sendResponseToWhatsapp({
       body: messages.APPOLOGY_MESSAGE,
       receiver: req.body.From.split(":")[1]
