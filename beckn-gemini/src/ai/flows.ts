@@ -16,6 +16,7 @@ import {
   deleteSession,
   getAiReponseFromPrompt,
   getSession,
+  imageRecognition,
   updateSession
 } from "./services";
 import dotenv from "dotenv";
@@ -26,7 +27,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const consumerFlow = async (
   whatsappNumber: string,
   userMessage: string,
-  res: Response
+  res: Response,
+  whatsappReq?: any
 ) => {
   try {
     console.log("\n===>Consumer Flow Called<===\n");
@@ -67,6 +69,28 @@ export const consumerFlow = async (
         session.chats[session.chats.length - 1].action ===
           CONSUMER_ACTIONS.UPLOAD_BILL
       ) {
+        const imageProcessedData = await imageRecognition(
+          whatsappReq.MediaUrl0
+        );
+        const imageProcessedMessage = await getAiReponseFromPrompt(
+          prefix_prompt_group.aiImageProcessedMessage,
+          imageProcessedData
+        );
+        if (imageProcessedMessage.includes("Not an electricity bill")) {
+          const wrongImageMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiWrongImageMessage,
+            imageProcessedData
+          );
+          await sendResponseToWhatsapp({
+            body: wrongImageMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          return res.send("Message Sent");
+        }
+        await sendResponseToWhatsapp({
+          body: imageProcessedMessage,
+          receiver: whatsappNumber.split(":")[1]
+        });
         const signUpMessage = await getAiReponseFromPrompt(
           prefix_prompt_group.aiSignupAsk,
           ""
@@ -575,12 +599,17 @@ export const consumerFlow = async (
           });
           return res.send("Message sent");
         } else {
+          console.log("Rolling back to previous step!!");
           session.chats.pop();
           session.chats.pop();
           updateSession(whatsappNumber, session);
           const rollBackToPrevStateMessage = await getAiReponseFromPrompt(
             prefix_prompt_group.aiRollbackToPrevState,
-            userMessage
+            ""
+          );
+          console.log(
+            "RollBack To Prev State Message===>",
+            rollBackToPrevStateMessage
           );
           await sendResponseToWhatsapp({
             body: rollBackToPrevStateMessage,

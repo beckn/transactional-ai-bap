@@ -7,6 +7,8 @@ import { VertexAI } from "@google-cloud/vertexai";
 import dotenv from "dotenv";
 import { deleteKey, getKey, IBecknCache, setKey } from "../cache";
 import { messages, prompts } from "../constant";
+import vision from "@google-cloud/vision";
+import path from "path";
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
@@ -60,4 +62,33 @@ export const createSession = (whatsappNumber: string): any => {
 
 export const updateSession = (whatsappNumber: string, session: IBecknCache) => {
   return setKey(whatsappNumber, session);
+};
+
+export const imageRecognition = async (url: string) => {
+  try {
+    const keyFilePath = path.join(
+      __dirname,
+      "../../whatsapp-ai-agent-key-file.json"
+    );
+    // Creates a client
+    const client = new vision.ImageAnnotatorClient({
+      keyFilename: keyFilePath
+    });
+
+    // Image URL
+
+    // Performs text detection on the image URL
+    const [result] = await client.textDetection(url);
+    const detections = result.textAnnotations;
+    console.log("Text:");
+    let data = "";
+    [...(detections as any[])].forEach(
+      (text) => (data = data + text.description)
+    );
+    console.log("Image Data: data");
+    return data;
+  } catch (err: any) {
+    console.log("Error Occured in Image Recognition===>", err);
+    return err;
+  }
 };

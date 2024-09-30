@@ -770,7 +770,15 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message asking the user that the he has entered ir-relevant reponse or rejected the transation and whether he or she wants to discontinue the ongoing flow"
+          text: "Create a message asking the user that the he has entered ir-relevant reponse or rejected the transation and whether he or she wants to stop the ongoing flow."
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Dont create a message asking the user whether you want to continue or stop the transatcion. Just add a message asking wherther you want to stop the transaction"
         }
       ]
     },
@@ -806,7 +814,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message similar to Sure you can continue the transaction by responding to the previous message"
+          text: "Create a message stating that Sure you can continue from where you left"
         }
       ]
     },
@@ -814,7 +822,51 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Message should be simple and of 1 line and add some relevant emoji"
+          text: "Message should be joyful, simple and of 1-2 line and add some relevant emoji"
+        }
+      ]
+    }
+  ],
+  aiImageProcessedMessage: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Format this text which contains a information of an electicity bill"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "If the text passed does not cotain any keywords related to electricity bill like tariff, units, energy, amount,account number, energy consumption, billing period, due date, etc then return 'Not an electricity bill' else return the created message along with that inform the user that after processing the bill you found these details"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Message should not be more than 1400 characters and the message should not be a json object it must be a Human redable message"
+        }
+      ]
+    }
+  ],
+  aiWrongImageMessage: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a polite message stating the user that the uploaded image does not resembles an electricity bill please create a relevant electricity bill"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should not be of 1-2 line and create an unique message every time and add relevant emojis"
         }
       ]
     }
