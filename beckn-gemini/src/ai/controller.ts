@@ -5,6 +5,7 @@ import {
   deleteSession,
   getAiReponseFromPrompt,
   getSession,
+  imageRecognition,
   updateSession
 } from "./services";
 import { makeBecknCall } from "../beckn/services";
@@ -38,6 +39,7 @@ export const webhookController = async (
         CONSUMER_ACTIONS.UPLOAD_BILL
     ) {
       flow = "consumer";
+
       if (!req?.body?.MediaUrl0) {
         session.chats.push({
           role: "model",
@@ -130,7 +132,12 @@ export const webhookController = async (
 
     if (flow === "consumer") {
       // Consumer Flow i.e. Beckn Flow
-      return await consumerFlow(req?.body?.From, req?.body?.Body, res);
+      return await consumerFlow(
+        req?.body?.From,
+        req?.body?.Body,
+        res,
+        req?.body
+      );
     }
 
     if (flow === "presumer") {
