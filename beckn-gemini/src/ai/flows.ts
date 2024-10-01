@@ -620,7 +620,11 @@ export const consumerFlow = async (
       }
     }
   } catch (err) {
-    console.log(err);
+    await sendResponseToWhatsapp({
+      body: messages.APPOLOGY_MESSAGE,
+      receiver: whatsappNumber.split(":")[1]
+    });
+    return res.send("Message sent");
   }
 };
 

@@ -68,8 +68,9 @@ export const imageRecognition = async (url: string) => {
   try {
     const keyFilePath = path.join(
       __dirname,
-      "../../whatsapp-ai-agent-key-file.json"
+      "../../../../whatsapp-ai-agent-key-file.json"
     );
+
     // Creates a client
     const client = new vision.ImageAnnotatorClient({
       keyFilename: keyFilePath
@@ -89,6 +90,6 @@ export const imageRecognition = async (url: string) => {
     return data;
   } catch (err: any) {
     console.log("Error Occured in Image Recognition===>", err);
-    return err;
+    throw new Error(err.message);
   }
 };
