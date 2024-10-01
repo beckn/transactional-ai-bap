@@ -39,6 +39,20 @@ export const consumerFlow = async (
     }
     if (!session.chats.length) {
       // Fresh Entry Upload Bill Message
+
+      const sureHelpWithBuyingMessage = await getAiReponseFromPrompt(
+        prefix_prompt_group.aiSureHelpWithBuying,
+        ""
+      );
+      console.log(
+        "Sure Help With Buying Message===>",
+        sureHelpWithBuyingMessage
+      );
+      await sendResponseToWhatsapp({
+        body: sureHelpWithBuyingMessage,
+        receiver: whatsappNumber.split(":")[1]
+      });
+
       const uploadBillMessage = await getAiReponseFromPrompt(
         prefix_prompt_group.aiUploadBill,
         ""
@@ -129,6 +143,21 @@ export const consumerFlow = async (
           userAcceptance.includes("'acceptance':'true'") ||
           userAcceptance.includes("{'acceptance': 'true'}")
         ) {
+          const proceedWithP2PRegistrationMessage =
+            await getAiReponseFromPrompt(
+              prefix_prompt_group.aiProceedWithP2PRegistration,
+              ""
+            );
+          console.log(
+            "Proceed with P2P Registration Message===>",
+            proceedWithP2PRegistrationMessage
+          );
+          await sendResponseToWhatsapp({
+            body: proceedWithP2PRegistrationMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+          await delay(3000);
+
           const otpSentMessage = await getAiReponseFromPrompt(
             prefix_prompt_group.aiSendOTPMessage,
             ""
@@ -244,6 +273,16 @@ export const consumerFlow = async (
           userAcceptance.includes("'acceptance':'true'") ||
           userAcceptance.includes("{'acceptance': 'true'}")
         ) {
+          const connectToUeiP2PMessage = await getAiReponseFromPrompt(
+            prefix_prompt_group.aiConnectToUeiP2P,
+            ""
+          );
+          console.log("Connect To UEI P2P Message===>", connectToUeiP2PMessage);
+          await sendResponseToWhatsapp({
+            body: connectToUeiP2PMessage,
+            receiver: whatsappNumber.split(":")[1]
+          });
+
           let searchIntentMessage = await getAiReponseFromPrompt(
             prefix_prompt_group.aiSearchIntent,
             ""
@@ -260,6 +299,7 @@ export const consumerFlow = async (
           );
           if (verifyOTPStep) {
             const units = JSON.parse(verifyOTPStep.json).units;
+
             // Make Beckn Search Call
             const becknSearchResponse = await makeBecknCall(
               BECKN_ACTIONS.search,
@@ -643,6 +683,15 @@ export const presumerFlow = async (
     }
     if (!session.chats.length) {
       // Fresh Entry
+      const sureHelpWithSelling = await getAiReponseFromPrompt(
+        prefix_prompt_group.aiSureHelpWithSelling,
+        ""
+      );
+      console.log("Sure Help With Selling Message===>", sureHelpWithSelling);
+      await sendResponseToWhatsapp({
+        body: sureHelpWithSelling,
+        receiver: whatsappNumber.split(":")[1]
+      });
       const askSellDetails = await getAiReponseFromPrompt(
         prefix_prompt_group.aiUnitsToSell,
         ""

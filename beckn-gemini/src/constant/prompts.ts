@@ -126,6 +126,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
+          text: "If the user suggests only x units where x is some number then return '{'flow':'presumer'}'"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
           text: "Detect the language and respond in the same language"
         }
       ]
@@ -274,7 +282,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "Create a message Requesting the user to upload their latest electicity bill as it is mandatory to start buying electricity from P2P source"
+          text: "Create a message Requesting the user to upload their latest electicity bill for getting necessary information from their discom as it is mandatory to start buying electricity from P2P network"
         }
       ]
     },
@@ -282,7 +290,15 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "The message should be polite, simple and in 1 line. Don't add quotes"
+          text: "The message should be polite, simple and in 2 lines. Don't add quotes. And you should add P2P network and for getting necessary information from their discom in the message"
+        }
+      ]
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Add relevant emojis to the message"
         }
       ]
     }
@@ -508,7 +524,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "If the responses array in the becknSearchResponse property is not empty and the sum of items[0].quantity.available.count of all objects in providers array is greater than units provided in the json root then create a message similar to Success! I’ve found a household with surplus solar power that can sell you energy and also at a lower rate than your discom. Would you like me to set it up?. Else create a message saying that Lower energy is found. Would you like me to set it up?"
+          text: "If the responses array in the becknSearchResponse property is not empty and the sum of items[0].quantity.available.count of all objects in providers array is greater than units provided in the json root then create a message stating Success! I’ve found a household with x unit of surplus solar power that can sell you energy at ₹ y and also at a lower rate than your discom. Would you like me to set it up?. Else create a message saying that Lower energy is found. Would you like me to set it up?"
         }
       ]
     },
@@ -516,7 +532,15 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Make sure the message should ask user's permission to set this up at the end of message"
+          text: "The Value of x will be the units provided in the input json and y will be items[0].price.value from the becknSearchResponse in input json "
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Make sure the message should ask user's permission to set this up at the end of message only if the responses array in the becknSearchResponse property is not empty"
         }
       ]
     },
@@ -748,7 +772,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "You should create a message asking permission to list it as available for transactions"
+          text: "You should create a message asking permission to list the energy as available for transactions"
         }
       ]
     },
@@ -765,6 +789,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "You should only create a relevant message"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Dont add quotes to the message"
         }
       ]
     }
@@ -933,6 +965,86 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "The message should not be of 1-2 line and create an unique message every time and add relevant emojis"
+        }
+      ]
+    }
+  ],
+  aiProceedWithP2PRegistration: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message saying the user proceeding with P2P Registration"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should not be of only 1-2 lines and create an unique message every time and add relevant emojis"
+        }
+      ]
+    }
+  ],
+  aiConnectToUeiP2P: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a message stating Connecting the user to Unified Energy Interface"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should not be of only 2 lines and create an unique message every time and add relevant emojis"
+        }
+      ]
+    }
+  ],
+  aiSureHelpWithBuying: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a joyful polite message stating Sure I can help you with buying energy on p2p network"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be of 2 lines and create an unique message every time and add relevant emojis"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should mention P2P UEI Network somewhere in the message"
+        }
+      ]
+    }
+  ],
+  aiSureHelpWithSelling: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a joyful polite message stating Sure I can help you with selling energy on p2p network"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should be of 2 lines and create an unique message every time and add relevant emojis and dont add beckn anywhere in the message"
         }
       ]
     }
