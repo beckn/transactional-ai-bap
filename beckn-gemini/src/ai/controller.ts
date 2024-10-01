@@ -126,7 +126,10 @@ export const webhookController = async (
 
     if (decisionFromAI.includes("'flow':'consumer'")) {
       flow = "consumer";
-    } else if (decisionFromAI.includes("'flow':'presumer'")) {
+    } else if (
+      decisionFromAI.includes("'flow':'presumer'") ||
+      decisionFromAI.includes("'flow': 'presumer'")
+    ) {
       flow = "presumer";
     }
 

@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
 import axios from "axios";
-import { BECKN_ACTIONS } from "../constant";
+import { BECKN_ACTIONS, prefix_prompt_group } from "../constant";
 import { createBecknSearchPayload } from "../utils/beckn-utils";
 import { sendResponseToWhatsapp } from "../twilio/services";
+import { getAiReponseFromPrompt } from "../ai/services";
 dotenv.config();
 
 export const saveEnergyRequest = async (payload_parameter: {
@@ -51,8 +52,13 @@ export const soldEnergy = async (
     } else {
       body = `Congratulations!! your ${unitsold} unit of energy has been sold. You have made ₹${amount} from this transaction.`;
     }
+    const successSaleMessage = await getAiReponseFromPrompt(
+      prefix_prompt_group.aiSuccessSaleMessage,
+      body
+    );
+    console.log("Success Sale Message===>", successSaleMessage);
     await sendResponseToWhatsapp({
-      body,
+      body: successSaleMessage,
       receiver: `+91${phone}`
     });
   } catch (err: any) {

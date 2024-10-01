@@ -9,7 +9,7 @@ export interface IKeyValuePair {
 }
 
 export const prompts = {
-  systemInstruction: `Your name is Elara an AI Agent Powered by Google Gemini. Beckn Open Community has created you. If Someone asks you about your origin then only tell them about your creators. Users can sell or buy energy from you. So if someone greets you then you should greet them back with your introduction and along with that add welcome message to Beckn Grid Connect. If the message is in greeting then only repond with a greeting message. You should check whether the message contains some intent to buy some energy from the open network. If there is an intent to buy or search energy providers then reply only 'make_beckn_call'. If there is no intent to buy or search energy providers then provide relevant results to the user`
+  systemInstruction: `Your name is Lisa an AI Agent Powered by Google Gemini. Beckn Open Community has created you. If Someone asks you about your origin then only tell them about your creators. Users can sell or buy energy from you. So if someone greets you then you should greet them back with your introduction and along with that add welcome message to Beckn Grid Connect. If the message is in greeting then only repond with a greeting message. You should check whether the message contains some intent to buy some energy from the open network. If there is an intent to buy or search energy providers then reply only 'make_beckn_call'. If there is no intent to buy or search energy providers then provide relevant results to the user`
 };
 
 export enum DISCONTINUITY {
@@ -119,6 +119,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "If the message states that the user has surplus energy or want to sell some energy then return '{'flow':'presumer'}' strictly dont add code block"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Detect the language and respond in the same language"
         }
       ]
     }
@@ -369,18 +377,26 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
   ],
   aiInvalidOTP: [
     {
-      role: "model",
+      role: "user",
       parts: [
         {
-          text: "Create a message Telling the user the OTP is invalid"
+          text: "Create a message stating the the user the OTP is invalid"
         }
       ]
     },
     {
-      role: "model",
+      role: "user",
       parts: [
         {
           text: "Ask them to re-enter the 6 digit OTP"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should not add for example in the start of the message or any quote sybol just return the message"
         }
       ]
     }
@@ -416,7 +432,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Make sure the the value of x is randomized between 8 and 15"
+          text: "You should make sure the the value of x is randomized between 8 and 15"
         }
       ]
     },
@@ -503,6 +519,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
           text: "Make sure the message should ask user's permission to set this up at the end of message"
         }
       ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should never return make_beckn_call"
+        }
+      ]
     }
   ],
   aiSelectIntent: [
@@ -510,7 +534,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message similar to Perfect! I’m booking x units of electricity. It will be adjusted against your usage between 10 AM and 5 PM. This will save you around y Rs."
+          text: "Create a message similar to Perfect! I’m booking x units of electricity. It will be adjusted against your usage between 10 AM and 5 PM. This will save you around ₹ y."
         }
       ]
     },
@@ -553,6 +577,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "dont make any change to the calculation and do not return response in json format"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a formal itemized bill in a tabular form in text format for the provided json that is compatible for text messages"
         }
       ]
     },
@@ -690,7 +722,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "If the message does not contain any details related to number of units and also the message does not contains only number then return 'false' else return json fomatted data in this format {units: number of units}"
+          text: "If the message contains number of units the user want to sell like i want to sell x units or x or x units then return the json structured data"
         }
       ]
     },
@@ -698,7 +730,15 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "You should not return any other message"
+          text: "Else If the message does not contain any details related to number of units user want to sell then return 'false' "
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "json fomatted data in this format {units: x}"
         }
       ]
     }
@@ -859,6 +899,32 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       parts: [
         {
           text: "Create a polite message stating the user that the uploaded image does not resembles an electricity bill please create a relevant electricity bill"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "The message should not be of 1-2 line and create an unique message every time and add relevant emojis"
+        }
+      ]
+    }
+  ],
+  aiSuccessSaleMessage: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Create a polite, joyful message congratulating the user from the message provided"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Add some relevant emojis to the message"
         }
       ]
     },

@@ -464,7 +464,7 @@ export const consumerFlow = async (
               media_url: `${process.env.AI_SERVER_URL}/static/qrcode.png`
             });
 
-            await delay(4000);
+            await delay(10000);
 
             // Make Beckn Confirm Call
             const becknConfirmResponse = await makeBecknCall(
