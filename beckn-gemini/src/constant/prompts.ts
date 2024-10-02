@@ -70,7 +70,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "If the message means how can you help me today or what can you do for me then create a message saying I am an AI agent specially Desgined for trading on a P2P Energy network"
+          text: "If the message means how can you help me today or what can you do for me then create a message stating I am an AI agent specially Desgined for trading on a P2P Energy network. And i can help you with energy trade on P2P network. Which trade path will you choose buy energy or sell energy?"
         }
       ]
     },
@@ -126,7 +126,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "If the user suggests only x units where x is some number then return '{'flow':'presumer'}'"
+          text: "If the user message contains x units where x is some number then return '{'flow':'presumer'}'"
         }
       ]
     },
@@ -974,7 +974,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message saying the user proceeding with P2P Registration"
+          text: "Create a 1-2 lines message saying the user proceeding with P2P Registration"
         }
       ]
     },
@@ -982,7 +982,15 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "The message should not be of only 1-2 lines and create an unique message every time and add relevant emojis"
+          text: "The message should be of only 1-2 lines and create an unique message every time and add relevant emojis"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should not create any message that does not suggest proceeding with P2P registration like greeting message, and any irrelevant message"
         }
       ]
     }

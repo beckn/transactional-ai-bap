@@ -156,7 +156,7 @@ export const consumerFlow = async (
             body: proceedWithP2PRegistrationMessage,
             receiver: whatsappNumber.split(":")[1]
           });
-          await delay(3000);
+          await delay(1000);
 
           const otpSentMessage = await getAiReponseFromPrompt(
             prefix_prompt_group.aiSendOTPMessage,
@@ -504,7 +504,7 @@ export const consumerFlow = async (
               media_url: `${process.env.AI_SERVER_URL}/static/qrcode.png`
             });
 
-            await delay(10000);
+            await delay(8000);
 
             // Make Beckn Confirm Call
             const becknConfirmResponse = await makeBecknCall(

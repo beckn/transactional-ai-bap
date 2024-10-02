@@ -125,12 +125,29 @@ export const webhookController = async (
     // Diffrentiate between transactional request and normal request
 
     if (decisionFromAI.includes("'flow':'consumer'")) {
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].flow === "presumer"
+      ) {
+        flow = "presumer";
+      } else {
+        flow = "consumer";
+      }
       flow = "consumer";
     } else if (
       decisionFromAI.includes("'flow':'presumer'") ||
       decisionFromAI.includes("'flow': 'presumer'")
     ) {
-      flow = "presumer";
+      if (
+        session &&
+        session.chats.length &&
+        session.chats[session.chats.length - 1].flow === "consumer"
+      ) {
+        flow = "consumer";
+      } else {
+        flow = "presumer";
+      }
     }
 
     if (flow === "consumer") {
