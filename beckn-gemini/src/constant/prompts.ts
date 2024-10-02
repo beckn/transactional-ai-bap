@@ -1011,6 +1011,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
           text: "The message should not be of only 2 lines and create an unique message every time and add relevant emojis"
         }
       ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "Do not create any irrelevant messages like greeting message and etc."
+        }
+      ]
     }
   ],
   aiSureHelpWithBuying: [
