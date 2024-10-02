@@ -134,7 +134,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Detect the language and respond in the same language, and do not consider yes or no as greeting message"
+          text: "Detect the language and respond in the same language"
         }
       ]
     }
