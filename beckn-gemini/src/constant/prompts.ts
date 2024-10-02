@@ -316,7 +316,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "User will upload image of an electricity bill it will be printed on white paper and must have keywords like electricity, electricity bill, units, . You must return a response related to image details and nothing else"
+          text: "User will upload image of an electricity bill it will be printed on white paper and must have keywords like electricity, electricity bill, units. You must return a response related to image details and nothing else, also do not ask any question to the user"
         }
       ]
     },
