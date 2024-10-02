@@ -1,6 +1,6 @@
 import qrcode from "qrcode";
 export const generateQRCode = () => {
-  const dummyData = "upi://pay?pa=ravimaiden-2@okaxis&pn=Lela&cu=INR";
+  const dummyData = "upi://pay?pa=ravimaiden-2@okaxis&pn=Leela&cu=INR";
   qrcode.toFile("public/qrcode.png", dummyData, function (err) {
     if (err) {
       console.error("Error generating QR code:", err);
