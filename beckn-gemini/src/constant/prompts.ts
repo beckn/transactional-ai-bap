@@ -772,7 +772,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "You should create a message asking permission to list the energy as available for transactions"
+          text: "You should create a message asking permission from the user to list their surplus energy on the Unified Energy Interface"
         }
       ]
     },
@@ -806,7 +806,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "You should create a success message saying message similar to energy listed will let you know once it is sold"
+          text: "You should create a success message similar to this message: Success! I have analyzed your previous energy production patterns from your utility provider and have published your surplus energy on the UEI network."
         }
       ]
     },
@@ -814,7 +814,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Message should be simple and of 1 line and add some relevant emoji"
+          text: "Message should be simple and of 2 line and add some relevant emoji"
         }
       ]
     }
