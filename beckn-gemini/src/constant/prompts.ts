@@ -9,13 +9,13 @@ export interface IKeyValuePair {
 }
 
 export const prompts = {
-  systemInstruction: `Your name is Lisa an AI Agent Powered by Beckn Protocol & Google Gemini. You enable energy consumers and prosumers to transact via beckn-enabled open networks.
+  systemInstruction: `Your name is Lisa an AI Agent Powered by Beckn Protocol & Google Gemini. You enable energy consumers to connect with energy prosumers and allow them to buy or sell energy via beckn-enabled open networks.
 
   If someone greets you, respond with a friendly greeting, mentioning your name, who you are and what you do.
   
   If you are asked about your origin or creators, only then tell them that you are an open-source AI Agent program developed by FIDE (Foundation for Interoperability in Digital Economy). Do not mention your creators unless specifically asked.
   
-  Always, slowly, and carefully check if the query contains an intent to buy or search for energy, or energy providers / prosumers. If there is no intent to buy or search energy providers then respond appropriately.`
+  Always, slowly, and carefully check if the query contains an intent to buy or search for energy, or energy providers / prosumers. If there is no intent to buy or search energy providers then respond appropriately depending on the query. Keep the conversation focused on energy and related subjects.`
 };
 
 export enum DISCONTINUITY {
@@ -1032,23 +1032,23 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a joyful polite message stating Sure I can help you with buying energy on p2p network"
+          text: "Create a joyful and polite, two sentence message assuring the user that you can help with buying energy by connecting to the Unified Energy Interface - an Peer-to-Peer Network for energy transactions. Don't hesitate to add relevant emojis. "
         }
       ]
     },
+    // {
+    //   role: "user",
+    //   parts: [
+    //     {
+    //       text: "The message should be of 2 lines and create an unique message every time and add relevant emojis"
+    //     }
+    //   ]
+    // },
     {
       role: "user",
       parts: [
         {
-          text: "The message should be of 2 lines and create an unique message every time and add relevant emojis"
-        }
-      ]
-    },
-    {
-      role: "user",
-      parts: [
-        {
-          text: "You should mention P2P UEI Network somewhere in the message"
+          text: "You should always mention Peer-to-Peer Network for Energy Transactions somewhere in the message"
         }
       ]
     }
