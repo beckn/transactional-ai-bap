@@ -2,7 +2,6 @@ import express, { Express, Router, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { routes } from "./routes";
-import { generateQRCode } from "../utils/qr-code-utils";
 import path from "path";
 interface InitAppParams {
   app: Express;

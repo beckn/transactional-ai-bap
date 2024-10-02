@@ -81,7 +81,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          CONSUMER_ACTIONS.UPLOAD_BILL
+        CONSUMER_ACTIONS.UPLOAD_BILL
       ) {
         const imageProcessedData = await imageRecognition(
           whatsappReq.MediaUrl0
@@ -132,7 +132,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          CONSUMER_ACTIONS.SIGNUP
+        CONSUMER_ACTIONS.SIGNUP
       ) {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
@@ -197,7 +197,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          CONSUMER_ACTIONS.OTP_SENT
+        CONSUMER_ACTIONS.OTP_SENT
       ) {
         const detectOTP = await getAiReponseFromPrompt(
           prefix_prompt_group.aiDetectOTP,
@@ -262,7 +262,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          CONSUMER_ACTIONS.VERIFY_OTP
+        CONSUMER_ACTIONS.VERIFY_OTP
       ) {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
@@ -504,7 +504,7 @@ export const consumerFlow = async (
               media_url: `${process.env.AI_SERVER_URL}/static/qrcode.png`
             });
 
-            await delay(8000);
+            await delay(30000);
 
             // Make Beckn Confirm Call
             const becknConfirmResponse = await makeBecknCall(
@@ -585,7 +585,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          DISCONTINUITY.FLOW_BREAK
+        DISCONTINUITY.FLOW_BREAK
       ) {
         const discontinueFlowMessage = await getAiReponseFromPrompt(
           prefix_prompt_group.aiDiscontinueFlowMessage,
@@ -613,7 +613,7 @@ export const consumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+        DISCONTINUITY.FLOW_BREAK_CONFIRMATION
       ) {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
@@ -715,7 +715,7 @@ export const presumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          PRESUMER_ACTIONS.SELL_INTENT
+        PRESUMER_ACTIONS.SELL_INTENT
       ) {
         // Send Upload Catalog Message
         let extractSellDetails = await getAiReponseFromPrompt(
@@ -768,7 +768,7 @@ export const presumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          PRESUMER_ACTIONS.UPLOAD_CATALOG
+        PRESUMER_ACTIONS.UPLOAD_CATALOG
       ) {
         // Send Order Confirmtation Message
         const userAcceptance = await getAiReponseFromPrompt(
@@ -860,7 +860,7 @@ export const presumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          DISCONTINUITY.FLOW_BREAK
+        DISCONTINUITY.FLOW_BREAK
       ) {
         const discontinueFlowMessage = await getAiReponseFromPrompt(
           prefix_prompt_group.aiDiscontinueFlowMessage,
@@ -888,7 +888,7 @@ export const presumerFlow = async (
         session &&
         session.chats.length &&
         session.chats[session.chats.length - 1].action ===
-          DISCONTINUITY.FLOW_BREAK_CONFIRMATION
+        DISCONTINUITY.FLOW_BREAK_CONFIRMATION
       ) {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
@@ -939,4 +939,4 @@ export const presumerFlow = async (
   }
 };
 
-export const generalFlow = async () => {};
+export const generalFlow = async () => { };
