@@ -1032,23 +1032,23 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a joyful and polite, two sentence message assuring the user that you can help with buying energy by connecting to the Unified Energy Interface - an Peer-to-Peer Network for energy transactions. Don't hesitate to add relevant emojis. "
+          text: "Create a joyful and polite, two sentence message assuring the user that you can help with buying energy by connecting to the Unified Energy Interface - a Peer-to-Peer Network for energy transactions. Don't hesitate to add relevant emojis. "
         }
       ]
     },
-    // {
-    //   role: "user",
-    //   parts: [
-    //     {
-    //       text: "The message should be of 2 lines and create an unique message every time and add relevant emojis"
-    //     }
-    //   ]
-    // },
     {
       role: "user",
       parts: [
         {
-          text: "You should always mention Peer-to-Peer Network for Energy Transactions somewhere in the message"
+          text: "The message should be of 2 lines and create an unique message every time and add relevant emojis"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You should always mention the Unified Energy Interface - a Peer-to-Peer Network for energy transactions somewhere in the message"
         }
       ]
     }
