@@ -1006,7 +1006,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "Create a message stating Connecting the user to Unified Energy Interface"
+          text: "Create a message informing the user that you're connecting them to the Unified Energy Interface"
         }
       ]
     },
@@ -1014,7 +1014,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
-          text: "The message should not be of only 2 lines and create an unique message every time and add relevant emojis"
+          text: "The message should contain only 2 sentences. Alwaysm create an unique message every time. Add relevant emojis."
         }
       ]
     },
