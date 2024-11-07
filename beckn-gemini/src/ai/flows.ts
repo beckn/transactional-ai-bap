@@ -660,6 +660,7 @@ export const consumerFlow = async (
       }
     }
   } catch (err) {
+    console.log("Error===>", err);
     await sendResponseToWhatsapp({
       body: messages.APPOLOGY_MESSAGE,
       receiver: whatsappNumber.split(":")[1]
