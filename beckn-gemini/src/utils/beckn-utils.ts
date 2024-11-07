@@ -132,7 +132,7 @@ export const createBecknInitPayload = (
 ) => {
   const bpp_id = on_select?.responses[0]?.context.bpp_id || "";
   const bpp_uri = on_select?.responses[0]?.context.bpp_uri || "";
-  const providerId = on_select?.responses[0]?.message?.order?.providers?.id;
+  const providerId = on_select?.responses[0]?.message?.order?.provider?.id;
   const itemId = on_select?.responses[0]?.message?.order?.items[0].id;
   const fulfillmentId =
     on_select?.responses[0]?.message?.order?.items[0]?.fulfillment_ids[0] ||
