@@ -228,7 +228,7 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "model",
       parts: [
         {
-          text: "Identify whether the provided message is a greeting message or not"
+          text: "Identify whether the provided message is a greeting message or not. If the message is Yes then return 'false'"
         }
       ]
     },
