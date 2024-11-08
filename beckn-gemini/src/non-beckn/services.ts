@@ -57,6 +57,10 @@ export const soldEnergy = async (
       body
     );
     console.log("Success Sale Message===>", successSaleMessage);
+    console.log("Message Payload send to whatsapp===>", {
+      body: successSaleMessage,
+      receiver: `+91${phone}`
+    });
     await sendResponseToWhatsapp({
       body: successSaleMessage,
       receiver: `+91${phone}`
