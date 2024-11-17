@@ -25,6 +25,8 @@
     "@google-cloud/vertexai": "^1.8.1",
     "@google-cloud/vision": "^4.3.2",
     "@google/generative-ai": "^0.19.0",
+    "@langchain/core": "^0.3.18",
+    "@langchain/langgraph": "^0.2.20",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

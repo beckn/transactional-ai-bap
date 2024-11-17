@@ -920,6 +920,14 @@ export const prefix_prompt_group: IPrefixPromptsGroup = {
       role: "user",
       parts: [
         {
+          text: "Also return 'Not an electricity bill' in case of empty string"
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: [
+        {
           text: "Message should not be more than 1400 characters and the message should not be a json object it must be a Human redable message"
         }
       ]

@@ -5,16 +5,19 @@ import {
   DISCONTINUITY,
   PRESUMER_ACTIONS
 } from "../constant";
+import { ConsumerActionType } from '../constant';
+
+export interface IBecknChat {
+  role: string;
+  text: string;
+  message_id: string;
+  json: string;
+  action: ConsumerActionType | typeof BECKN_ACTIONS[keyof typeof BECKN_ACTIONS] | typeof PRESUMER_ACTIONS[keyof typeof PRESUMER_ACTIONS] | typeof DISCONTINUITY[keyof typeof DISCONTINUITY];
+  flow: string;
+}
 
 export interface IBecknCache {
-  chats: {
-    role: "model" | "user";
-    text: string;
-    message_id: string;
-    json: string;
-    action: BECKN_ACTIONS | CONSUMER_ACTIONS | PRESUMER_ACTIONS | DISCONTINUITY;
-    flow: "presumer" | "consumer";
-  }[];
+  chats: IBecknChat[];
 }
 
 interface ICache {

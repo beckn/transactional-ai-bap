@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { LLMProvider, LLMRequest, LLMResponse } from "./types";
 import dotenv from "dotenv";
+import { prompts } from "../../constant/prompts";
 dotenv.config();
 
 export class GeminiProvider implements LLMProvider {
@@ -9,28 +10,21 @@ export class GeminiProvider implements LLMProvider {
   constructor() {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
     this.model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL_NAME as string
+      model: process.env.GEMINI_MODEL_NAME as string,
+      systemInstruction: prompts.systemInstruction
     });
   }
 
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {
     try {
-      const { prompt, systemPrompt } = request;
-      
-      // Combine system prompt and user prompt if system prompt exists
-      const finalPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
-
-
-
-
-
+      const { prompt } = request;
       
       // Format the prompt according to Gemini's API requirements
       const formattedPrompt = {
-        contents: [{
+        contents: Array.isArray(prompt) ? prompt : [{
           role: "user",
           parts: [{
-            text: finalPrompt
+            text: prompt
           }]
         }]
       };

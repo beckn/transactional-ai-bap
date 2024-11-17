@@ -130,3 +130,6 @@ dist
 .pnp.*
 .DS_Store
 
+# Google Cloud key file
+whatsapp-ai-agent-key-file.json
+

@@ -9,7 +9,6 @@ import { deleteKey, getKey, IBecknCache, setKey } from "../cache";
 import { messages, prompts } from "../constant";
 import vision from "@google-cloud/vision";
 import path from "path";
-import { BecknLangGraph } from './beckn-langgraph';
 import { LLMFactory } from './llm/factory';
 dotenv.config();
 
@@ -34,23 +33,78 @@ export const getAiReponseFromPrompt = async (
   try {
     const llm = LLMFactory.getProvider();
     
-    let formattedPrompt = prompt;
+    // Format the prompt properly
+    let formattedPrompt: Content[] = [];
+
+    // Add prefix prompts if they exist
     if (prefix_prompt) {
-      formattedPrompt = prefix_prompt.map(p => 
-        `${p.role}: ${p.parts[0].text}`
-      ).join('\n') + '\n' + prompt;
+      formattedPrompt.push(...prefix_prompt);
+    }
+
+    // Add the user prompt if it exists
+    if (prompt.length) {
+      formattedPrompt.push({
+        role: "user",
+        parts: [{ text: prompt }]
+      });
     }
 
     const response = await llm.generateResponse({
       prompt: formattedPrompt
     });
 
-    return response.text;
+    // Only do minimal cleaning - remove markdown if present
+    let cleanedResponse = response.text;
+    if (cleanedResponse.includes('```')) {
+      cleanedResponse = cleanedResponse
+        .replace(/```json\n/g, '')
+        .replace(/```\n/g, '')
+        .replace(/```/g, '')
+        .trim();
+    }
+
+    // Return the response directly without additional processing
+    return cleanedResponse;
+
   } catch (err: any) {
     console.log(err);
     return messages.APPOLOGY_MESSAGE;
   }
 };
+
+
+// export const getAiReponseFromPrompt = async (
+//   prefix_prompt: Content[] | null,
+//   prompt: string
+// ) => {
+//   try {
+//     let formattedPromt: GenerateContentRequest = {
+//       contents: []
+//     };
+//     if (prefix_prompt) {
+//       formattedPromt.contents.push(...prefix_prompt);
+//     }
+//     if (prompt.length) {
+//       formattedPromt.contents.push({
+//         role: "user",
+//         parts: [
+//           {
+//             text: prompt
+//           }
+//         ]
+//       });
+//     }
+//     const data = await model.generateContent(formattedPromt);
+//     // console.log("Response==>", data.response.text());
+//     return data.response.text();
+//   } catch (err: any) {
+//     console.log(err);
+//     return messages.APPOLOGY_MESSAGE;
+//   }
+// };
+
+
+
 
 export const getSession = (whatsappNumber: string): any => {
   return getKey(whatsappNumber);
@@ -74,13 +128,14 @@ export const imageRecognition = async (url: string) => {
   try {
     const keyFilePath = path.join(
       __dirname,
-      "../../../../whatsapp-ai-agent-key-file.json"
+      "../../whatsapp-ai-agent-key-file.json"
     );
 
     // Creates a client
     const client = new vision.ImageAnnotatorClient({
       keyFilename: keyFilePath
     });
+
 
     // Performs text detection on the image URL
     const [result] = await client.textDetection(url);
@@ -96,39 +151,4 @@ export const imageRecognition = async (url: string) => {
     console.log("Error Occured in Image Recognition===>", err);
     throw new Error(err.message);
   }
-};
-
-export const handleConversationFlow = async (whatsappNumber: string, userMessage: string) => {
-  const graph = new BecknLangGraph();
-
-  // Define nodes
-  graph.addNode({
-    id: 'start',
-    type: 'llm',
-    next: ['intent_check']
-  });
-
-  graph.addNode({
-    id: 'intent_check',
-    type: 'action'
-  });
-
-  // Define edges
-  graph.addEdge({
-    from: 'start',
-    to: 'intent_check',
-    condition: (context: GraphContext) => context.llmResponse?.includes('intent') || false
-  });
-
-  // Set context
-  graph.setContext('currentPrompt', userMessage);
-  graph.setContext('systemPrompt', prompts.systemInstruction);
-  graph.setContext('action', async (context: GraphContext) => {
-    // Handle intent logic
-    console.log('Processing intent:', context.llmResponse);
-  });
-
-  // Execute graph
-  const result = await graph.execute('start');
-  return result;
 };

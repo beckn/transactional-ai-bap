@@ -4,7 +4,7 @@ export interface LLMResponse {
 }
 
 export interface LLMRequest {
-  prompt: string;
+  prompt: string | Content[];
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
