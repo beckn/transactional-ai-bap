@@ -54,7 +54,11 @@ export const makeBecknCall = async (
     const response = await axios.post(url as string, payload);
     return response.data;
   } catch (err: any) {
-    console.log(JSON.stringify(err.response));
+    console.error("Beckn API Error:", {
+      status: err.response?.status,
+      message: err.message,
+      data: err.response?.data
+    });
     throw new Error(err.message);
   }
 };
