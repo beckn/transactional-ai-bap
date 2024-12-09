@@ -29,6 +29,9 @@ export const webhookController = async (
     console.log("Dank",req.body)
     console.log("Whatsapp Request Received from", req.body.From);
     const session = getSession(req?.body?.From);
+
+
+    console.log("Session==>", session);
     let flow: string = "general";
 
     // Flow Starts here
@@ -90,11 +93,11 @@ export const webhookController = async (
         CONSUMER_ACTIONS.PROCESS_BILL,
         CONSUMER_ACTIONS.OTP_SENT,
         CONSUMER_ACTIONS.VERIFY_OTP,
-        BECKN_ACTIONS.search,
-        BECKN_ACTIONS.select,
-        BECKN_ACTIONS.init,
-        BECKN_ACTIONS.confirm,
-        BECKN_ACTIONS.status
+        CONSUMER_ACTIONS.SEARCH,
+        CONSUMER_ACTIONS.SELECT,
+        CONSUMER_ACTIONS.INIT,
+        CONSUMER_ACTIONS.CONFIRM,
+        // CONSUMER_ACTIONS.STATUS
       ].includes(session.chats[session.chats.length - 1].action) ||
         ([
           DISCONTINUITY.FLOW_BREAK,

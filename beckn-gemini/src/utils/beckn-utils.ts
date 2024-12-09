@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 import { v4 as uuidV4 } from "uuid";
 import { BECKN_ACTIONS } from "../constant";
+import { isEmpty } from "./common-utils";
+
+
 dotenv.config();
 
 export const createBecknContext = (
@@ -45,7 +48,7 @@ export const createBecknSearchPayload = (units: string) => {
           quantity: {
             available: {
               measure: {
-                value: units || `${randomUnitValue}`,
+                value: isEmpty(units) ? `${randomUnitValue}` : units,
                 unit: "kWH"
               }
             }
@@ -101,7 +104,7 @@ export const createBecknSelectPayload = (on_search: any, units: string) => {
             id: itemId,
             quantity: {
               selected: {
-                count: parseInt(units)
+                count: isEmpty(units) ? randomUnitValue : parseInt(units)
               }
             }
           }
@@ -137,6 +140,10 @@ export const createBecknInitPayload = (
   const fulfillmentId =
     on_select?.responses[0]?.message?.order?.items[0]?.fulfillment_ids[0] ||
     "1";
+  const min = 7;
+  const max = 15;
+  const randomUnitValue = Math.floor(Math.random() * (max - min + 1)) + min;
+
   return {
     context: createBecknContext(BECKN_ACTIONS.init, bpp_id, bpp_uri),
     message: {
@@ -149,7 +156,7 @@ export const createBecknInitPayload = (
             id: itemId,
             quantity: {
               selected: {
-                count: parseInt(units)
+                count: isEmpty(units) ? randomUnitValue : parseInt(units)
               }
             }
           }
@@ -189,6 +196,9 @@ export const createBecknConfirmPayload = (
   const fulfillmentId =
     on_select?.responses[0]?.message?.order?.items[0]?.fulfillment_ids[0] ||
     "1";
+  const min = 7;
+  const max = 15;
+  const randomUnitValue = Math.floor(Math.random() * (max - min + 1)) + min;
   return {
     context: createBecknContext(BECKN_ACTIONS.confirm, bpp_id, bpp_uri),
     message: {
@@ -201,7 +211,7 @@ export const createBecknConfirmPayload = (
             id: itemId,
             quantity: {
               selected: {
-                count: parseInt(units)
+                count: isEmpty(units) ? randomUnitValue : parseInt(units)
               }
             }
           }
