@@ -35,7 +35,7 @@ export const setupPresumerFlow = () => {
   async function processSellIntent(state: typeof StateAnnotation.State) {
     const extractSellDetails = await getAiReponseFromPrompt(
       prefix_prompt_group.aiCheckSellDetails,
-      state.messages[state.messages.length - 1].content
+      state.messages[state.messages.length - 1].content as string
     );
 
     if (extractSellDetails === 'false' || extractSellDetails.includes('false')) {
@@ -55,7 +55,7 @@ export const setupPresumerFlow = () => {
   async function processCatalog(state: typeof StateAnnotation.State) {
     const userAcceptance = await getAiReponseFromPrompt(
       prefix_prompt_group.aiCheckAcceptance,
-      state.messages[state.messages.length - 1].content
+      state.messages[state.messages.length - 1].content as string
     );
 
     if (userAcceptance.includes("'acceptance':'true'") || 
@@ -236,7 +236,7 @@ export const setupConsumerFlow = () => {
         // If not resuming, check for user acceptance
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
-          state.messages[state.messages.length - 1].content
+          state.messages[state.messages.length - 1].content as string
         );
 
         if (
@@ -285,7 +285,7 @@ export const setupConsumerFlow = () => {
       async (state) => {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
-          state.messages[state.messages.length - 1].content
+          state.messages[state.messages.length - 1].content as string
         );
 
         if (
@@ -330,7 +330,7 @@ export const setupConsumerFlow = () => {
         console.log("Flow break condition state==>", state.messages);
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
-          state.messages[state.messages.length - 1].content
+          state.messages[state.messages.length - 1].content as string
         );
 
         console.log("Flow break condition User Acceptance==>", userAcceptance);
@@ -376,7 +376,7 @@ export const setupConsumerFlow = () => {
       async (state) => {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
-          state.messages[state.messages.length - 1].content
+          state.messages[state.messages.length - 1].content as string
         );
 
         if (
@@ -415,7 +415,7 @@ export const setupConsumerFlow = () => {
       async (state) => {
         const userAcceptance = await getAiReponseFromPrompt(
           prefix_prompt_group.aiCheckAcceptance,
-          state.messages[state.messages.length - 1].content
+          state.messages[state.messages.length - 1].content as string
         );
 
         if (
@@ -496,6 +496,7 @@ export const consumerFlow = async (
 
     const app = workflow.compile({
       checkpointer,
+      // @ts-ignore
       interruptBefore: [
         // @ts-ignore
         CONSUMER_NODES.WAIT_FOR_BILL,
@@ -532,9 +533,12 @@ export const consumerFlow = async (
       }
     );
 
+    // Get the last message from the messages array
+    const lastMessage = finalState.messages?.[finalState.messages.length - 1]?.content || 'No message sent';
+
     return res.json({
       status: 'success',
-      message: finalState.lastMessage || 'No message sent',
+      message: lastMessage,
       data: {
         whatsappNumber,
         session: finalState.session

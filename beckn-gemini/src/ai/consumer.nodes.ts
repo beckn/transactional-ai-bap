@@ -254,7 +254,7 @@ export async function handleSignup(state: typeof ConsumerStateAnnotation.State) 
 	// If not resuming, proceed with normal signup flow
 	const userAcceptance = await getAiReponseFromPrompt(
 		prefix_prompt_group.aiCheckAcceptance,
-		state.messages[state.messages.length - 1].content
+		state.messages[state.messages.length - 1].content as string
 	);
 
 	if (
@@ -420,7 +420,7 @@ export async function verifyOtp(state: typeof ConsumerStateAnnotation.State) {
 	console.log("Last Action==>", lastAction);
 	const detectOTP = await getAiReponseFromPrompt(
 		prefix_prompt_group.aiDetectOTP,
-		state.messages[state.messages.length - 1].content
+		state.messages[state.messages.length - 1].content as string
 	);
 
 	console.log("Detect OTP===>", detectOTP);
@@ -797,7 +797,7 @@ export async function becknInitAndConfirm(state: typeof ConsumerStateAnnotation.
 export async function handleRecurringPurchase(state: typeof ConsumerStateAnnotation.State) {
 	const recurringPurchaseMessage = await getAiReponseFromPrompt(
 		prefix_prompt_group.aiCheckRecurrignPurchaseAcceptance,
-		state.messages[state.messages.length - 1].content
+		state.messages[state.messages.length - 1].content as string
 	);
 
 	console.log("User Recurring Purchase Acceptance===>", recurringPurchaseMessage);

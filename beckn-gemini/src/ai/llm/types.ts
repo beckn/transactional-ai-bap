@@ -1,3 +1,5 @@
+
+import { Content } from "@google/generative-ai";
 export interface LLMResponse {
   text: string;
   metadata?: any;
