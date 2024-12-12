@@ -14,7 +14,7 @@ import { Response } from 'express';
 import { IBecknCache, IBecknChat } from "../cache";
 import { MemorySaver } from "@langchain/langgraph";
 
-import { CONSUMER_NODES, ConsumerStateAnnotation, checkSession, waitForBillUpload, processBill, handleSignup, sendOtp, handleFlowBreak, handleFlowBreakConfirmation, waitForOtp, verifyOtp, becknSearch, waitForSearch, waitForSelect, becknSelect, waitForInit, becknInitAndConfirm, waitForRecurringPurchase, handleRecurringPurchase, waitForFlowBreakConfirmation } from "./consumer.nodes";
+import { CONSUMER_NODES, ConsumerStateAnnotation, checkSession, waitForBillUpload, processBill, handleSignup, sendOtp, handleFlowBreak, handleFlowBreakConfirmation, waitForOtp, verifyOtp, becknSearch, waitForSearch, waitForSelect, becknSelect, waitForInit, becknInitAndConfirm, waitForRecurringPurchase, handleRecurringPurchase, waitForFlowBreakConfirmation, waitForSignup } from "./consumer.nodes";
 
 // Define the graph state
 const StateAnnotation = Annotation.Root({
@@ -168,6 +168,7 @@ export const setupConsumerFlow = () => {
     .addNode(CONSUMER_NODES.CHECK_SESSION, checkSession)
     .addNode(CONSUMER_NODES.WAIT_FOR_BILL, waitForBillUpload)
     .addNode(CONSUMER_NODES.PROCESS_BILL, processBill)
+    .addNode(CONSUMER_NODES.WAIT_FOR_SIGNUP, waitForSignup)
     .addNode(CONSUMER_NODES.SIGNUP, handleSignup)
     .addNode(CONSUMER_NODES.SEND_OTP, sendOtp)
     .addNode(CONSUMER_NODES.HANDLE_FLOW_BREAK, handleFlowBreak)
@@ -209,6 +210,10 @@ export const setupConsumerFlow = () => {
     )
     .addConditionalEdges(
       CONSUMER_NODES.PROCESS_BILL,
+      (state) => state.billData ? CONSUMER_NODES.WAIT_FOR_SIGNUP : CONSUMER_NODES.WAIT_FOR_BILL
+    )
+    .addConditionalEdges(
+      CONSUMER_NODES.WAIT_FOR_SIGNUP,
       (state) => state.billData ? CONSUMER_NODES.SIGNUP : CONSUMER_NODES.WAIT_FOR_BILL
     )
     .addConditionalEdges(
@@ -500,6 +505,8 @@ export const consumerFlow = async (
       interruptBefore: [
         // @ts-ignore
         CONSUMER_NODES.WAIT_FOR_BILL,
+        // @ts-ignore
+        CONSUMER_NODES.WAIT_FOR_SIGNUP,
           // @ts-ignore
           CONSUMER_NODES.WAIT_FOR_OTP,
           // @ts-ignore

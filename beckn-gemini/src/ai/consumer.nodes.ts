@@ -919,3 +919,13 @@ export async function waitForBillUpload(state: typeof ConsumerStateAnnotation.St
 		messages: [...state.messages, new SystemMessage("Waiting for bill upload")]
 	};
 }
+
+export async function waitForSignup(state: typeof ConsumerStateAnnotation.State) {
+	console.log("Consumer Flow 2 - Waiting for signup");
+	// This node acts as a human feedback point
+	// The state will be saved here and resumed when user uploads bill
+	return {
+		...state,
+		messages: [...state.messages, new SystemMessage("Waiting for signup")]
+	};
+}
