@@ -598,7 +598,7 @@ export async function becknSelect(state: typeof ConsumerStateAnnotation.State) {
 	const verifyOTPStep = state.session.chats.find(
 		(chat: IBecknChat) => chat.action === CONSUMER_ACTIONS.VERIFY_OTP
 	);
-	const units = JSON.parse(verifyOTPStep.json).units;
+	const units = JSON.parse(JSON.parse(verifyOTPStep.json)).units;
 
 	let selectIntentMessage = await getAiReponseFromPrompt(
 		prefix_prompt_group.aiSelectIntent,
