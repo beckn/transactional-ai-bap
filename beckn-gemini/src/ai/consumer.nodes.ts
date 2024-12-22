@@ -450,9 +450,11 @@ export async function verifyOtp(state: typeof ConsumerStateAnnotation.State) {
 		});
 
 		await sendResponseToWhatsapp({
-			body: usageProfileDetails?.message || usageProfileDetails,
+			body: JSON.parse(usageProfileDetails).message || usageProfileDetails,
 			receiver: state.whatsappNumber.split(":")[1]
 		});
+
+		console.log("Usage Profile Details===>", usageProfileDetails);
 
 		// Update session
 		const updatedSession = {
