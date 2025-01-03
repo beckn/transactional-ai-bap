@@ -534,7 +534,7 @@ export async function becknSearch(state: typeof ConsumerStateAnnotation.State) {
 	);
 
 	if (verifyOTPStep) {
-		const units = JSON.parse(verifyOTPStep.json).units;
+		const units = JSON.parse(JSON.parse(verifyOTPStep.json)).units;
 
 		// Make Beckn Search Call
 		const becknSearchResponse = await makeBecknCall(
@@ -687,7 +687,7 @@ export async function becknInitAndConfirm(state: typeof ConsumerStateAnnotation.
 	);
 
 	if (selectStep) {
-		const units = JSON.parse(verifyOTPStep.json).units;
+		const units = JSON.parse(JSON.parse(verifyOTPStep.json)).units;
 		
 		// Make Beckn Init Call
 		const becknInitResponse = await makeBecknCall(
